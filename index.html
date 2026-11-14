@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,interactive-widget=resizes-content"><meta name="theme-color" content="#101827"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="description" content="مديرك المالي الشخصي">
 <title>X-Wallet</title>
 <link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&family=Cairo:wght@400;700&family=Readex+Pro:wght@400;600;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&family=Roboto:wght@400;500;700&family=Cairo:wght@400;700&family=Readex+Pro:wght@400;600;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -15,9 +15,9 @@
     <div class="lock-logo"><img src="icon-192.png" alt="X-Wallet"></div>
     <b style="font-size:1.15rem;font-weight:700">X-Wallet مقفل</b>
     <span style="font-size:.76rem;color:var(--muted)">استخدم البصمة أو رمز المرور لفتح التطبيق</span>
-    <button type="button" class="primary" style="margin-top:6px;font-size:.86rem;padding:12px" onclick="unlockAppWithBiometrics()">🫆 فتح التطبيق بالبصمة</button>
+    <button type="button" class="primary" style="margin-top:6px;font-size:.86rem;padding:12px" onclick="unlockAppWithBiometrics()"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/></svg> <span>فتح التطبيق بالبصمة</span></button>
     <div id="lockPinWrap" style="display:none;width:100%;margin-top:6px;gap:6px">
-      <input id="lockPinInput" type="password" inputmode="numeric" placeholder="رمز المرور (PIN)..." style="flex:1;height:38px;background:var(--surface);border:1px solid var(--line2);border-radius:10px;padding:0 10px;color:var(--text);text-align:center" onkeydown="if(event.key==='Enter')unlockAppWithPin()">
+      <input id="lockPinInput" type="text" class="masked-pin-input" inputmode="numeric" autocomplete="off" placeholder="رمز المرور (PIN)..." style="flex:1;height:38px;background:var(--surface);border:1px solid var(--line2);border-radius:10px;padding:0 10px;color:var(--text);text-align:center" onkeydown="if(event.key==='Enter')unlockAppWithPin()">
       <button type="button" class="smallbtn" style="border-color:var(--mint);color:var(--mint);padding:0 14px" onclick="unlockAppWithPin()">فتح</button>
     </div>
   </div>
@@ -451,7 +451,7 @@
         <small>تطوير: م/ محمد خالد</small>
       </div>
     </div>
-    <span class="tag" id="devCardVerBadge" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V13.9</span>
+    <span class="tag" id="devCardVerBadge" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V13.10</span>
   </div>
 
   <!-- 4.1 إعدادات عامة (محاذاة موحدة + اختيار نوع الخط الفونت + إخفاء الأرقام والكسور + 10 ألوان) -->
@@ -464,6 +464,7 @@
           <label>نوع الخط (الفونت)</label>
           <select id="prefFontFamily" onchange="previewFontFamily(this.value)">
             <option value="system">افتراضي النظام</option>
+            <option value="Roboto">خط روبوتو (Roboto)</option>
             <option value="Cairo">خط القاهرة (Cairo)</option>
             <option value="Tajawal">خط تجوال (Tajawal)</option>
             <option value="Almarai">خط المراعي (Almarai)</option>
@@ -519,12 +520,12 @@
       <div class="c-list aligned-settings-list">
         <div class="c-row">
           <label>رمز المرور (PIN)</label>
-          <input id="secPinInput" type="password" inputmode="numeric" maxlength="8" placeholder="رمز احتياطي">
+          <input id="secPinInput" type="text" class="masked-pin-input" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="رمز احتياطي">
         </div>
         <div class="c-row">
           <label>بصمة الجهاز</label>
           <button type="button" class="smallbtn aligned-ctrl-btn" id="bioRegisterBtn" onclick="registerBiometricLock()">
-            <span id="bioStatusBadge">غير مفعلة — اضغط للتفعيل 🫆</span>
+            <span id="bioStatusBadge">اضغط لتسجيل البصمة</span>
           </button>
         </div>
         <div class="c-row">
@@ -600,7 +601,7 @@
   <!-- 5.2 تخصيص الأقسام يفتح صفحة كبيرة بنفس الهيدر -->
   <div class="fold-link-card" onclick="openCategoriesManagerModal()">
     <span class="ic-txt"><i>🏷</i><span data-i18n="set_cats">تخصيص الأقسام</span></span>
-    <span class="fold-arrow" style="color:var(--mint);font-size:.9rem">‹</span>
+    <span class="fold-arrow">▼</span>
   </div>
 
   <!-- 5.3 & 5.7 النسخ الاحتياطي والاستعادة (قائمة واحدة مختصرة: كل بند في سطر واحد + مزامنة جوجل درايف التلقائية) -->
@@ -674,7 +675,7 @@
       <div class="c-list">
         <div class="c-row">
           <span class="c-lbl">الإصدار الحالي</span>
-          <span class="upd-equal-box" id="appVersionTag">V13.9</span>
+          <span class="upd-equal-box" id="appVersionTag">V13.10</span>
         </div>
         <div class="c-row">
           <span class="c-lbl">فحص التحديثات</span>
@@ -827,7 +828,7 @@
 
       <div class="c-row qm-desc-expand-row" id="qmDescRow" onclick="document.getElementById('qmDesc')?.focus()">
         <label>الوصف</label>
-        <textarea id="qmDesc" name="x_tx_desc_field" autocomplete="off" data-lpignore="true" data-form-type="other" class="qm-desc-textarea frameless-desc" rows="2" placeholder="" oninput="autoResizeQmDesc()" onfocus="onQmDescFocus()" onblur="onQmDescBlur()"></textarea>
+        <textarea id="qmDesc" name="x_tx_desc_field" autocomplete="off" data-lpignore="true" data-form-type="other" class="qm-desc-textarea frameless-desc" rows="1" placeholder="" oninput="autoResizeQmDesc()" onfocus="onQmDescFocus()" onblur="onQmDescBlur()"></textarea>
       </div>
     </div>
 
@@ -880,35 +881,31 @@
         </div>
       </div>
 
-      <!-- 1.3 رجوع كيبورد الأرقام 5 صفوف × 4 أعمدة بدون 00 لتكون الأرقام مريحة في المنتصف -->
+      <!-- 3. كيبورد الأرقام 4×4 مثل Money Manager مع زر ＋ كبير مكان الـ - والآلة الحاسبة -->
       <div id="qmDockCalc" style="display:none;flex-direction:column;height:100%;min-height:0">
         <div class="quick-grid-head shaded-dock-head">
           <span id="qmCalcTargetTitle">المبلغ</span>
           <b id="qmCalcExprPreview" dir="ltr" style="font-size:.82rem;color:var(--text);font-weight:700">0</b>
         </div>
-        <div class="qm-calc-pad five-rows-pad">
-          <button type="button" class="calc-key" onclick="qmCalcPress('7')">7</button>
-          <button type="button" class="calc-key" onclick="qmCalcPress('8')">8</button>
-          <button type="button" class="calc-key" onclick="qmCalcPress('9')">9</button>
-          <button type="button" class="calc-key op" onclick="qmCalcPress('÷')">÷</button>
+        <div class="qm-calc-pad mm-four-by-four">
+          <button type="button" class="calc-key" onclick="qmCalcPress('1')">1</button>
+          <button type="button" class="calc-key" onclick="qmCalcPress('2')">2</button>
+          <button type="button" class="calc-key" onclick="qmCalcPress('3')">3</button>
+          <button type="button" class="calc-key" onclick="qmCalcPress('⌫')">⌫</button>
 
           <button type="button" class="calc-key" onclick="qmCalcPress('4')">4</button>
           <button type="button" class="calc-key" onclick="qmCalcPress('5')">5</button>
           <button type="button" class="calc-key" onclick="qmCalcPress('6')">6</button>
-          <button type="button" class="calc-key op" onclick="qmCalcPress('×')">×</button>
+          <button type="button" class="calc-key op plus-key tall-plus" style="grid-row:span 2" onclick="qmCalcPress('+')">＋</button>
 
-          <button type="button" class="calc-key" onclick="qmCalcPress('1')">1</button>
-          <button type="button" class="calc-key" onclick="qmCalcPress('2')">2</button>
-          <button type="button" class="calc-key" onclick="qmCalcPress('3')">3</button>
-          <button type="button" class="calc-key op" onclick="qmCalcPress('-')">−</button>
+          <button type="button" class="calc-key" onclick="qmCalcPress('7')">7</button>
+          <button type="button" class="calc-key" onclick="qmCalcPress('8')">8</button>
+          <button type="button" class="calc-key" onclick="qmCalcPress('9')">9</button>
 
-          <button type="button" class="calc-key" onclick="qmCalcPress('.')">.</button>
+          <button type="button" class="calc-key" onclick="qmCalcPress('00')">00</button>
           <button type="button" class="calc-key" onclick="qmCalcPress('0')">0</button>
-          <button type="button" class="calc-key" onclick="qmCalcPress('⌫')">⌫</button>
-          <button type="button" class="calc-key op plus-key" onclick="qmCalcPress('+')">＋</button>
-
-          <button type="button" class="calc-key clr" onclick="qmCalcPress('C')">C</button>
-          <button type="button" class="calc-key eq-key" style="grid-column:span 3" onclick="qmCalcPress('=')">＝ احسب وأدرج الناتج</button>
+          <button type="button" class="calc-key" onclick="qmCalcPress('.')">.</button>
+          <button type="button" class="calc-key eq-key" onclick="qmCalcPress('=')">تم</button>
         </div>
       </div>
     </div>

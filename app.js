@@ -74,6 +74,7 @@ syncCategoryTrees();
 
 let activeYear = new Date().getFullYear();
 let activeMonth = new Date().getMonth() + 1;
+let homePeriodMode = 'monthly';
 let forecastYear = activeYear;
 let activeCatDrillState = null; // { catName, txType, subFilter }
 let activeStatementState = null; // { kind: 'account'|'card', id, year, month, allMonths }
@@ -421,6 +422,7 @@ let _pendingBgMode = null;
 let _pendingFontFamily = null;
 const FONT_STACKS = {
   'system': "system-ui, 'Noto Sans Arabic', 'Tahoma', sans-serif",
+  'Roboto': "'Roboto', 'Tajawal', system-ui, sans-serif",
   'Cairo': "'Cairo', system-ui, sans-serif",
   'Tajawal': "'Tajawal', system-ui, sans-serif",
   'Almarai': "'Almarai', system-ui, sans-serif",
@@ -476,7 +478,7 @@ function applyPreferences(){
 
   const bioBadge = document.getElementById('bioStatusBadge');
   if(bioBadge){
-    bioBadge.textContent = p.bioEnabled ? 'البصمة مفعلة ✓' : 'تفعيل البصمة 🫆';
+    bioBadge.textContent = p.bioEnabled ? 'البصمة مفعلة ✓' : 'اضغط لتسجيل البصمة';
     bioBadge.style.color = p.bioEnabled ? 'var(--mint)' : 'var(--text)';
   }
 
@@ -815,6 +817,12 @@ function switchSalarySubView(which){
   document.getElementById('salSubTabYear').classList.toggle('active', which==='year');
 }
 function shiftActiveMonth(delta){
+  if(homePeriodMode === 'yearly'){
+    activeYear += delta;
+    forecastYear = activeYear;
+    renderAll();
+    return;
+  }
   let m = activeMonth + delta, y = activeYear;
   if(m < 1){ m = 12; y -= 1; }
   else if(m > 12){ m = 1; y += 1; }
@@ -1347,6 +1355,35 @@ function getItemTimestampOrder(it, idx){
   return idx;
 }
 
+function txMatchesAccount(it, targetAccId){
+  if(!targetAccId) return true;
+  if(targetAccId.startsWith('card:')){
+    const cid = targetAccId.replace('card:','');
+    const opId = String(it.source||'').replace('card-purchase:','');
+    const op = state.cardOps.find(o=>o.id===opId);
+    return !!(op && op.cardId === cid);
+  }
+  const sid = String(targetAccId);
+  if(String(it.accountId||'') === sid || String(it.toAccountId||'') === sid) return true;
+
+  const targetAcc = state.accounts.find(a=>a.id === sid);
+  if(targetAcc){
+    const lbl = String(it.accountLabel||'').trim().toLowerCase();
+    if(lbl && lbl === String(targetAcc.name||'').trim().toLowerCase()) return true;
+
+    // If this is a Cash account, include legacy/imported transactions that resolve to Cash!
+    const isCashTarget = targetAcc.type === 'cash' || String(targetAcc.name||'').trim().toLowerCase() === 'cash' || String(targetAcc.name||'').trim() === 'كاش';
+    if(isCashTarget && !isCardPurchaseTx(it)){
+      const rawId = String(it.accountId||'').trim();
+      const hasValidOtherAcc = rawId && state.accounts.some(a=>a.id === rawId);
+      if(!rawId || rawId.toLowerCase().includes('cash') || !hasValidOtherAcc){
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 function resolveAccountDisplayLabel(it, isEn){
   if(it._kind === 'ledger'){
     return it.accountLabel || '';
@@ -1521,12 +1558,25 @@ function renderTransactionsScreen(){
   }
 
   // === DAILY TRANSACTIONS TAB ===
-  const t = totals(m);
-  document.getElementById('homePeriodLabel').textContent = isEn ? `${monthNamesEn[activeMonth-1]} ${activeYear}` : formatYMArabic(m);
+  const isHomeYearly = (homePeriodMode === 'yearly');
+  const yStrHome = String(activeYear);
+  const t = isHomeYearly ? (()=>{
+    const a = (state.transactions||[]).filter(tx=>String(tx.date||'').startsWith(yStrHome));
+    const inc = round2(a.filter(tx=>tx.type==='income').reduce((s,tx)=>s+(Number(tx.amount)||0),0));
+    const exp = round2(a.filter(tx=>isActualExpenseTx(tx)).reduce((s,tx)=>s+(Number(tx.amount)||0),0));
+    return { a, inc, exp, net: round2(inc - exp) };
+  })() : totals(m);
+  document.getElementById('homePeriodLabel').textContent = isHomeYearly
+    ? (isEn ? `Year ${yStrHome}` : `سنة ${yStrHome}`)
+    : (isEn ? `${monthNamesEn[activeMonth-1]} ${activeYear}` : formatYMArabic(m));
 
   const useGlobalDateRange = !!(transAdvFilter.dateFrom || transAdvFilter.dateTo);
-  const rawTxSource = useGlobalDateRange ? (state.transactions||[]) : monthTx(m);
-  const rawLedSource = useGlobalDateRange ? (state.ledger||[]) : (state.ledger||[]).filter(l=>monthKey(l.date)===m);
+  const rawTxSource = useGlobalDateRange
+    ? (state.transactions||[])
+    : (isHomeYearly ? (state.transactions||[]).filter(tx=>String(tx.date||'').startsWith(yStrHome)) : monthTx(m));
+  const rawLedSource = useGlobalDateRange
+    ? (state.ledger||[])
+    : (isHomeYearly ? (state.ledger||[]).filter(l=>String(l.date||'').startsWith(yStrHome)) : (state.ledger||[]).filter(l=>monthKey(l.date)===m));
   const txList = rawTxSource.map((x, idx)=>({...x, _kind:'tx', _order: getItemTimestampOrder(x, idx)}));
   const ledList = rawLedSource.map((l, idx)=>{
     const fromA = state.accounts.find(a=>a.id===l.from)?.name || (isEn?'Cash':'كاش');
@@ -1537,10 +1587,10 @@ function renderTransactionsScreen(){
       type: l.type,
       category: l.type==='transfer' ? (isEn?'Transfer':'تحويل') : (isEn?'Adjustment':'تسوية'),
       subCategory: '',
-      title: (l.note && l.note !== 'تحويل بين الحسابات') ? (l.note + feeTxt) : feeTxt.trim(),
+      title: (l.note && l.note !== 'تحويل بين الحسابات') ? l.note : '',
       note: l.note || '',
       description: l.description || '',
-      accountLabel: l.type==='transfer' ? `${fromA} → ${toA}` : fromA,
+      accountLabel: (l.type==='transfer' ? `${fromA} → ${toA}` : fromA) + feeTxt,
       accountId: l.from,
       toAccountId: l.to,
       amount: l.type==='transfer' ? Number(l.amount)||0 : Number(l.delta??l.amount)||0,
@@ -1552,16 +1602,7 @@ function renderTransactionsScreen(){
   });
 
   let combined = [...txList, ...ledList].filter(it=>{
-    if(accFilter){
-      if(accFilter.startsWith('card:')){
-        const cid = accFilter.replace('card:','');
-        const opId = String(it.source||'').replace('card-purchase:','');
-        const op = state.cardOps.find(o=>o.id===opId);
-        if(!op || op.cardId !== cid) return false;
-      } else if(it.accountId !== accFilter && it.toAccountId !== accFilter){
-        return false;
-      }
-    }
+    if(accFilter && !txMatchesAccount(it, accFilter)) return false;
     const dSlice = String(it.date||'').slice(0,10);
     if(transAdvFilter.dateFrom && dSlice < transAdvFilter.dateFrom) return false;
     if(transAdvFilter.dateTo && dSlice > transAdvFilter.dateTo) return false;
@@ -1923,8 +1964,9 @@ function qmCalcPress(key){
 function autoResizeQmDesc(){
   const ta = document.getElementById('qmDesc');
   if(!ta) return;
+  if(!ta.value.trim()){ ta.style.height = '30px'; return; }
   ta.style.height = 'auto';
-  ta.style.height = Math.max(54, ta.scrollHeight) + 'px';
+  ta.style.height = Math.max(30, ta.scrollHeight) + 'px';
 }
 
 function setQmDockMode(mode, calcFieldId){
@@ -3045,7 +3087,7 @@ function renderFullStatementModalContent(){
     document.getElementById('stmtModalTitle').textContent = acc ? acc.name : 'الحساب';
 
     const txItems = (state.transactions||[])
-      .filter(t => t.accountId===id && (isYearly ? String(t.date||'').startsWith(yStr) : monthKey(t.date)===ym))
+      .filter(t => txMatchesAccount(t, id) && (isYearly ? String(t.date||'').startsWith(yStr) : monthKey(t.date)===ym))
       .map((x, idx)=>({...x, _kind:'tx', _order:getItemTimestampOrder(x, idx)}));
 
     const ledItems = (state.ledger||[])
@@ -3167,7 +3209,7 @@ function renderFullStatementModalContent(){
         }
       } else {
         if(it.type === 'income' || it.type === 'fund') stmtInc += Number(it.amount)||0;
-        else stmtExp += Number(it.amount)||0;
+        else if(isActualExpenseTx(it) || it.type === 'credit_payment') stmtExp += Number(it.amount)||0;
       }
     } else {
       if(it.type === 'income') stmtInc += Number(it.amount)||0;
@@ -4620,11 +4662,21 @@ function renderSettingsCategories(){
 /* Compact Month/Year Picker Dialog */
 let ymPickerState = {year:activeYear, month:activeMonth, allowClear:false, onSelect:null};
 function openHomePeriodPicker(){
-  openCompactYMPicker(null, false, (chosenYM)=>{
-    const [y,m] = chosenYM.split('-').map(Number);
-    activeYear = y; activeMonth = m; forecastYear = y;
-    renderAll();
-  });
+  openCompactYMPicker(
+    null,
+    false,
+    (chosenYM)=>{
+      const [y,m] = chosenYM.split('-').map(Number);
+      homePeriodMode = 'monthly';
+      activeYear = y; activeMonth = m; forecastYear = y;
+      renderAll();
+    },
+    (chosenYear)=>{
+      homePeriodMode = 'yearly';
+      activeYear = chosenYear; forecastYear = chosenYear;
+      renderAll();
+    }
+  );
 }
 function openCompactYMPicker(prefix, allowClear, customCb, onYearPick){
   let cur = prefix ? (val(prefix+'Val')||selected()) : selected();

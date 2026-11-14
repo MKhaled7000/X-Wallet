@@ -2932,3 +2932,102 @@ nav.bottom {
 .mm-filter-chips-grid.four-in-row .mm-f-val {
   font-weight: 400 !important;
 }
+
+
+/* =========================================================
+   X-Wallet V13.10 Refinements, 4x4 Keypad, Transfer Swap & Scroll
+   ========================================================= */
+
+/* 1.1 (Prev) CSS Text-Security Masking so Chrome NEVER shows Password Key Bar */
+.masked-pin-input {
+  -webkit-text-security: disc;
+}
+
+/* 3.1 (Prev) Rounded Border on Dragged Category Row (Never sticks out of card!) */
+.dragging-cat-row {
+  outline: none !important;
+  border: 1.5px solid var(--mint) !important;
+  border-radius: 12px !important;
+  background: var(--surface2) !important;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.45) !important;
+}
+
+/* 3. Money Manager Style 4x4 Calculator Grid with Tall + Key */
+.qm-calc-pad.mm-four-by-four {
+  direction: ltr;
+  flex: 1;
+  min-height: 0;
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  grid-template-rows: repeat(4, 1fr) !important;
+  gap: 6px !important;
+  padding: 8px 10px 10px !important;
+}
+.qm-calc-pad.mm-four-by-four .calc-key {
+  font-size: 1.05rem;
+  border-radius: 10px;
+}
+.qm-calc-pad.mm-four-by-four .tall-plus {
+  font-size: 1.45rem !important;
+  font-weight: 700 !important;
+}
+.qm-calc-pad.mm-four-by-four .eq-key {
+  font-size: .92rem !important;
+}
+
+/* 6. Single-Line Description when empty + Natural Full-Page Expansion on Scroll */
+#quickModal .c-row.qm-desc-expand-row {
+  min-height: 41px !important;
+  padding: 6px 4px !important;
+  align-items: flex-start !important;
+}
+#quickModal .c-row.qm-desc-expand-row > label {
+  padding-top: 5px !important;
+}
+#quickModal .qm-desc-textarea.frameless-desc {
+  min-height: 30px !important;
+  height: 30px;
+  line-height: 1.5 !important;
+  padding: 4px !important;
+  overflow: hidden !important;
+}
+
+/* 6. Uniform Height for From/To Account Rows in Transfer + Centered Swap Button Breaking the Divider Line */
+#quickModal #qmAccRow,
+#quickModal #qmToAccRow {
+  min-height: 41px !important;
+  height: 41px !important;
+  padding: 5px 4px !important;
+}
+.swap-acc-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 18px !important;
+  position: relative;
+  z-index: 5;
+  overflow: visible !important;
+}
+.swap-acc-btn {
+  background: var(--panel2) !important;
+  border: 1.5px solid var(--mint) !important;
+  color: var(--mint) !important;
+  border-radius: 99px !important;
+  width: 34px !important;
+  height: 24px !important;
+  padding: 0 !important;
+  font-size: .82rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 0 0 4px var(--panel2);
+}
+
+/* 6. Empty Breathing Space Row After Monthly Dues & All Commitments Tables */
+#commitmentsList .com-all-table,
+#allCommitmentsTableWrap .com-all-table {
+  margin-bottom: 18px !important;
+}
