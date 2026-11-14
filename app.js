@@ -1568,7 +1568,7 @@ function renderTransactionsScreen(){
     return { a, inc, exp, net: round2(inc - exp) };
   })() : totals(m);
   document.getElementById('homePeriodLabel').textContent = isHomeYearly
-    ? (isEn ? `Year ${yStrHome}` : `سنة ${yStrHome}`)
+    ? (yStrHome)
     : (isEn ? `${monthNamesEn[activeMonth-1]} ${activeYear}` : formatYMArabic(m));
 
   const useGlobalDateRange = !!(transAdvFilter.dateFrom || transAdvFilter.dateTo);
@@ -3076,7 +3076,7 @@ function renderFullStatementModalContent(){
   const isEn = (state.prefs?.lang === 'en');
   const ym = String(year) + '-' + String(month).padStart(2,'0');
   const yStr = String(year);
-  document.getElementById('stmtPeriodLabel').textContent = isYearly ? ('سنة ' + yStr) : formatYMArabic(ym);
+  document.getElementById('stmtPeriodLabel').textContent = isYearly ? yStr : formatYMArabic(ym);
 
   let combined = [];
   const topTitleEl = document.getElementById('stmtTopTabTitle');
@@ -3229,7 +3229,7 @@ function renderFullStatementModalContent(){
 
   document.getElementById('stmtTransactionsFeed').innerHTML = buildDailyGroupedFeedHtml(
     combined,
-    `لا توجد معاملات مسجلة في (${isYearly ? ('سنة '+yStr) : formatYMArabic(ym)}).`
+    `لا توجد معاملات مسجلة في (${isYearly ? yStr : formatYMArabic(ym)}).`
   );
 }
 
@@ -4712,7 +4712,7 @@ function renderCompactYMPicker(){
   }
   const grid = monthNamesAr.map((n,i)=>`<button type="button" class="ym-cell ${(i+1)===ymPickerState.month?'active':''}" onclick="selectYMCell(${i+1})">${n}</button>`).join('');
   const yearCenterHtml = ymPickerState.onYearPick
-    ? `<button type="button" onclick="selectYMYearOnly()" style="width:auto;padding:0 16px;border-color:var(--mint);color:var(--mint);font-weight:700" title="اضغط لعرض السنة بالكامل">سنة ${ymPickerState.year}</button>`
+    ? `<button type="button" onclick="selectYMYearOnly()" style="width:auto;padding:0 16px;border-color:var(--mint);color:var(--mint);font-weight:700" title="اضغط لعرض السنة بالكامل">${ymPickerState.year}</button>`
     : `<b>${ymPickerState.year}</b>`;
   document.getElementById('ymModalBody').innerHTML = `
     <div class="ym-year-bar">

@@ -451,7 +451,7 @@
         <small>تطوير: م/ محمد خالد</small>
       </div>
     </div>
-    <span class="tag" id="devCardVerBadge" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V13.11</span>
+    <span class="tag" id="devCardVerBadge" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V13.12</span>
   </div>
 
   <!-- 4.1 إعدادات عامة (محاذاة موحدة + اختيار نوع الخط الفونت + إخفاء الأرقام والكسور + 10 ألوان) -->
@@ -676,7 +676,7 @@
       <div class="c-list">
         <div class="c-row">
           <span class="c-lbl">الإصدار الحالي</span>
-          <span class="upd-equal-box" id="appVersionTag">V13.11</span>
+          <span class="upd-equal-box" id="appVersionTag">V13.12</span>
         </div>
         <div class="c-row">
           <span class="c-lbl">فحص التحديثات</span>
@@ -828,18 +828,20 @@
         <textarea id="qmNote" class="qm-single-note-ta" rows="1" name="x_tx_note_field" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other" placeholder="" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onfocus="onQmDescFocus()" onblur="onQmDescBlur()"></textarea>
       </div>
 
-      <div class="c-row qm-desc-expand-row" id="qmDescRow" onclick="document.getElementById('qmDesc')?.focus()">
-        <label>الوصف</label>
-        <textarea id="qmDesc" name="x_tx_desc_field" autocomplete="off" data-lpignore="true" data-form-type="other" class="qm-desc-textarea frameless-desc" rows="1" placeholder="" oninput="autoResizeQmDesc()" onfocus="onQmDescFocus()" onblur="onQmDescBlur()"></textarea>
-      </div>
     </div>
 
-    <!-- 1.3 نقل شريط الأدوات (نسخ / حفظ / حذف / إلغاء) إلى أسفل القسم العلوي مباشرة -->
+    <!-- شريط الأدوات أسفل الكارت العلوي مباشرة -->
     <div class="actions qm-mid-actions" id="qmBottomActionsBar">
       <button type="button" class="secondary" id="qmBtnCopyExisting" style="display:none;border-color:var(--mint);color:var(--mint)" onclick="copyCurrentQuickModalItem()">نسخ</button>
       <button type="button" class="primary" onclick="saveQuickModal()">حفظ</button>
       <button type="button" class="smallbtn danger" id="qmBtnDeleteExisting" style="display:none;flex:1;border-radius:12px" onclick="deleteCurrentQuickModalItem()">حذف</button>
       <button type="button" class="secondary" id="qmBtnCancel" onclick="closeQuickModal()">إلغاء</button>
+    </div>
+
+    <!-- نقل بند «الوصف» إلى الجزء السفلي الفاضي أسفل الكارت العلوي وشريط الأزرار (مثل Money Manager) -->
+    <div class="qm-lower-desc-section" id="qmDescRow" onclick="document.getElementById('qmDesc')?.focus()">
+      <div class="qm-lower-desc-label">الوصف</div>
+      <textarea id="qmDesc" name="x_tx_desc_field" autocomplete="off" data-lpignore="true" data-form-type="other" class="qm-desc-textarea frameless-desc lower-open-desc" rows="1" placeholder="اكتب الوصف هنا..." oninput="autoResizeQmDesc()" onfocus="onQmDescFocus()" onblur="onQmDescBlur()"></textarea>
     </div>
     </div><!-- end .qm-scroll-area -->
 

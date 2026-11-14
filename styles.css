@@ -3100,3 +3100,38 @@ nav.bottom {
 [data-bg="light"] .fold-link-card .fold-arrow {
   color: var(--text) !important;
 }
+
+
+/* =========================================================
+   X-Wallet V13.12 — Description in Lower Open Space (Money Manager Style)
+   ========================================================= */
+.qm-lower-desc-section {
+  margin-top: 10px;
+  padding: 12px 10px 24px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: text;
+}
+.qm-lower-desc-label {
+  font-size: .76rem;
+  color: var(--muted);
+  text-align: left;
+  direction: ltr;
+}
+#quickModal .qm-desc-textarea.frameless-desc.lower-open-desc {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 30px !important;
+  height: 30px;
+  padding: 2px 0 !important;
+  font-size: .84rem !important;
+  line-height: 1.6 !important;
+  color: var(--text) !important;
+  background: transparent !important;
+  border: 0 !important;
+  text-align: left !important;
+  direction: ltr !important;
+  overflow: hidden !important;
+}
