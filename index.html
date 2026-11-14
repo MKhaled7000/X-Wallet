@@ -188,12 +188,13 @@
 </section>
 
 <!-- =========================================================
-     3. شاشة الحسابات والبطاقات
+     3. شاشة المحفظة والالتزامات (الحسابات | البطاقات | الالتزامات)
      ========================================================= -->
 <section id="wallet" class="screen">
-  <div class="sub-tabs">
+  <div class="sub-tabs" style="grid-template-columns:repeat(3,1fr)">
     <button type="button" class="sub-tab-btn active" id="tabBtnAcc" onclick="switchWalletTab('acc')">الحسابات</button>
     <button type="button" class="sub-tab-btn" id="tabBtnCard" onclick="switchWalletTab('card')">البطاقات</button>
+    <button type="button" class="sub-tab-btn" id="tabBtnCom" onclick="switchWalletTab('com')">الالتزامات</button>
   </div>
 
   <!-- تاب الحسابات -->
@@ -215,8 +216,13 @@
       </div>
     </details>
 
-    <div class="sec-title-card"><h2>الحسابات المسجلة</h2></div>
-    <div class="panel" id="accountsList"></div>
+    <!-- 6. سجل الحسابات (collapsed افتراضي) -->
+    <details class="fold" id="accountsLogFold">
+      <summary><span class="ic-txt"><i>📋</i><span>سجل الحسابات</span></span><span class="fold-arrow">▼</span></summary>
+      <div class="fold-body" style="padding:4px 10px">
+        <div id="accountsList"></div>
+      </div>
+    </details>
   </div>
 
   <!-- تاب البطاقات -->
@@ -258,22 +264,17 @@
       </div>
     </details>
 
-    <div class="sec-title-card"><h2>البطاقات المسجلة</h2></div>
-    <div class="panel" id="cardsList"></div>
-  </div>
-</section>
-
-<!-- =========================================================
-     4. شاشة الالتزامات والتقرير السنوي
-     ========================================================= -->
-<section id="plan" class="screen">
-  <div class="sub-tabs">
-    <button type="button" class="sub-tab-btn active" id="tabBtnCom" onclick="switchPlanTab('com')">الالتزامات</button>
-    <button type="button" class="sub-tab-btn" id="tabBtnYr" onclick="switchPlanTab('yr')">التقرير المالي السنوي</button>
+    <!-- 7. سجل البطاقات (collapsed افتراضي) -->
+    <details class="fold" id="cardsLogFold">
+      <summary><span class="ic-txt"><i>📋</i><span>سجل البطاقات</span></span><span class="fold-arrow">▼</span></summary>
+      <div class="fold-body" style="padding:4px 10px">
+        <div id="cardsList"></div>
+      </div>
+    </details>
   </div>
 
-  <!-- تاب الالتزامات -->
-  <div id="planViewCom">
+  <!-- 5. تاب الالتزامات منقول مع الحسابات والبطاقات -->
+  <div id="walletViewCom" style="display:none">
     <div class="hero">
       <label>إجمالي التزامات الشهر (<span id="comHeroMonthLabel">نوفمبر 2026</span>)</label>
       <div class="amount" id="comHeroTotal">0 EGP</div>
@@ -351,10 +352,21 @@
       </div>
     </details>
 
-    <!-- 4.1 قائمة مستحقات الشهر قابلة للطي مع نقل مربع الشهر بسهمين للداخل بحجمه الكامل -->
+    <!-- 8 & 10. سجل الالتزامات (collapsed افتراضي + كروت مثل سجل الحسابات والبطاقات) -->
+    <details class="fold" id="allDuesFold">
+      <summary>
+        <span class="ic-txt"><i>📋</i><span>سجل الالتزامات</span></span>
+        <span class="fold-arrow">▼</span>
+      </summary>
+      <div class="fold-body" style="padding:4px 10px">
+        <div id="allCommitmentsTableWrap"></div>
+      </div>
+    </details>
+
+    <!-- 9. التزامات الشهر (collapsed افتراضي + أسفل سجل الالتزامات) -->
     <details class="fold" id="monthlyDuesFold">
       <summary>
-        <span class="ic-txt"><i>📅</i><span>مستحقات الشهر</span></span>
+        <span class="ic-txt"><i>📅</i><span>التزامات الشهر</span></span>
         <span class="fold-arrow">▼</span>
       </summary>
       <div class="fold-body" style="padding:0;overflow:hidden">
@@ -368,21 +380,14 @@
         <div class="com-table-wrap" id="commitmentsList"></div>
       </div>
     </details>
-
-    <!-- 8. قائمة جميع المستحقات قابلة للطي ومغلقة افتراضياً -->
-    <details class="fold" id="allDuesFold">
-      <summary>
-        <span class="ic-txt"><i>📋</i><span>جميع المستحقات</span></span>
-        <span class="fold-arrow">▼</span>
-      </summary>
-      <div class="fold-body" style="padding:0;overflow:hidden">
-        <div class="com-table-wrap" id="allCommitmentsTableWrap"></div>
-      </div>
-    </details>
   </div>
+</section>
 
-  <!-- 7. التقرير المالي السنوي (إضافة بند + قائمة منسدلة لتعديل البنود المضافة) -->
-  <div id="planViewYr" style="display:none">
+<!-- =========================================================
+     4. شاشة التقرير المالي السنوي
+     ========================================================= -->
+<section id="plan" class="screen">
+  <div id="planViewYr">
     <details class="fold" id="addManualAnnualFold">
       <summary><span class="ic-txt"><i>📊</i><span>إضافة بند للتقرير السنوي</span></span><span class="fold-arrow">▼</span></summary>
       <div class="fold-body">
@@ -451,7 +456,7 @@
         <small>تطوير: م/ محمد خالد</small>
       </div>
     </div>
-    <span class="tag" id="devCardVerBadge" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V13.12</span>
+    <span class="tag" id="devCardVerBadge" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V13.13</span>
   </div>
 
   <!-- 4.1 إعدادات عامة (محاذاة موحدة + اختيار نوع الخط الفونت + إخفاء الأرقام والكسور + 10 ألوان) -->
@@ -676,7 +681,7 @@
       <div class="c-list">
         <div class="c-row">
           <span class="c-lbl">الإصدار الحالي</span>
-          <span class="upd-equal-box" id="appVersionTag">V13.12</span>
+          <span class="upd-equal-box" id="appVersionTag">V13.13</span>
         </div>
         <div class="c-row">
           <span class="c-lbl">فحص التحديثات</span>
@@ -724,11 +729,11 @@
   </button>
   <button class="nav" data-page="wallet" onclick="go('wallet',this)">
     <svg viewBox="0 0 24 24" fill="none"><rect x="2.5" y="5.5" width="19" height="13" rx="3" fill="#73a7ff" fill-opacity=".22" stroke="#73a7ff" stroke-width="1.8"/><circle cx="16.5" cy="12" r="1.5" fill="#73a7ff"/></svg>
-    <span>الحسابات</span>
+    <span>المحفظة</span>
   </button>
   <button class="nav" data-page="plan" onclick="go('plan',this)">
     <svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="4.5" width="17" height="16" rx="3" fill="#ffbd69" fill-opacity=".2" stroke="#ffbd69" stroke-width="1.8"/><path d="M8 2.5v4M16 2.5v4M3.5 9.5h17" stroke="#ffbd69" stroke-width="1.8" stroke-linecap="round"/></svg>
-    <span>الالتزامات</span>
+    <span>التقرير السنوي</span>
   </button>
   <button class="nav" data-page="settings" onclick="go('settings',this)">
     <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" fill="#91a2b9" fill-opacity=".3" stroke="#91a2b9" stroke-width="1.8"/><path d="M12 3v2.2M12 18.8V21M3 12h2.2M18.8 12H21M5.6 5.6l1.6 1.6M16.8 16.8l1.6 1.6M18.4 5.6l-1.6 1.6M7.2 16.8l-1.6 1.6" stroke="#91a2b9" stroke-width="1.8" stroke-linecap="round"/></svg>

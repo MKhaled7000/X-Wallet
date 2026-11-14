@@ -421,7 +421,7 @@ let _pendingBgMode = null;
 
 let _pendingFontFamily = null;
 const FONT_STACKS = {
-  'system': "system-ui, 'Noto Sans Arabic', 'Tahoma', sans-serif",
+  'system': "-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, 'Tahoma', sans-serif",
   'Noto Sans Arabic': "'Noto Sans Arabic', system-ui, sans-serif",
   'Roboto': "'Roboto', 'Noto Sans Arabic', system-ui, sans-serif",
   'Cairo': "'Cairo', system-ui, sans-serif",
@@ -431,7 +431,9 @@ const FONT_STACKS = {
 };
 function previewFontFamily(fontKey){
   _pendingFontFamily = fontKey || 'system';
-  document.documentElement.style.setProperty('--app-font', FONT_STACKS[_pendingFontFamily] || FONT_STACKS.system);
+  requestAnimationFrame(()=>{
+    document.documentElement.style.setProperty('--app-font', FONT_STACKS[_pendingFontFamily] || FONT_STACKS.system);
+  });
 }
 function previewBgMode(mode){
   _pendingBgMode = mode;
@@ -713,8 +715,8 @@ function togglePrivacyMode(){
 
 /* Navigation & Page Title Card */
 const TAB_TITLES = {
-  ar: { trans:'المعاملات', reports:'تحليل المعاملات', wallet:'الحسابات', plan:'الالتزامات', settings:'المزيد' },
-  en: { trans:'Transactions', reports:'Analytics', wallet:'Accounts', plan:'Commitments', settings:'More' }
+  ar: { trans:'المعاملات', reports:'تحليل المعاملات', wallet:'المحفظة والالتزامات', plan:'التقرير السنوي', settings:'المزيد' },
+  en: { trans:'Transactions', reports:'Analytics', wallet:'Wallet & Dues', plan:'Yearly Report', settings:'More' }
 };
 
 function updateTopTabTitle(pageId){
@@ -724,12 +726,10 @@ function updateTopTabTitle(pageId){
   const lang = state.prefs?.lang || 'ar';
   if(curId === 'wallet'){
     const isCard = document.getElementById('tabBtnCard')?.classList.contains('active');
-    el.textContent = isCard ? (lang==='en'?'Cards':'البطاقات') : (lang==='en'?'Accounts':'الحسابات');
-    return;
-  }
-  if(curId === 'plan'){
-    const isYr = document.getElementById('tabBtnYr')?.classList.contains('active');
-    el.textContent = isYr ? (lang==='en'?'Yearly Report':'التقرير السنوي') : (lang==='en'?'Commitments':'الالتزامات');
+    const isCom = document.getElementById('tabBtnCom')?.classList.contains('active');
+    if(isCom) el.textContent = lang==='en' ? 'Commitments' : 'الالتزامات';
+    else if(isCard) el.textContent = lang==='en' ? 'Cards' : 'البطاقات';
+    else el.textContent = lang==='en' ? 'Accounts' : 'الحسابات';
     return;
   }
   el.textContent = (TAB_TITLES[lang] || TAB_TITLES.ar)[curId] || '';
@@ -797,19 +797,20 @@ function go(id, btn){
   window.scrollTo(0,0);
 }
 function switchWalletTab(which){
-  document.getElementById('walletViewAcc').style.display = which==='acc' ? 'block' : 'none';
-  document.getElementById('walletViewCard').style.display = which==='card' ? 'block' : 'none';
-  document.getElementById('tabBtnAcc').classList.toggle('active', which==='acc');
-  document.getElementById('tabBtnCard').classList.toggle('active', which==='card');
+  const w = (which === 'card' || which === 'com') ? which : 'acc';
+  document.getElementById('walletViewAcc').style.display = w==='acc' ? 'block' : 'none';
+  document.getElementById('walletViewCard').style.display = w==='card' ? 'block' : 'none';
+  document.getElementById('walletViewCom').style.display = w==='com' ? 'block' : 'none';
+  document.getElementById('tabBtnAcc')?.classList.toggle('active', w==='acc');
+  document.getElementById('tabBtnCard')?.classList.toggle('active', w==='card');
+  document.getElementById('tabBtnCom')?.classList.toggle('active', w==='com');
   updateTopTabTitle('wallet');
+  if(w === 'com') renderPlanScreen();
+  else renderAccountsAndCards();
 }
 function switchPlanTab(which){
-  document.getElementById('planViewCom').style.display = which==='com' ? 'block' : 'none';
-  document.getElementById('planViewYr').style.display = which==='yr' ? 'block' : 'none';
-  document.getElementById('tabBtnCom').classList.toggle('active', which==='com');
-  document.getElementById('tabBtnYr').classList.toggle('active', which==='yr');
   updateTopTabTitle('plan');
-  if(which === 'yr') renderYearlyExcelReport();
+  renderYearlyExcelReport();
 }
 function switchSalarySubView(which){
   document.getElementById('salSubViewMonth').style.display = which==='month' ? 'block' : 'none';
@@ -2142,7 +2143,7 @@ function openEditLedgerModal(l){
   syncQmDateDisplay();
   setv('qmAmount', l.amount || '');
   setv('qmFee', l.fee || '');
-  setv('qmNote', l.note || '');
+  setv('qmNote', (l.note && l.note !== 'تحويل بين الحسابات') ? l.note : '');
   setv('qmDesc', l.description || '');
   autoResizeQmDesc();
   updateQmEditActionButtons();
@@ -2406,7 +2407,7 @@ function saveQuickModal(){
         l.to = qmState.toAccountId;
         l.amount = amount;
         l.fee = Math.max(0, fee);
-        l.note = note || 'تحويل بين الحسابات';
+        l.note = note;
         l.description = description;
         l.date = date;
       }
@@ -2420,7 +2421,7 @@ function saveQuickModal(){
       to: qmState.toAccountId,
       amount,
       fee: Math.max(0, fee),
-      note: note || 'تحويل بين الحسابات',
+      note: note,
       description,
       date,
       createdAt: nowTs
@@ -4071,6 +4072,19 @@ function renderPlanScreen(){
 }
 
 /* 6.1 & 6.2 جميع المستحقات: Columns = المعاملة | النوع (شهري / مستحقات / بطاقة) | المبلغ | المدة | البدء | الانتهاء */
+function openCommitmentDetailsModal(title, typeLbl, amtStr, durLbl, startLbl, endLbl){
+  const html = `
+    <div class="c-list">
+      <div class="c-row"><label>النوع</label><b style="color:var(--mint)">${esc(typeLbl)}</b></div>
+      <div class="c-row"><label>القيمة</label><b dir="ltr" class="orange">${esc(amtStr)}</b></div>
+      <div class="c-row"><label>المدة</label><b>${esc(durLbl)}</b></div>
+      <div class="c-row"><label>البدء</label><b>${esc(startLbl)}</b></div>
+      <div class="c-row"><label>الانتهاء</label><b>${esc(endLbl)}</b></div>
+    </div>
+  `;
+  showAppCustomForm(title, html, null, true);
+}
+
 function renderAllCommitmentsMasterTable(){
   const wrap = document.getElementById('allCommitmentsTableWrap');
   if(!wrap) return;
@@ -4124,41 +4138,25 @@ function renderAllCommitmentsMasterTable(){
     return;
   }
 
-  wrap.innerHTML = `
-    <table class="com-all-table">
-      <thead>
-        <tr>
-          <th>المعاملة</th>
-          <th>النوع</th>
-          <th style="text-align:right">المبلغ</th>
-          <th>المدة</th>
-          <th>البدء</th>
-          <th>الانتهاء</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${allRows.map(r=>{
-          const editCall = r.isCard ? `openEditCardOpModal('${esc(r.id)}')` : `openEditCommitmentModal('${esc(r.id)}')`;
-          const delCall = r.isCard ? `deleteCardOp('${esc(r.id)}')` : `deleteCommitment('${esc(r.id)}')`;
-          return `
-            <tr style="cursor:pointer" onclick="${editCall}" title="اضغط للتعديل">
-              <td><b>${esc(r.title)}</b></td>
-              <td>${esc(r.typeLabel)}</td>
-              <td style="text-align:right;direction:ltr"><b class="orange">${maskable(fmtNum(r.amountVal))}</b></td>
-              <td>${esc(r.durLabel)}</td>
-              <td>${esc(r.startLabel)}</td>
-              <td>
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
-                  <span>${esc(r.endLabel)}</span>
-                  <button type="button" class="icon-act-btn" style="color:var(--red);border-color:#75404b;width:24px;height:24px" onclick="event.stopPropagation();${delCall}" title="حذف">✕</button>
-                </div>
-              </td>
-            </tr>
-          `;
-        }).join('')}
-      </tbody>
-    </table>
-  `;
+  wrap.innerHTML = allRows.map(r=>{
+    const editCall = r.isCard ? `openEditCardOpModal('${escJs(r.id)}')` : `openEditCommitmentModal('${escJs(r.id)}')`;
+    const delCall = r.isCard ? `deleteCardOp('${escJs(r.id)}')` : `deleteCommitment('${escJs(r.id)}')`;
+    const detCall = `openCommitmentDetailsModal('${escJs(r.title)}','${escJs(r.typeLabel)}','${maskable(egpSmart(r.amountVal))}','${escJs(r.durLabel)}','${escJs(r.startLabel)}','${escJs(r.endLabel)}')`;
+    return `
+      <div class="listitem" onclick="toggleItemActions(this,event)">
+        <div class="info">
+          <b>${esc(r.title)}</b>
+          <small>${esc(r.typeLabel)}</small>
+        </div>
+        <strong class="orange">${maskable(egpSmart(r.amountVal))}</strong>
+        <div class="tap-actions">
+          <button type="button" class="smallbtn" style="border-color:var(--mint);color:var(--mint)" onclick="${detCall}">تفاصيل</button>
+          <button type="button" class="smallbtn" style="border-color:var(--blue);color:var(--blue)" onclick="${editCall}">تعديل</button>
+          <button type="button" class="smallbtn danger" onclick="${delCall}">حذف</button>
+        </div>
+      </div>
+    `;
+  }).join('');
 }
 
 
@@ -5296,14 +5294,13 @@ function renderAll(){
       setActive: (val) => switchReportTab(val)
     },
     wallet: {
-      list: ['acc', 'card'],
-      getActive: () => document.getElementById('tabBtnCard')?.classList.contains('active') ? 'card' : 'acc',
+      list: ['acc', 'card', 'com'],
+      getActive: () => {
+        if(document.getElementById('tabBtnCom')?.classList.contains('active')) return 'com';
+        if(document.getElementById('tabBtnCard')?.classList.contains('active')) return 'card';
+        return 'acc';
+      },
       setActive: (val) => switchWalletTab(val)
-    },
-    plan: {
-      list: ['com', 'yr'],
-      getActive: () => document.getElementById('tabBtnYr')?.classList.contains('active') ? 'yr' : 'com',
-      setActive: (val) => switchPlanTab(val)
     }
   };
 

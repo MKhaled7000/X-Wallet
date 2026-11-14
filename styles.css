@@ -3135,3 +3135,28 @@ nav.bottom {
   direction: ltr !important;
   overflow: hidden !important;
 }
+
+
+/* =========================================================
+   X-Wallet V13.13 Unified Row Heights & Full-Page Entry Scroll
+   ========================================================= */
+
+/* 2. Match Row 2 Height in Analytics (40px) to All Other Pages */
+.sub-tabs.rep-merged-tabs .rep-merged-btn {
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0 10px !important;
+}
+
+/* 4. Single Unified Scrollable Page for Data Entry (#quickModal) */
+#quickModal .sheet.fullpage-sheet {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+#quickModal .qm-scroll-area {
+  flex: 0 0 auto !important;
+  overflow: visible !important;
+  padding-bottom: 6px !important;
+}
