@@ -2809,7 +2809,6 @@ nav.bottom {
 }
 #quickModal .qm-desc-textarea.frameless-desc {
   min-height: 54px !important;
-  height: auto !important;
   overflow: hidden !important;
 }
 
@@ -2892,7 +2891,6 @@ nav.bottom {
   flex: 0 0 auto !important;
 }
 #quickModal .qm-desc-textarea.frameless-desc {
-  height: auto !important;
   overflow: hidden !important;
 }
 
@@ -3159,4 +3157,88 @@ nav.bottom {
   flex: 0 0 auto !important;
   overflow: visible !important;
   padding-bottom: 6px !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.14 Fixed Bottom Dock, Inline Card Toggle & Floating Monthly Summary
+   ========================================================= */
+
+/* 1.1 Strictly Fixed Bottom Dock + Independently Scrollable Upper Area */
+#quickModal .sheet.fullpage-sheet {
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom)) !important;
+}
+#quickModal .qm-scroll-area {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  padding-bottom: 12px !important;
+}
+#qmBottomDock.qm-bottom-dock {
+  height: 38dvh !important;
+  min-height: 255px !important;
+  max-height: 305px !important;
+  flex-shrink: 0 !important;
+}
+
+/* 1.2 Inline Card Mode (شراء | تقسيط) Inside #qmAccRow */
+.qm-acc-inline-wrap {
+  width: 72%;
+  max-width: 72%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.qm-acc-inline-wrap .picker-trigger {
+  width: auto !important;
+  max-width: none !important;
+  flex: 1;
+  min-width: 0;
+}
+.inline-card-seg {
+  width: 118px !important;
+  max-width: 118px !important;
+  height: 30px !important;
+  flex-shrink: 0 !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--line2) !important;
+  border-radius: 9px !important;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0 !important;
+  overflow: hidden;
+}
+.inline-card-seg .seg-btn {
+  font-size: .72rem !important;
+  height: 100% !important;
+}
+
+/* 2. Floating Monthly Summary Toggle Button Above Filter Button */
+.fab-monthly {
+  position: fixed;
+  bottom: 254px;
+  right: 23px;
+  left: auto;
+  z-index: 12;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 2px solid var(--orange);
+  background: var(--panel2);
+  color: var(--orange);
+  font-size: 17px;
+  box-shadow: 0 6px 20px #0006;
+  display: grid;
+  place-items: center;
+}
+.fab-monthly.active {
+  background: var(--orange);
+  color: #1f1404;
+}
+@media(min-width:560px){
+  .fab-monthly { right: calc(50% - 240px); left: auto; }
 }

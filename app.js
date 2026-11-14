@@ -724,6 +724,12 @@ function updateTopTabTitle(pageId){
   if(!el) return;
   const curId = pageId || document.querySelector('.screen.active')?.id || 'trans';
   const lang = state.prefs?.lang || 'ar';
+  if(curId === 'trans'){
+    if(activeTransSubTab === 'yr') el.textContent = lang==='en' ? 'Yearly Report' : 'التقرير السنوي';
+    else if(activeTransSubTab === 'monthly') el.textContent = lang==='en' ? 'Monthly Summary' : 'الملخص الشهري';
+    else el.textContent = lang==='en' ? 'Transactions' : 'المعاملات';
+    return;
+  }
   if(curId === 'wallet'){
     const isCard = document.getElementById('tabBtnCard')?.classList.contains('active');
     const isCom = document.getElementById('tabBtnCom')?.classList.contains('active');
@@ -739,20 +745,27 @@ function updateFabVisibility(){
   const fab = document.querySelector('.fab');
   const fabS = document.getElementById('fabSearchBtn');
   const fabF = document.getElementById('fabFilterBtn');
+  const fabM = document.getElementById('fabMonthlyBtn');
   const activePage = document.querySelector('.screen.active')?.id || 'trans';
-  const show = (activePage === 'trans' && activeTransSubTab === 'daily');
-  if(fab) fab.style.display = show ? 'grid' : 'none';
+  const isTransDaily = (activePage === 'trans' && activeTransSubTab === 'daily');
+  const isTransMonthly = (activePage === 'trans' && activeTransSubTab === 'monthly');
+  if(fab) fab.style.display = isTransDaily ? 'grid' : 'none';
   if(fabS){
-    fabS.style.display = show ? 'grid' : 'none';
+    fabS.style.display = isTransDaily ? 'grid' : 'none';
     const hasQ = !!(document.getElementById('actSearch')?.value || '').trim();
     fabS.classList.toggle('active', hasQ);
     fabS.textContent = hasQ ? '✕' : '🔍';
   }
   if(fabF){
-    fabF.style.display = show ? 'grid' : 'none';
+    fabF.style.display = isTransDaily ? 'grid' : 'none';
     const isFilterOpen = document.getElementById('mmSearchBox')?.style.display !== 'none';
     const hasAdv = (typeof hasAnyTransAdvFilter === 'function' && hasAnyTransAdvFilter());
     fabF.classList.toggle('active', isFilterOpen || hasAdv);
+  }
+  if(fabM){
+    fabM.style.display = (isTransDaily || isTransMonthly) ? 'grid' : 'none';
+    fabM.classList.toggle('active', isTransMonthly);
+    fabM.textContent = isTransMonthly ? '✕' : '📅';
   }
 }
 
@@ -1321,11 +1334,30 @@ healSuezCanalBankOps();
 let activeTransSubTab = 'daily';
 
 function switchTransSubTab(mode){
-  activeTransSubTab = (mode === 'monthly') ? 'monthly' : 'daily';
+  activeTransSubTab = (mode === 'monthly' || mode === 'yr') ? mode : 'daily';
+  document.getElementById('transTabDaily')?.classList.toggle('active', activeTransSubTab === 'daily' || activeTransSubTab === 'monthly');
+  document.getElementById('transTabYr')?.classList.toggle('active', activeTransSubTab === 'yr');
+
+  const dailyWrap = document.getElementById('transDailyMainWrap');
+  const yrWrap = document.getElementById('planViewYr');
+  if(dailyWrap) dailyWrap.style.display = activeTransSubTab === 'yr' ? 'none' : 'block';
+  if(yrWrap) yrWrap.style.display = activeTransSubTab === 'yr' ? 'block' : 'none';
+
   updateFabVisibility();
-  document.getElementById('transTabDaily')?.classList.toggle('active', activeTransSubTab === 'daily');
-  document.getElementById('transTabMonthly')?.classList.toggle('active', activeTransSubTab === 'monthly');
-  renderTransactionsScreen();
+  updateTopTabTitle('trans');
+  if(activeTransSubTab === 'yr'){
+    renderYearlyExcelReport();
+  } else {
+    renderTransactionsScreen();
+  }
+}
+
+function toggleMonthlySummaryFromFab(){
+  if(activeTransSubTab === 'monthly'){
+    switchTransSubTab('daily');
+  } else {
+    switchTransSubTab('monthly');
+  }
 }
 
 function shiftTransPeriod(delta){
@@ -1966,9 +1998,13 @@ function qmCalcPress(key){
 function autoResizeQmDesc(){
   const ta = document.getElementById('qmDesc');
   if(!ta) return;
-  if(!ta.value.trim()){ ta.style.height = '30px'; return; }
-  ta.style.height = 'auto';
-  ta.style.height = Math.max(30, ta.scrollHeight) + 'px';
+  if(!ta.value){
+    ta.style.setProperty('height', '30px', 'important');
+    return;
+  }
+  ta.style.setProperty('height', 'auto', 'important');
+  const h = Math.max(30, ta.scrollHeight + 4);
+  ta.style.setProperty('height', h + 'px', 'important');
 }
 
 function setQmDockMode(mode, calcFieldId){
@@ -2400,16 +2436,34 @@ function saveQuickModal(){
     if(!qmState.accountId || !qmState.toAccountId || qmState.accountId === qmState.toAccountId){
       return toast('اختر حسابين مختلفين للتحويل');
     }
+    const cleanFee = Math.max(0, fee);
     if(qmState.editId && qmState.editKind === 'ledger'){
       const l = state.ledger.find(x=>String(x.id)===String(qmState.editId));
       if(l){
         l.from = qmState.accountId;
         l.to = qmState.toAccountId;
         l.amount = amount;
-        l.fee = Math.max(0, fee);
+        l.fee = 0;
         l.note = note;
         l.description = description;
         l.date = date;
+      }
+      if(cleanFee > 0){
+        syncCategoryTrees();
+        if(!state.categoryTree.expense['رسوم']) state.categoryTree.expense['رسوم'] = ['رسوم تحويل'];
+        if(!state.categories.includes('رسوم')) state.categories.push('رسوم');
+        state.transactions.push({
+          id: uid('tx-fee'),
+          type: 'expense',
+          category: 'رسوم',
+          subCategory: 'رسوم تحويل',
+          title: note ? ('رسوم تحويل - ' + note) : 'رسوم تحويل',
+          description: '',
+          amount: cleanFee,
+          date,
+          accountId: qmState.accountId,
+          createdAt: nowTs + 1
+        });
       }
       persist(); refreshSecondaryFeeds(); closeQuickModal(); toast('تم تعديل التحويل ✓');
       return;
@@ -2420,13 +2474,30 @@ function saveQuickModal(){
       from: qmState.accountId,
       to: qmState.toAccountId,
       amount,
-      fee: Math.max(0, fee),
+      fee: 0,
       note: note,
       description,
       date,
       createdAt: nowTs
     });
-    persist(); refreshSecondaryFeeds(); closeQuickModal(); toast('تم تسجيل التحويل ✓');
+    if(cleanFee > 0){
+      syncCategoryTrees();
+      if(!state.categoryTree.expense['رسوم']) state.categoryTree.expense['رسوم'] = ['رسوم تحويل'];
+      if(!state.categories.includes('رسوم')) state.categories.push('رسوم');
+      state.transactions.push({
+        id: uid('tx-fee'),
+        type: 'expense',
+        category: 'رسوم',
+        subCategory: 'رسوم تحويل',
+        title: note ? ('رسوم تحويل - ' + note) : 'رسوم تحويل',
+        description: '',
+        amount: cleanFee,
+        date,
+        accountId: qmState.accountId,
+        createdAt: nowTs + 1
+      });
+    }
+    persist(); refreshSecondaryFeeds(); closeQuickModal(); toast(cleanFee > 0 ? 'تم تسجيل التحويل والرسوم في معاملة مستقلة ✓' : 'تم تسجيل التحويل ✓');
     return;
   }
 
@@ -5253,7 +5324,7 @@ function renderActiveScreenOnly(){
   syncCustomSelectTriggers();
   updateFabVisibility();
   const activePage = document.querySelector('.screen.active')?.id || 'trans';
-  if(activePage === 'trans') renderTransactionsScreen();
+  if(activePage === 'trans'){ if(activeTransSubTab==='yr') renderYearlyExcelReport(); else renderTransactionsScreen(); }
   else if(activePage === 'reports'){
     renderReportsScreen();
     if(activeCatDrillState) renderCategoryDrillDownContent();
@@ -5281,10 +5352,10 @@ function renderAll(){
 
 /* Horizontal Swipe Navigation */
 (function initSwipeNavigation(){
-  const MAIN_PAGES = ['trans', 'reports', 'wallet', 'plan', 'settings'];
+  const MAIN_PAGES = ['trans', 'reports', 'wallet', 'settings'];
   const SUB_TABS = {
     trans: {
-      list: ['daily', 'monthly'],
+      list: ['daily', 'yr'],
       getActive: () => activeTransSubTab || 'daily',
       setActive: (val) => switchTransSubTab(val)
     },
