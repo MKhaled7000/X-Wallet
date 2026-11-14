@@ -422,7 +422,8 @@ let _pendingBgMode = null;
 let _pendingFontFamily = null;
 const FONT_STACKS = {
   'system': "system-ui, 'Noto Sans Arabic', 'Tahoma', sans-serif",
-  'Roboto': "'Roboto', 'Tajawal', system-ui, sans-serif",
+  'Noto Sans Arabic': "'Noto Sans Arabic', system-ui, sans-serif",
+  'Roboto': "'Roboto', 'Noto Sans Arabic', system-ui, sans-serif",
   'Cairo': "'Cairo', system-ui, sans-serif",
   'Tajawal': "'Tajawal', system-ui, sans-serif",
   'Almarai': "'Almarai', system-ui, sans-serif",

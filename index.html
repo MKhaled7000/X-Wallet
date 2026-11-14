@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,interactive-widget=resizes-content"><meta name="theme-color" content="#101827"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="description" content="مديرك المالي الشخصي">
 <title>X-Wallet</title>
 <link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&family=Roboto:wght@400;500;700&family=Cairo:wght@400;700&family=Readex+Pro:wght@400;600;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Almarai:wght@400;700&family=Noto+Sans+Arabic:wght@400;600;700&family=Roboto:wght@400;500;700&family=Cairo:wght@400;700&family=Readex+Pro:wght@400;600;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -451,7 +451,7 @@
         <small>تطوير: م/ محمد خالد</small>
       </div>
     </div>
-    <span class="tag" id="devCardVerBadge" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V13.10</span>
+    <span class="tag" id="devCardVerBadge" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V13.11</span>
   </div>
 
   <!-- 4.1 إعدادات عامة (محاذاة موحدة + اختيار نوع الخط الفونت + إخفاء الأرقام والكسور + 10 ألوان) -->
@@ -464,6 +464,7 @@
           <label>نوع الخط (الفونت)</label>
           <select id="prefFontFamily" onchange="previewFontFamily(this.value)">
             <option value="system">افتراضي النظام</option>
+            <option value="Noto Sans Arabic">خط الموبايل القياسي (Noto Sans Arabic)</option>
             <option value="Roboto">خط روبوتو (Roboto)</option>
             <option value="Cairo">خط القاهرة (Cairo)</option>
             <option value="Tajawal">خط تجوال (Tajawal)</option>
@@ -675,7 +676,7 @@
       <div class="c-list">
         <div class="c-row">
           <span class="c-lbl">الإصدار الحالي</span>
-          <span class="upd-equal-box" id="appVersionTag">V13.10</span>
+          <span class="upd-equal-box" id="appVersionTag">V13.11</span>
         </div>
         <div class="c-row">
           <span class="c-lbl">فحص التحديثات</span>
@@ -754,6 +755,7 @@
       <button type="button" class="sub-tab-btn active" id="qmHeaderTitle">إضافة معاملة</button>
     </div>
 
+    <div class="qm-scroll-area" id="qmScrollArea">
     <div class="mm-type-tabs" dir="ltr" style="grid-template-columns:repeat(3,1fr);flex-shrink:0">
       <button type="button" class="mm-tab inc" id="qmTabInc" onclick="setQuickTxType('income')">دخل</button>
       <button type="button" class="mm-tab active exp" id="qmTabExp" onclick="setQuickTxType('expense')">مصروف</button>
@@ -823,7 +825,7 @@
       <!-- 1.2 & 1.4 بدون نصوص placeholder أمام الملاحظات والوصف + إخفاء القسم السفلي عند الكتابة فيهما -->
       <div class="c-row">
         <label>ملاحظات</label>
-        <input id="qmNote" type="text" name="x_tx_note_field" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other" placeholder="" onfocus="onQmDescFocus()" onblur="onQmDescBlur()">
+        <textarea id="qmNote" class="qm-single-note-ta" rows="1" name="x_tx_note_field" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other" placeholder="" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" onfocus="onQmDescFocus()" onblur="onQmDescBlur()"></textarea>
       </div>
 
       <div class="c-row qm-desc-expand-row" id="qmDescRow" onclick="document.getElementById('qmDesc')?.focus()">
@@ -839,6 +841,7 @@
       <button type="button" class="smallbtn danger" id="qmBtnDeleteExisting" style="display:none;flex:1;border-radius:12px" onclick="deleteCurrentQuickModalItem()">حذف</button>
       <button type="button" class="secondary" id="qmBtnCancel" onclick="closeQuickModal()">إلغاء</button>
     </div>
+    </div><!-- end .qm-scroll-area -->
 
     <!-- فاصل بصري واضح بين الجزء العلوي والسفلي -->
     <div class="qm-divider-line" id="qmDividerLine"></div>
