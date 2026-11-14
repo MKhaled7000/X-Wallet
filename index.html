@@ -47,11 +47,13 @@
 
   <div class="mm-header-card">
     <div class="mm-nav-row trans-search-nav-row">
-      <div class="mm-inline-search-bar">
-        <input id="actSearch" type="search" placeholder="ابحث" oninput="onTransactionsSearchInput()">
-        <button type="button" id="btnClearSearch" onclick="clearTransactionsSearch()" title="مسح البحث والفلاتر" style="display:none">✕</button>
-        <button type="button" class="mm-filter-icon-btn" id="btnToggleSearch" onclick="toggleSearchFilterGrid()" title="فلترة البحث">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+      <div class="mm-search-with-filter-wrap">
+        <div class="mm-inline-search-bar">
+          <input id="actSearch" type="search" name="x_tx_search" autocomplete="off" data-lpignore="true" placeholder="ابحث" oninput="onTransactionsSearchInput()">
+          <button type="button" id="btnClearSearch" onclick="clearTransactionsSearch()" title="مسح البحث والفلاتر" style="display:none">✕</button>
+        </div>
+        <button type="button" class="mm-filter-icon-btn standalone" id="btnToggleSearch" onclick="toggleSearchFilterGrid()" title="فلترة البحث">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
         </button>
       </div>
       <!-- 2.3 استبدال مربع التاريخ بسهمين بمربع إلغاء الفلتر عند تفعيل الفلتر -->
@@ -349,20 +351,22 @@
       </div>
     </details>
 
-    <!-- 4.6 قائمة مستحقات الشهر قابلة للطي ومغلقة افتراضياً مع إخفاء التاريخ وهي مغلقة -->
+    <!-- 4.1 قائمة مستحقات الشهر قابلة للطي مع نقل مربع الشهر بسهمين للداخل بحجمه الكامل -->
     <details class="fold" id="monthlyDuesFold">
       <summary>
         <span class="ic-txt"><i>📅</i><span>مستحقات الشهر</span></span>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="ym-stepper dues-summary-stepper" dir="ltr" onclick="event.stopPropagation()">
+        <span class="fold-arrow">▼</span>
+      </summary>
+      <div class="fold-body" style="padding:0;overflow:hidden">
+        <div style="padding:8px 10px;border-bottom:1px solid var(--line);display:flex;justify-content:flex-end;background:var(--surface)">
+          <div class="ym-stepper" dir="ltr">
             <button type="button" class="step-arrow" onclick="shiftActiveMonth(-1)">‹</button>
             <button type="button" class="step-label" onclick="openHomePeriodPicker()" id="comMonthLabel">نوفمبر 2026</button>
             <button type="button" class="step-arrow" onclick="shiftActiveMonth(1)">›</button>
           </div>
-          <span class="fold-arrow">▼</span>
         </div>
-      </summary>
-      <div class="fold-body" style="padding:0;overflow:hidden"><div class="com-table-wrap" id="commitmentsList"></div></div>
+        <div class="com-table-wrap" id="commitmentsList"></div>
+      </div>
     </details>
 
     <!-- 8. قائمة جميع المستحقات قابلة للطي ومغلقة افتراضياً -->
@@ -447,7 +451,7 @@
         <small>تطوير: م/ محمد خالد</small>
       </div>
     </div>
-    <span class="tag" id="devCardVerBadge" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V13.8</span>
+    <span class="tag" id="devCardVerBadge" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V13.9</span>
   </div>
 
   <!-- 4.1 إعدادات عامة (محاذاة موحدة + اختيار نوع الخط الفونت + إخفاء الأرقام والكسور + 10 ألوان) -->
@@ -670,7 +674,7 @@
       <div class="c-list">
         <div class="c-row">
           <span class="c-lbl">الإصدار الحالي</span>
-          <span class="upd-equal-box" id="appVersionTag">V13.8</span>
+          <span class="upd-equal-box" id="appVersionTag">V13.9</span>
         </div>
         <div class="c-row">
           <span class="c-lbl">فحص التحديثات</span>
@@ -818,12 +822,12 @@
       <!-- 1.2 & 1.4 بدون نصوص placeholder أمام الملاحظات والوصف + إخفاء القسم السفلي عند الكتابة فيهما -->
       <div class="c-row">
         <label>ملاحظات</label>
-        <input id="qmNote" placeholder="" onfocus="onQmDescFocus()" onblur="onQmDescBlur()">
+        <input id="qmNote" type="text" name="x_tx_note_field" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-form-type="other" placeholder="" onfocus="onQmDescFocus()" onblur="onQmDescBlur()">
       </div>
 
       <div class="c-row qm-desc-expand-row" id="qmDescRow" onclick="document.getElementById('qmDesc')?.focus()">
         <label>الوصف</label>
-        <textarea id="qmDesc" class="qm-desc-textarea frameless-desc" rows="2" placeholder="" oninput="autoResizeQmDesc()" onfocus="onQmDescFocus()" onblur="onQmDescBlur()"></textarea>
+        <textarea id="qmDesc" name="x_tx_desc_field" autocomplete="off" data-lpignore="true" data-form-type="other" class="qm-desc-textarea frameless-desc" rows="2" placeholder="" oninput="autoResizeQmDesc()" onfocus="onQmDescFocus()" onblur="onQmDescBlur()"></textarea>
       </div>
     </div>
 
@@ -982,13 +986,38 @@
     <!-- الصف الثالث والرابع: مربع البحث والتاريخ + الـ 3 مربعات (دخل / مصروفات / صافي) -->
     <div class="mm-header-card" style="flex-shrink:0">
       <div class="mm-nav-row trans-search-nav-row" id="stmtMonthNavRow">
-        <div class="mm-inline-search-bar">
-          <input id="stmtSearchInp" type="search" placeholder="ابحث" oninput="renderFullStatementModalContent()">
+        <div class="mm-search-with-filter-wrap">
+          <div class="mm-inline-search-bar">
+            <input id="stmtSearchInp" type="search" name="x_stmt_search" autocomplete="off" data-lpignore="true" placeholder="ابحث" oninput="renderFullStatementModalContent()">
+          </div>
+          <button type="button" class="mm-filter-icon-btn standalone" id="btnToggleStmtFilter" onclick="toggleStmtFilterGrid()" title="فلترة كشف الحساب">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+          </button>
         </div>
         <div class="ym-stepper" dir="ltr">
           <button type="button" class="step-arrow" onclick="shiftStatementMonth(-1)">‹</button>
           <button type="button" class="step-label" onclick="openStatementPeriodModeDialog()" id="stmtPeriodLabel">نوفمبر 2026</button>
           <button type="button" class="step-arrow" onclick="shiftStatementMonth(1)">›</button>
+        </div>
+      </div>
+      <div id="stmtFilterBox" class="filter-bar-detached" style="display:none;margin-bottom:8px!important">
+        <div class="mm-filter-chips-grid four-in-row">
+          <button type="button" class="mm-f-card" id="stmtFCardDate" onclick="handleStmtFilterTap('date')">
+            <span class="mm-f-lbl">بالتاريخ</span>
+            <b class="mm-f-val" id="stmtFValDate"></b>
+          </button>
+          <button type="button" class="mm-f-card" id="stmtFCardAmt" onclick="handleStmtFilterTap('amount')">
+            <span class="mm-f-lbl">بالمبلغ</span>
+            <b class="mm-f-val" id="stmtFValAmt"></b>
+          </button>
+          <button type="button" class="mm-f-card" id="stmtFCardType" onclick="handleStmtFilterTap('type')">
+            <span class="mm-f-lbl">بالنوع</span>
+            <b class="mm-f-val" id="stmtFValType"></b>
+          </button>
+          <button type="button" class="mm-f-card" id="stmtFCardCat" onclick="handleStmtFilterTap('cat')">
+            <span class="mm-f-lbl">بالقسم</span>
+            <b class="mm-f-val" id="stmtFValCat"></b>
+          </button>
         </div>
       </div>
       <div class="mm-stats">

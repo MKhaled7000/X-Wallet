@@ -529,9 +529,12 @@ async function saveSecuritySettings(){
   state.prefs = state.prefs || {};
   const rawPin = val('secPinInput').trim();
   if(rawPin && rawPin !== '••••'){
-    state.prefs.secPinHash = await hashPinString(rawPin);
+    const devSalt = getOrCreateDeviceSalt();
+    state.prefs.secPinSalt = devSalt;
+    state.prefs.secPinHash = await hashPinPBKDF2(rawPin, devSalt);
   } else if(!rawPin){
     state.prefs.secPinHash = '';
+    state.prefs.secPinSalt = '';
   }
   delete state.prefs.secPin;
   state.prefs.appLockOnStart = val('secAppLockOnStart') !== '0';
@@ -1837,6 +1840,7 @@ function onQmDescFocus(){
   document.getElementById('quickModal')?.classList.add('hide-bottom-dock');
 }
 function onQmDescBlur(){
+  autoResizeQmDesc();
   setTimeout(()=>{
     if(document.activeElement?.id !== 'qmDesc'){
       document.getElementById('quickModal')?.classList.remove('hide-bottom-dock');
@@ -2849,10 +2853,102 @@ function closeCategoriesManagerModal(){
   document.getElementById('catsManagerModal')?.classList.remove('show');
 }
 
+let stmtAdvFilter = { dateFrom:'', dateTo:'', amountFrom:'', amountTo:'', type:'', cat:'' };
+
+function toggleStmtFilterGrid(){
+  const box = document.getElementById('stmtFilterBox');
+  const btn = document.getElementById('btnToggleStmtFilter');
+  if(!box) return;
+  const open = box.style.display === 'none';
+  box.style.display = open ? 'block' : 'none';
+  const hasAny = !!(stmtAdvFilter.dateFrom || stmtAdvFilter.dateTo || stmtAdvFilter.amountFrom || stmtAdvFilter.amountTo || stmtAdvFilter.type || stmtAdvFilter.cat);
+  btn?.classList.toggle('active', open || hasAny);
+  updateStmtFilterUI();
+}
+
+function updateStmtFilterUI(){
+  const hasD = !!(stmtAdvFilter.dateFrom || stmtAdvFilter.dateTo);
+  document.getElementById('stmtFCardDate')?.classList.toggle('active', hasD);
+  const dEl = document.getElementById('stmtFValDate');
+  if(dEl) dEl.textContent = hasD ? `${formatDateDMY(stmtAdvFilter.dateFrom||stmtAdvFilter.dateTo).slice(0,5)} ✕` : '';
+
+  const hasA = !!(stmtAdvFilter.amountFrom || stmtAdvFilter.amountTo);
+  document.getElementById('stmtFCardAmt')?.classList.toggle('active', hasA);
+  const aEl = document.getElementById('stmtFValAmt');
+  if(aEl) aEl.textContent = hasA ? `${stmtAdvFilter.amountFrom||stmtAdvFilter.amountTo} ✕` : '';
+
+  document.getElementById('stmtFCardType')?.classList.toggle('active', !!stmtAdvFilter.type);
+  const tEl = document.getElementById('stmtFValType');
+  if(tEl) tEl.textContent = stmtAdvFilter.type ? `${stmtAdvFilter.type === 'income' ? 'دخل' : (stmtAdvFilter.type === 'transfer' ? 'تحويل' : 'مصروف')} ✕` : '';
+
+  document.getElementById('stmtFCardCat')?.classList.toggle('active', !!stmtAdvFilter.cat);
+  const cEl = document.getElementById('stmtFValCat');
+  if(cEl) cEl.textContent = stmtAdvFilter.cat ? `${stmtAdvFilter.cat} ✕` : '';
+}
+
+function handleStmtFilterTap(kind){
+  if(kind === 'date'){
+    if(stmtAdvFilter.dateFrom || stmtAdvFilter.dateTo){
+      stmtAdvFilter.dateFrom=''; stmtAdvFilter.dateTo='';
+      updateStmtFilterUI(); renderFullStatementModalContent(); return;
+    }
+    const defS = selected() + '-01', defE = today();
+    showAppCustomForm('فلترة بالتاريخ', `<div class="c-list">
+      <div class="c-row" onclick="openNativeInputPicker('stFDateF')"><label>من تاريخ</label><div class="picker-trigger" style="position:relative"><b id="stFDispF" dir="ltr">${formatDateDMY(defS)}</b><input id="stFDateF" type="date" value="${esc(defS)}" onchange="document.getElementById('stFDispF').textContent=formatDateDMY(this.value)" style="position:absolute;inset:0;opacity:0;width:100%;height:100%"></div></div>
+      <div class="c-row" onclick="openNativeInputPicker('stFDateT')"><label>إلى تاريخ</label><div class="picker-trigger" style="position:relative"><b id="stFDispT" dir="ltr">${formatDateDMY(defE)}</b><input id="stFDateT" type="date" value="${esc(defE)}" onchange="document.getElementById('stFDispT').textContent=formatDateDMY(this.value)" style="position:absolute;inset:0;opacity:0;width:100%;height:100%"></div></div>
+    </div>`, ()=>{
+      stmtAdvFilter.dateFrom = val('stFDateF')||'';
+      stmtAdvFilter.dateTo = val('stFDateT')||'';
+      updateStmtFilterUI(); renderFullStatementModalContent(); return true;
+    });
+    return;
+  }
+  if(kind === 'amount'){
+    if(stmtAdvFilter.amountFrom || stmtAdvFilter.amountTo){
+      stmtAdvFilter.amountFrom=''; stmtAdvFilter.amountTo='';
+      updateStmtFilterUI(); renderFullStatementModalContent(); return;
+    }
+    showAppCustomForm('فلترة بالمبلغ', `<div class="c-list">
+      <div class="c-row"><label>من مبلغ</label><input id="stFAmtF" type="number" step="0.01" placeholder="0"></div>
+      <div class="c-row"><label>إلى مبلغ</label><input id="stFAmtT" type="number" step="0.01" placeholder="اختياري"></div>
+    </div>`, ()=>{
+      stmtAdvFilter.amountFrom = String(val('stFAmtF')||'').trim();
+      stmtAdvFilter.amountTo = String(val('stFAmtT')||'').trim();
+      updateStmtFilterUI(); renderFullStatementModalContent(); return true;
+    });
+    return;
+  }
+  if(kind === 'type'){
+    if(stmtAdvFilter.type){
+      stmtAdvFilter.type=''; updateStmtFilterUI(); renderFullStatementModalContent(); return;
+    }
+    const html = `<div class="cs-opt-list">
+      <button type="button" class="cs-opt-btn" onclick="stmtAdvFilter.type='income';closeAppDialog();updateStmtFilterUI();renderFullStatementModalContent()"><span>دخل</span><span>○</span></button>
+      <button type="button" class="cs-opt-btn" onclick="stmtAdvFilter.type='expense';closeAppDialog();updateStmtFilterUI();renderFullStatementModalContent()"><span>مصروف</span><span>○</span></button>
+      <button type="button" class="cs-opt-btn" onclick="stmtAdvFilter.type='transfer';closeAppDialog();updateStmtFilterUI();renderFullStatementModalContent()"><span>تحويل</span><span>○</span></button>
+    </div>`;
+    showAppCustomForm('فلترة بالنوع', html, null, true);
+    return;
+  }
+  if(kind === 'cat'){
+    if(stmtAdvFilter.cat){
+      stmtAdvFilter.cat=''; updateStmtFilterUI(); renderFullStatementModalContent(); return;
+    }
+    syncCategoryTrees();
+    const allC = [...new Set([...Object.keys(state.categoryTree.expense||{}), ...Object.keys(state.categoryTree.income||{})])];
+    const html = `<div class="cs-opt-list">` + allC.map(c=>`
+      <button type="button" class="cs-opt-btn" onclick="stmtAdvFilter.cat='${escJs(c)}';closeAppDialog();updateStmtFilterUI();renderFullStatementModalContent()"><span>${esc(c)}</span><span>○</span></button>
+    `).join('') + `</div>`;
+    showAppCustomForm('فلترة بالقسم', html, null, true);
+  }
+}
+
 function openAccountStatement(id){
   const acc = state.accounts.find(a=>a.id===id);
   if(!acc) return;
   activeStatementState = { kind:'account', id, year:activeYear, month:activeMonth, mode:'monthly' };
+  stmtAdvFilter = { dateFrom:'', dateTo:'', amountFrom:'', amountTo:'', type:'', cat:'' };
+  updateStmtFilterUI();
   setv('stmtSearchInp', '');
   renderFullStatementModalContent();
   document.getElementById('statementFullModal').classList.add('show');
@@ -2862,6 +2958,8 @@ function openCardStatement(cardId){
   const card = state.cards.find(c=>c.id===cardId);
   if(!card) return;
   activeStatementState = { kind:'card', id:cardId, year:activeYear, month:activeMonth, mode:'monthly' };
+  stmtAdvFilter = { dateFrom:'', dateTo:'', amountFrom:'', amountTo:'', type:'', cat:'' };
+  updateStmtFilterUI();
   setv('stmtSearchInp', '');
   renderFullStatementModalContent();
   document.getElementById('statementFullModal').classList.add('show');
@@ -3023,10 +3121,30 @@ function renderFullStatementModalContent(){
     }));
   }
 
-  if(stmtQ){
+  if(stmtQ || stmtAdvFilter.dateFrom || stmtAdvFilter.dateTo || stmtAdvFilter.amountFrom || stmtAdvFilter.amountTo || stmtAdvFilter.type || stmtAdvFilter.cat){
     combined = combined.filter(it => {
-      const hay = [it.title, it.note, it.description, it.category, it.subCategory, String(it.amount||'')].map(x=>String(x||'').toLowerCase()).join(' ');
-      return hay.includes(stmtQ);
+      const ds = String(it.date||'').slice(0,10);
+      if(stmtAdvFilter.dateFrom && ds < stmtAdvFilter.dateFrom) return false;
+      if(stmtAdvFilter.dateTo && ds > stmtAdvFilter.dateTo) return false;
+      if(stmtAdvFilter.type && it.type !== stmtAdvFilter.type) return false;
+      if(stmtAdvFilter.cat && String(it.category||'').trim() !== stmtAdvFilter.cat) return false;
+      if(stmtAdvFilter.amountFrom || stmtAdvFilter.amountTo){
+        const amt = Math.abs(Number(it.amount)||0);
+        const hasF = stmtAdvFilter.amountFrom !== '' && Number.isFinite(Number(stmtAdvFilter.amountFrom));
+        const hasT = stmtAdvFilter.amountTo !== '' && Number.isFinite(Number(stmtAdvFilter.amountTo));
+        if(hasF && !hasT && Math.abs(amt - Number(stmtAdvFilter.amountFrom)) > 0.009) return false;
+        if(!hasF && hasT && Math.abs(amt - Number(stmtAdvFilter.amountTo)) > 0.009) return false;
+        if(hasF && hasT){
+          const mn = Math.min(Number(stmtAdvFilter.amountFrom), Number(stmtAdvFilter.amountTo));
+          const mx = Math.max(Number(stmtAdvFilter.amountFrom), Number(stmtAdvFilter.amountTo));
+          if(amt < mn - 0.009 || amt > mx + 0.009) return false;
+        }
+      }
+      if(stmtQ){
+        const hay = [it.title, it.note, it.description, it.category, it.subCategory, String(it.amount||'')].map(x=>String(x||'').toLowerCase()).join(' ');
+        if(!hay.includes(stmtQ)) return false;
+      }
+      return true;
     });
   }
   combined.sort((a,b)=>{
@@ -3891,7 +4009,7 @@ function renderPlanScreen(){
             return `
               <tr style="cursor:pointer" onclick="${actCall}">
                 <td><b>${esc(it.title)}</b></td>
-                <td><span class="tag">${esc(it.categoryType)}</span></td>
+                <td>${esc(it.categoryType)}</td>
                 <td><small style="color:var(--muted)">${esc(it.sub)}</small></td>
                 <td style="text-align:right;direction:ltr"><b>${maskable(fmtNum(it.amount))}</b></td>
                 <td style="text-align:right;direction:ltr" class="mint">${maskable(fmtNum(it.paid))}</td>
@@ -3982,7 +4100,7 @@ function renderAllCommitmentsMasterTable(){
           return `
             <tr style="cursor:pointer" onclick="${editCall}" title="اضغط للتعديل">
               <td><b>${esc(r.title)}</b></td>
-              <td><span class="tag">${esc(r.typeLabel)}</span></td>
+              <td>${esc(r.typeLabel)}</td>
               <td style="text-align:right;direction:ltr"><b class="orange">${maskable(fmtNum(r.amountVal))}</b></td>
               <td>${esc(r.durLabel)}</td>
               <td>${esc(r.startLabel)}</td>
@@ -4648,19 +4766,35 @@ function openAutoSnapshotsDialog(){
   showAppCustomForm('النسخ التلقائية المحفوظة', html, null, true);
 }
 
+function preserveDeviceSecurityAndDrivePrefs(oldPrefs, newState){
+  newState.prefs = newState.prefs || {};
+  const op = oldPrefs || {};
+  const keysToKeep = [
+    'secPinHash', 'secPinSalt', 'bioEnabled', 'bioCredentialId',
+    'appLockOnStart', 'bioOnPrivacy',
+    'driveEmail', 'driveWebhookUrl', 'driveAccessToken', 'autoDriveFreq', 'lastDriveBackup'
+  ];
+  for(const k of keysToKeep){
+    if(op[k] !== undefined && op[k] !== '') newState.prefs[k] = op[k];
+  }
+  delete newState.prefs.secPin;
+  return newState;
+}
+
 function restoreFromAutoSnapshot(idx){
   const s = (_autoSnapshotsMemory||[])[idx];
   if(!s || !s.payload) return;
   showAppConfirm('استعادة نسخة تلقائية', `هل تريد استعادة النسخة المحفوظة بتاريخ ${formatDateDMY(s.date)}؟`, ()=>{
     try{
+      const oldPrefs = JSON.parse(JSON.stringify(state.prefs || {}));
       const parsed = JSON.parse(s.payload);
       delete parsed.autoSnapshots;
-      state = parsed;
+      state = preserveDeviceSecurityAndDrivePrefs(oldPrefs, parsed);
       syncCategoryTrees();
       applyPreferences();
       persist();
       renderAll();
-      toast('تمت استعادة النسخة التلقائية بنجاح ✓');
+      toast('تمت استعادة النسخة التلقائية مع الحفاظ على إعدادات الأمان والمزامنة ✓');
     }catch(_){ toast('تعذر استعادة النسخة'); }
   }, false);
 }
@@ -4756,30 +4890,16 @@ async function triggerEasyDriveSave(jsonStr, fileName){
 
 function openDriveCloudSetupModal(){
   const p = state.prefs || {};
-  const scriptCode = `function doPost(e){var f=DriveApp.createFile('x-wallet-backup-'+new Date().toISOString().slice(0,10)+'.json',e.postData.contents,'application/json');return ContentService.createTextOutput(JSON.stringify({ok:true,id:f.getId()})).setMimeType(ContentService.MimeType.JSON);}`;
-  const formHtml = `
-    <div class="c-list">
-      <div class="c-row"><label>حساب الجيميل</label><input id="drvCfgEmail" type="email" placeholder="example@gmail.com" value="${esc(p.driveEmail||'')}"></div>
-      <div class="c-row"><label>رابط سحابة Drive</label><input id="drvCfgWebhook" placeholder="https://script.google.com/macros/s/.../exec" value="${esc(p.driveWebhookUrl||'')}"></div>
-      <div class="c-row"><label>أو توكن OAuth</label><input id="drvCfgToken" placeholder="اختياري (Access Token)" value="${esc(p.driveAccessToken||'')}"></div>
-    </div>
-    <div style="margin-top:8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px;font-size:.68rem;color:var(--muted);line-height:1.55">
-      <b style="color:var(--mint);display:block;margin-bottom:3px">كيف ترفع تلقائياً في الخلفية لحساب جوجل درايف؟</b>
-      1. افتح <b>script.google.com</b> بحساب الجيميل (${esc(p.driveEmail||'الخاص بك')}) والصق الكود التالي ثم اضغط Deploy → Web App (Anyone):<br>
-      <input readonly value="${esc(scriptCode)}" onclick="this.select();navigator.clipboard?.writeText(this.value);toast('تم نسخ كود الربط السحابي ✓')" style="width:100%;margin:4px 0;background:var(--panel);border:1px solid var(--line2);color:var(--mint);font-size:.62rem;padding:4px;border-radius:6px">
-      2. الصق الرابط الناتج في حقل «رابط سحابة Drive» بالأعلى، وسيقوم التطبيق برفع النسخة مباشرة إلى Google Drive بدون تحميلها على الهاتف!
+  const html = `
+    <p class="hint" style="margin:0 0 10px;color:var(--text-sub)">
+      لأن التطبيق يعمل محلياً بدون سيرفر وسيط، أسهل وأضمن طريقة للموبايل هي استخدام زر <b>«☁ جوجل درايف»</b> لفتح تطبيق Drive مباشرة وحفظ النسخة بضغطة واحدة، مع تفعيل <b>النسخ المحلي التلقائي</b> يومياً أو أسبوعياً.
+    </p>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button type="button" class="primary" style="background:var(--blue);color:#fff" onclick="closeAppDialog();quickShareBackupToDrive()">☁ مشاركة وحفظ في Google Drive الآن</button>
+      <button type="button" class="secondary" onclick="closeAppDialog();openAutoBackupFreqDialog()">🔄 ضبط جدول النسخ التلقائي</button>
     </div>
   `;
-  showAppCustomForm('إعداد الربط السحابي Google Drive', formHtml, ()=>{
-    state.prefs = state.prefs || {};
-    state.prefs.driveEmail = val('drvCfgEmail').trim();
-    state.prefs.driveWebhookUrl = val('drvCfgWebhook').trim();
-    state.prefs.driveAccessToken = val('drvCfgToken').trim();
-    setv('prefDriveEmail', state.prefs.driveEmail);
-    persist();
-    toast('تم حفظ إعدادات حساب Google Drive ✓');
-    return true;
-  });
+  showAppCustomForm('الحفظ السحابي على Google Drive', html, null, true);
 }
 
 async function exportBackupToGoogleDrive(silentAuto){
@@ -4923,7 +5043,11 @@ function restore(e){
   r.onload=()=>{
     try{
       let v=JSON.parse(r.result); if(!Array.isArray(v.transactions)) throw 0;
-      state=v; syncCategoryTrees(); applyPreferences(); persist(); toast('تم استرجاع النسخة ✓');
+      const oldPrefs = JSON.parse(JSON.stringify(state.prefs || {}));
+      delete v.autoSnapshots;
+      state = preserveDeviceSecurityAndDrivePrefs(oldPrefs, v);
+      syncCategoryTrees(); applyPreferences(); persist(); renderAll();
+      toast('تم استرجاع النسخة مع الحفاظ على الأمان وإعدادات Drive ✓');
     }catch{ toast('ملف غير صالح'); }
   };
   r.readAsText(f);

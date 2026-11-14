@@ -2880,3 +2880,55 @@ nav.bottom {
 .cat-mgr-sub-row {
   transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
 }
+
+
+/* =========================================================
+   X-Wallet V13.9 Final Polish, Filter Separation & Scroll Fixes
+   ========================================================= */
+
+/* 1.2 Full-Page Description Scroll Support in #quickModal */
+#quickModal .c-row.qm-desc-expand-row {
+  height: auto !important;
+  flex: 0 0 auto !important;
+}
+#quickModal .qm-desc-textarea.frameless-desc {
+  height: auto !important;
+  overflow: hidden !important;
+}
+
+/* 2.1 & 2.2 Standalone Filter Button Outside Search Box + Comfortable Padding for "ابحث" */
+.mm-search-with-filter-wrap {
+  direction: ltr;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mm-inline-search-bar {
+  padding: 0 12px !important;
+}
+.mm-inline-search-bar input {
+  padding: 0 2px !important;
+}
+.mm-filter-icon-btn.standalone {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 12px !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--line2) !important;
+  color: var(--mint) !important;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.mm-filter-icon-btn.standalone.active {
+  background: #43d6b224 !important;
+  border-color: var(--mint) !important;
+}
+
+/* 2.3 Normal (Non-Bold) Font Weight in Filter Grid Cards */
+.mm-filter-chips-grid.four-in-row .mm-f-lbl,
+.mm-filter-chips-grid.four-in-row .mm-f-val {
+  font-weight: 400 !important;
+}
