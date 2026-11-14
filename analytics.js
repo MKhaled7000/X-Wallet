@@ -64,6 +64,21 @@ function switchReportTab(tab){
   renderReportsScreen();
 }
 
+const REP_MODE_CYCLE = [
+  { val:'monthly', label:'شهري' },
+  { val:'yearly', label:'سنوي' },
+  { val:'all', label:'الكل' },
+  { val:'custom', label:'فترة محددة' }
+];
+function cycleReportPeriodMode(){
+  const idx = REP_MODE_CYCLE.findIndex(x => x.val === reportPeriodMode);
+  const next = REP_MODE_CYCLE[(idx + 1) % REP_MODE_CYCLE.length];
+  setv('repPeriodMode', next.val);
+  const btn = document.getElementById('repPeriodCycleBtn');
+  if(btn) btn.textContent = next.label;
+  onReportPeriodModeChange(next.val);
+}
+
 function onReportPeriodModeChange(mode){
   reportPeriodMode = mode || 'monthly';
   const stepBox = document.getElementById('repStepperBox');
@@ -154,10 +169,21 @@ function renderReportsScreen(){
   const expData = getReportFilteredTransactions(false);
   const totIncPeriod = round2(incData.list.reduce((s,t)=>s+(Number(t.amount)||0), 0));
   const totExpPeriod = round2(expData.list.reduce((s,t)=>s+(Number(t.amount)||0), 0));
+  const totNetPeriod = round2(totIncPeriod - totExpPeriod);
   const boxInc = document.getElementById('repBoxTotalInc');
   const boxExp = document.getElementById('repBoxTotalExp');
   if(boxInc) boxInc.textContent = maskable(egpSmart(totIncPeriod));
   if(boxExp) boxExp.textContent = maskable(egpSmart(totExpPeriod));
+
+  const sInc = document.getElementById('repStatsInc');
+  const sExp = document.getElementById('repStatsExp');
+  const sNet = document.getElementById('repStatsNet');
+  if(sInc) sInc.textContent = maskable(fmtNum(totIncPeriod));
+  if(sExp) sExp.textContent = maskable(fmtNum(totExpPeriod));
+  if(sNet){
+    sNet.textContent = maskable(fmtNum(totNetPeriod));
+    sNet.className = totNetPeriod >= 0 ? 'mint' : 'red';
+  }
 
   const { periodLabel, list } = isInc ? incData : expData;
   const repLblEl = document.getElementById('repPeriodLabel');

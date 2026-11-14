@@ -123,13 +123,10 @@
     <!-- 3.2 - 3.4 نفس الهيدر الثابت بدون أي انحراف + تبديل مربع شهري/سنوي باسم البند عند اختياره + مربعين تاريخ من/إلى بنفس الصف عند اختيار الكل أو فترة محددة -->
     <div class="mm-header-card">
       <div class="mm-nav-row trans-search-nav-row" style="margin-bottom:0;gap:6px">
+        <!-- 1.1 & 1.2 زر تبديل الفترة بنقرة واحدة (شهري -> سنوي -> الكل -> فترة محددة) بنفس لون مربع البحث وبدون سهم -->
         <div class="rep-mode-box" id="repModeSelectWrap">
-          <select id="repPeriodMode" onchange="onReportPeriodModeChange(this.value)">
-            <option value="monthly">شهري</option>
-            <option value="yearly">سنوي</option>
-            <option value="all">الكل</option>
-            <option value="custom">فترة محددة</option>
-          </select>
+          <button type="button" class="rep-cycle-btn" id="repPeriodCycleBtn" onclick="cycleReportPeriodMode()">شهري</button>
+          <input type="hidden" id="repPeriodMode" value="monthly">
         </div>
 
         <button type="button" class="cat-selected-pill-btn" id="repSelectedCatBtn" style="display:none" onclick="closeCatDetailModal()" title="اضغط للرجوع لكل البنود">
@@ -147,18 +144,34 @@
           <button type="button" class="step-arrow" onclick="shiftReportPeriod(1)">›</button>
         </div>
 
-        <!-- 3.4 مربعين تاريخ من : إلى في نفس الصف مكان مربع الشهر والسهمين عند اختيار الكل أو فترة محددة -->
+        <!-- 1.3 مربعا التاريخ بدون كلمتي من وإلى -->
         <div class="rep-inline-dates" id="repInlineDatesBox" style="display:none">
           <div class="rep-date-mini" onclick="openNativeInputPicker('repCustomFrom')" title="من تاريخ">
-            <small>من</small>
             <b id="repFromDisp" dir="ltr">01-01-2026</b>
             <input id="repCustomFrom" type="date" onchange="onRepInlineDateChange()">
           </div>
           <div class="rep-date-mini" onclick="openNativeInputPicker('repCustomTo')" title="إلى تاريخ">
-            <small>إلى</small>
             <b id="repToDisp" dir="ltr">14-11-2026</b>
             <input id="repCustomTo" type="date" onchange="onRepInlineDateChange()">
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1.4 الصف الثالث المنفصل (الدخل | المصروفات | الصافي) لتاب الدخل والمصروفات -->
+    <div class="mm-stats-card">
+      <div class="mm-stats">
+        <div class="mm-stat-box">
+          <small>الدخل</small>
+          <b class="blue" id="repStatsInc">0</b>
+        </div>
+        <div class="mm-stat-box">
+          <small>المصروفات</small>
+          <b class="red" id="repStatsExp">0</b>
+        </div>
+        <div class="mm-stat-box">
+          <small>الصافي</small>
+          <b id="repStatsNet">0</b>
         </div>
       </div>
     </div>
@@ -390,14 +403,18 @@
   <!-- تاب الملخص الشهري -->
   <div id="fcViewMonthly">
     <div class="mm-header-card">
-      <div class="mm-nav-row trans-search-nav-row" style="margin-bottom:8px">
-        <span style="font-size:.82rem;color:var(--mint);font-weight:700">ملخص السنة</span>
+      <div class="mm-nav-row trans-search-nav-row" style="margin-bottom:0">
+        <div class="mm-inline-search-bar fc-year-title-box">
+          <span>ملخص السنة</span>
+        </div>
         <div class="ym-stepper" dir="ltr">
           <button type="button" class="step-arrow" onclick="shiftForecastMonthlyYear(-1)">‹</button>
           <button type="button" class="step-label" style="cursor:default" id="fcMonthlyYearLabel">2026</button>
           <button type="button" class="step-arrow" onclick="shiftForecastMonthlyYear(1)">›</button>
         </div>
       </div>
+    </div>
+    <div class="mm-stats-card">
       <div class="mm-stats">
         <div class="mm-stat-box"><small>الدخل</small><b class="blue" id="fcMonthIncHero">0</b></div>
         <div class="mm-stat-box"><small>المصروفات</small><b class="red" id="fcMonthExpHero">0</b></div>
@@ -479,7 +496,7 @@
         <small>تطوير: م/ محمد خالد</small>
       </div>
     </div>
-    <span class="tag" id="devCardVerBadge" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V13.15</span>
+    <span class="tag" id="devCardVerBadge" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V13.16</span>
   </div>
 
   <!-- 4.1 إعدادات عامة (محاذاة موحدة + اختيار نوع الخط الفونت + إخفاء الأرقام والكسور + 10 ألوان) -->
@@ -704,7 +721,7 @@
       <div class="c-list">
         <div class="c-row">
           <span class="c-lbl">الإصدار الحالي</span>
-          <span class="upd-equal-box" id="appVersionTag">V13.15</span>
+          <span class="upd-equal-box" id="appVersionTag">V13.16</span>
         </div>
         <div class="c-row">
           <span class="c-lbl">فحص التحديثات</span>

@@ -3312,3 +3312,32 @@ nav.bottom {
   font-size: .56rem;
   opacity: 0.85;
 }
+
+
+/* =========================================================
+   X-Wallet V13.16 Analytics Cycle Button & Forecast Monthly Card
+   ========================================================= */
+.rep-cycle-btn {
+  width: 100%;
+  height: 42px;
+  background: var(--surface);
+  border: 1px solid var(--line2);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: .8rem;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 8px;
+}
+.rep-cycle-btn:active {
+  border-color: var(--mint);
+  color: var(--mint);
+}
+.fc-year-title-box {
+  justify-content: center !important;
+  color: var(--text-sub);
+  font-size: .82rem;
+}
