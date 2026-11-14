@@ -7,7 +7,7 @@
    - Separate IndexedDB Store for Auto-Snapshots (Fixes 8.2MB vs 3MB backup size)
    - Selective Screen Rendering on Persist (Instant Save Speed)
    ========================================================= */
-const APP_VERSION = '13.14';
+const APP_VERSION = '13.15';
 const APP_BUILD = '2026-11-14';
 const KEY = 'raseed_mobile_v2';
 const SNAP_KEY = 'raseed_auto_snapshots_v1';

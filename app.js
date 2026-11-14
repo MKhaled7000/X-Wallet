@@ -715,8 +715,8 @@ function togglePrivacyMode(){
 
 /* Navigation & Page Title Card */
 const TAB_TITLES = {
-  ar: { trans:'المعاملات', reports:'تحليل المعاملات', wallet:'المحفظة والالتزامات', plan:'التقرير السنوي', settings:'المزيد' },
-  en: { trans:'Transactions', reports:'Analytics', wallet:'Wallet & Dues', plan:'Yearly Report', settings:'More' }
+  ar: { trans:'المعاملات والتحليل', wallet:'المحفظة والالتزامات', forecast:'التخطيط المالي', settings:'المزيد' },
+  en: { trans:'Transactions', wallet:'Wallet & Dues', forecast:'Planning', settings:'More' }
 };
 
 function updateTopTabTitle(pageId){
@@ -725,8 +725,8 @@ function updateTopTabTitle(pageId){
   const curId = pageId || document.querySelector('.screen.active')?.id || 'trans';
   const lang = state.prefs?.lang || 'ar';
   if(curId === 'trans'){
-    if(activeTransSubTab === 'yr') el.textContent = lang==='en' ? 'Yearly Report' : 'التقرير السنوي';
-    else if(activeTransSubTab === 'monthly') el.textContent = lang==='en' ? 'Monthly Summary' : 'الملخص الشهري';
+    if(activeTransSubTab === 'inc') el.textContent = lang==='en' ? 'Income Analysis' : 'تحليل الدخل';
+    else if(activeTransSubTab === 'exp') el.textContent = lang==='en' ? 'Expenses Analysis' : 'تحليل المصروفات';
     else el.textContent = lang==='en' ? 'Transactions' : 'المعاملات';
     return;
   }
@@ -736,6 +736,11 @@ function updateTopTabTitle(pageId){
     if(isCom) el.textContent = lang==='en' ? 'Commitments' : 'الالتزامات';
     else if(isCard) el.textContent = lang==='en' ? 'Cards' : 'البطاقات';
     else el.textContent = lang==='en' ? 'Accounts' : 'الحسابات';
+    return;
+  }
+  if(curId === 'forecast'){
+    const isYr = document.getElementById('fcTabYr')?.classList.contains('active');
+    el.textContent = isYr ? (lang==='en' ? 'Yearly Report' : 'التقرير السنوي') : (lang==='en' ? 'Monthly Summary' : 'الملخص الشهري');
     return;
   }
   el.textContent = (TAB_TITLES[lang] || TAB_TITLES.ar)[curId] || '';
@@ -1334,30 +1339,98 @@ healSuezCanalBankOps();
 let activeTransSubTab = 'daily';
 
 function switchTransSubTab(mode){
-  activeTransSubTab = (mode === 'monthly' || mode === 'yr') ? mode : 'daily';
-  document.getElementById('transTabDaily')?.classList.toggle('active', activeTransSubTab === 'daily' || activeTransSubTab === 'monthly');
-  document.getElementById('transTabYr')?.classList.toggle('active', activeTransSubTab === 'yr');
+  activeTransSubTab = (mode === 'inc' || mode === 'exp') ? mode : 'daily';
+  document.getElementById('transTabDaily')?.classList.toggle('active', activeTransSubTab === 'daily');
+  document.getElementById('transTabInc')?.classList.toggle('active', activeTransSubTab === 'inc');
+  document.getElementById('transTabExp')?.classList.toggle('active', activeTransSubTab === 'exp');
 
   const dailyWrap = document.getElementById('transDailyMainWrap');
-  const yrWrap = document.getElementById('planViewYr');
-  if(dailyWrap) dailyWrap.style.display = activeTransSubTab === 'yr' ? 'none' : 'block';
-  if(yrWrap) yrWrap.style.display = activeTransSubTab === 'yr' ? 'block' : 'none';
+  const anaWrap = document.getElementById('transAnalyticsWrap');
+  const isAna = (activeTransSubTab === 'inc' || activeTransSubTab === 'exp');
+  if(dailyWrap) dailyWrap.style.display = isAna ? 'none' : 'block';
+  if(anaWrap) anaWrap.style.display = isAna ? 'block' : 'none';
 
-  updateFabVisibility();
-  updateTopTabTitle('trans');
-  if(activeTransSubTab === 'yr'){
-    renderYearlyExcelReport();
+  if(isAna){
+    activeReportTab = activeTransSubTab;
+    if(activeCatDrillState) closeCatDetailModal();
+    renderReportsScreen();
   } else {
     renderTransactionsScreen();
   }
+  updateFabVisibility();
+  updateTopTabTitle('trans');
 }
 
-function toggleMonthlySummaryFromFab(){
-  if(activeTransSubTab === 'monthly'){
-    switchTransSubTab('daily');
-  } else {
-    switchTransSubTab('monthly');
+function switchForecastTab(which){
+  const isYr = (which === 'yr');
+  document.getElementById('fcTabMonthly')?.classList.toggle('active', !isYr);
+  document.getElementById('fcTabYr')?.classList.toggle('active', isYr);
+  document.getElementById('fcViewMonthly').style.display = isYr ? 'none' : 'block';
+  document.getElementById('planViewYr').style.display = isYr ? 'block' : 'none';
+  updateTopTabTitle('forecast');
+  if(isYr) renderYearlyExcelReport();
+  else renderForecastMonthlyView();
+}
+
+function shiftForecastMonthlyYear(delta){
+  activeYear += delta;
+  forecastYear = activeYear;
+  renderForecastMonthlyView();
+}
+
+function renderForecastMonthlyView(){
+  const lang = state.prefs?.lang || 'ar';
+  const isEn = (lang === 'en');
+  const lbl = document.getElementById('fcMonthlyYearLabel');
+  if(lbl) lbl.textContent = String(activeYear);
+  let yrInc = 0, yrExp = 0;
+  const monthRows = [];
+  for(let mn = 12; mn >= 1; mn--){
+    const ym = String(activeYear) + '-' + String(mn).padStart(2, '0');
+    const mt = totals(ym);
+    yrInc = round2(yrInc + mt.inc);
+    yrExp = round2(yrExp + mt.exp);
+    const mLabel = isEn ? monthNamesEn[mn-1] : monthNamesAr[mn-1];
+    monthRows.push({ mn, ym, mLabel, inc: mt.inc, exp: mt.exp, net: mt.net });
   }
+  const yrNet = round2(yrInc - yrExp);
+  const incEl = document.getElementById('fcMonthIncHero');
+  const expEl = document.getElementById('fcMonthExpHero');
+  const netEl = document.getElementById('fcMonthNetHero');
+  if(incEl) incEl.textContent = maskable(fmtNum(yrInc));
+  if(expEl) expEl.textContent = maskable(fmtNum(yrExp));
+  if(netEl){
+    netEl.textContent = maskable(fmtNum(yrNet));
+    netEl.className = yrNet >= 0 ? 'mint' : 'red';
+  }
+  const headHtml = `
+    <div class="mm-monthly-head">
+      <div>${isEn ? 'Month' : 'الشهر'}</div>
+      <div class="num">${isEn ? 'Income' : 'الدخل'}</div>
+      <div class="num">${isEn ? 'Expenses' : 'المصروفات'}</div>
+      <div class="num">${isEn ? 'Net' : 'الصافي'}</div>
+    </div>
+  `;
+  const feed = document.getElementById('fcMonthlyFeed');
+  if(feed){
+    feed.innerHTML = `<div class="day-group">` + headHtml + monthRows.map(r => `
+      <div class="mm-month-row ${r.mn === activeMonth ? 'cur-month' : ''}" onclick="selectMonthFromForecastTab(${activeYear}, ${r.mn})">
+        <div><b>${esc(r.mLabel)}</b></div>
+        <div class="num blue">${maskable(fmtNum(r.inc))}</div>
+        <div class="num red">${maskable(fmtNum(r.exp))}</div>
+        <div class="num ${r.net >= 0 ? 'mint' : 'red'}">${maskable(fmtNum(r.net))}</div>
+      </div>
+    `).join('') + `</div>`;
+  }
+}
+
+function selectMonthFromForecastTab(yr, mn){
+  activeYear = yr;
+  activeMonth = mn;
+  forecastYear = yr;
+  homePeriodMode = 'monthly';
+  go('trans', document.querySelector('.nav[data-page="trans"]'));
+  switchTransSubTab('daily');
 }
 
 function shiftTransPeriod(delta){
@@ -2234,22 +2307,27 @@ function setQuickTxType(t){
   setQmDockMode(qmState.editId ? '' : 'acc');
 }
 
-function selectQmCardMonthsPill(mVal, btn){
-  setv('qmCardMonths', mVal);
-  document.querySelectorAll('#qmCardMonthsPills .m-pill').forEach(b=>b.classList.toggle('active', b===btn));
+function openQmCardMonthsPicker(){
+  const cur = String(val('qmCardMonths') || '12');
+  const opts = [3, 6, 9, 12, 15, 18, 24];
+  const html = `<div class="cs-opt-list">` + opts.map(m => `
+    <button type="button" class="cs-opt-btn ${String(m)===cur?'selected':''}" onclick="syncQmCardMonthsPills(${m});closeAppDialog()">
+      <span>${m} شهر</span><span>${String(m)===cur?'●':'○'}</span>
+    </button>
+  `).join('') + `</div>`;
+  showAppCustomForm('عدد شهور التقسيط', html, null, true);
 }
 function syncQmCardMonthsPills(mVal){
   const target = String(mVal || 12);
   setv('qmCardMonths', target);
-  document.querySelectorAll('#qmCardMonthsPills .m-pill').forEach(b=>{
-    b.classList.toggle('active', b.textContent.trim() === target);
-  });
+  const lbl = document.getElementById('qmCardMonthsLbl');
+  if(lbl) lbl.textContent = target;
 }
 function setQmCardMode(mode){
   qmState.cardMode = mode;
   document.getElementById('qmCardSwipeBtn').classList.toggle('active', mode==='swipe');
   document.getElementById('qmCardInstBtn').classList.toggle('active', mode==='installment');
-  document.getElementById('qmCardMonthsRow').style.display = mode==='installment' ? 'flex' : 'none';
+  document.getElementById('qmCardMonthsRow').style.display = mode==='installment' ? 'inline-flex' : 'none';
 }
 
 function updateQmCatLabel(){
@@ -2267,8 +2345,8 @@ function renderQuickPickers(){
     qmState.accountId = selAcc.id;
     qmState.isCard = selAcc.isCard;
     document.getElementById('qmAccSelectedText').textContent = selAcc.name;
-    document.getElementById('qmCardModeRow').style.display = selAcc.isCard ? 'flex' : 'none';
-    document.getElementById('qmCardMonthsRow').style.display = (selAcc.isCard && qmState.cardMode==='installment') ? 'flex' : 'none';
+    document.getElementById('qmCardModeRow').style.display = selAcc.isCard ? 'grid' : 'none';
+    document.getElementById('qmCardMonthsRow').style.display = (selAcc.isCard && qmState.cardMode==='installment') ? 'inline-flex' : 'none';
   } else {
     document.getElementById('qmAccSelectedText').textContent = 'كاش';
   }
@@ -5324,7 +5402,8 @@ function renderActiveScreenOnly(){
   syncCustomSelectTriggers();
   updateFabVisibility();
   const activePage = document.querySelector('.screen.active')?.id || 'trans';
-  if(activePage === 'trans'){ if(activeTransSubTab==='yr') renderYearlyExcelReport(); else renderTransactionsScreen(); }
+  if(activePage === 'trans'){ if(activeTransSubTab==='inc'||activeTransSubTab==='exp') renderReportsScreen(); else renderTransactionsScreen(); }
+  else if(activePage === 'forecast'){ if(document.getElementById('fcTabYr')?.classList.contains('active')) renderYearlyExcelReport(); else renderForecastMonthlyView(); }
   else if(activePage === 'reports'){
     renderReportsScreen();
     if(activeCatDrillState) renderCategoryDrillDownContent();
@@ -5343,6 +5422,7 @@ function renderAll(){
   updateFabVisibility();
   renderTransactionsScreen();
   renderReportsScreen();
+  renderForecastMonthlyView();
   if(activeCatDrillState) renderCategoryDrillDownContent();
   renderAccountsAndCards();
   renderPlanScreen();
@@ -5352,17 +5432,12 @@ function renderAll(){
 
 /* Horizontal Swipe Navigation */
 (function initSwipeNavigation(){
-  const MAIN_PAGES = ['trans', 'reports', 'wallet', 'settings'];
+  const MAIN_PAGES = ['trans', 'wallet', 'forecast', 'settings'];
   const SUB_TABS = {
     trans: {
-      list: ['daily', 'yr'],
+      list: ['daily', 'inc', 'exp'],
       getActive: () => activeTransSubTab || 'daily',
       setActive: (val) => switchTransSubTab(val)
-    },
-    reports: {
-      list: ['inc', 'exp'],
-      getActive: () => activeReportTab || 'exp',
-      setActive: (val) => switchReportTab(val)
     },
     wallet: {
       list: ['acc', 'card', 'com'],
@@ -5372,6 +5447,11 @@ function renderAll(){
         return 'acc';
       },
       setActive: (val) => switchWalletTab(val)
+    },
+    forecast: {
+      list: ['monthly', 'yr'],
+      getActive: () => document.getElementById('fcTabYr')?.classList.contains('active') ? 'yr' : 'monthly',
+      setActive: (val) => switchForecastTab(val)
     }
   };
 

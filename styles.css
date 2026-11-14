@@ -3242,3 +3242,73 @@ nav.bottom {
 @media(min-width:560px){
   .fab-monthly { right: calc(50% - 240px); left: auto; }
 }
+
+
+/* =========================================================
+   X-Wallet V13.15 Clean Inline Card Mode + Months Dropdown Pill
+   ========================================================= */
+.qm-acc-inline-wrap {
+  width: 72% !important;
+  max-width: 72% !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  min-width: 0 !important;
+}
+#quickModal .qm-acc-inline-wrap #qmAccTrigger {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  padding: 0 4px !important;
+}
+#quickModal .qm-acc-inline-wrap #qmAccSelectedText {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: block !important;
+}
+#quickModal .qm-acc-inline-wrap .inline-card-seg {
+  width: 102px !important;
+  min-width: 102px !important;
+  max-width: 102px !important;
+  height: 28px !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  flex-shrink: 0 !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--line2) !important;
+  border-radius: 8px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+#quickModal .qm-acc-inline-wrap .inline-card-seg .seg-btn {
+  width: 100% !important;
+  padding: 0 2px !important;
+  font-size: .7rem !important;
+  height: 100% !important;
+  display: grid !important;
+  place-items: center !important;
+}
+.inline-months-btn {
+  width: 48px !important;
+  min-width: 48px !important;
+  max-width: 48px !important;
+  height: 28px !important;
+  border-radius: 8px !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--mint) !important;
+  color: var(--mint) !important;
+  font-size: .74rem !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  padding: 0 4px !important;
+  flex-shrink: 0 !important;
+}
+.inline-months-btn small {
+  font-size: .56rem;
+  opacity: 0.85;
+}
