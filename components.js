@@ -150,15 +150,32 @@ window.addEventListener('popstate', function(){
     try{history.pushState({xwGuard:2},'');}catch(_){}
     return;
   }
+  const searchRow = document.getElementById('transSearchRow');
   const searchBox = document.getElementById('mmSearchBox');
   const searchInp = document.getElementById('actSearch');
-  if(_transSearchActive || (searchBox && searchBox.style.display !== 'none') || (searchInp && searchInp.value)){
+  const comSearchWrap = document.getElementById('comSearchBarWrap');
+  const comSearchInp = document.getElementById('comSearch');
+  const isSearchRowOpen = !!(searchRow && searchRow.style.display !== 'none');
+  const isFilterBoxOpen = !!(searchBox && searchBox.style.display !== 'none');
+  const isComSearchOpen = !!(comSearchWrap && comSearchWrap.style.display !== 'none');
+  if(_transSearchActive || isSearchRowOpen || isFilterBoxOpen || (searchInp && searchInp.value) || hasAnyTransAdvFilter()){
     _transSearchActive = false;
+    if(searchRow) searchRow.style.display = 'none';
     if(searchBox) searchBox.style.display = 'none';
     if(searchInp) searchInp.blur();
+    document.getElementById('btnToggleTransSearchHdr')?.classList.remove('active');
+    document.getElementById('btnToggleFilterHdr')?.classList.remove('active');
     clearTransactionsSearch();
     updateFabVisibility();
     toast('تم إلغاء البحث');
+    try{history.pushState({xwGuard:2},'');}catch(_){}
+    return;
+  }
+  if(isComSearchOpen || (comSearchInp && comSearchInp.value)){
+    if(comSearchWrap) comSearchWrap.style.display = 'none';
+    if(comSearchInp){ comSearchInp.value = ''; comSearchInp.blur(); }
+    document.getElementById('btnToggleComSearchHdr')?.classList.remove('active');
+    if(typeof renderPlanScreen === 'function') renderPlanScreen();
     try{history.pushState({xwGuard:2},'');}catch(_){}
     return;
   }

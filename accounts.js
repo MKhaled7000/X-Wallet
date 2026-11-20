@@ -286,13 +286,14 @@ function renderFullStatementModalContent(){
   document.getElementById('stmtPeriodLabel').textContent = isYearly ? yStr : formatYMArabic(ym);
 
   let combined = [];
+  let acc = null;
   const topTitleEl = document.getElementById('stmtTopTabTitle');
   if(topTitleEl) topTitleEl.textContent = (kind === 'card') ? 'البطاقات' : 'الحسابات';
   const stmtQ = (document.getElementById('stmtSearchInp')?.value || '').trim().toLowerCase();
 
   if(kind === 'account'){
-    const acc = state.accounts.find(a=>a.id===id);
-    document.getElementById('stmtModalTitle').textContent = acc ? `${acc.name} (${String(acc.currency||'EGP').toUpperCase()})` : 'الحساب';
+    acc = (state.accounts||[]).find(a=>String(a.id)===String(id)) || null;
+    document.getElementById('stmtModalTitle').textContent = acc ? `← ${acc.name}` : '← الحساب';
 
     const txItems = activeStatementItems(state.transactions)
       .filter(t => txMatchesAccount(t, id) && (isYearly ? String(t.date||'').startsWith(yStr) : monthKey(t.date)===ym))
@@ -334,13 +335,14 @@ function renderFullStatementModalContent(){
 
     combined = [...txItems, ...ledItems];
   } else {
-    const card = state.cards.find(c=>c.id===id);
+    const card = (state.cards||[]).find(c=>String(c.id)===String(id)) || null;
     const cName = card ? card.name : 'بطاقة';
+    const cNameLow = cName.trim().toLowerCase();
     const cardCurrency=String(card?.currency||'EGP').toUpperCase();
-    document.getElementById('stmtModalTitle').textContent = `${cName} (${cardCurrency})`;
+    document.getElementById('stmtModalTitle').textContent = `← ${cName}`;
 
-    const cardOpIds = new Set((state.cardOps||[]).filter(o=>o.cardId===id).map(o=>o.id));
-    const cardPayIds = new Set((state.cardPayments||[]).filter(p=>p.cardId===id).map(p=>p.id));
+    const cardOpIds = new Set((state.cardOps||[]).filter(o=>String(o.cardId)===String(id)).map(o=>o.id));
+    const cardPayIds = new Set((state.cardPayments||[]).filter(p=>String(p.cardId)===String(id)).map(p=>p.id));
 
     // Synthesize missing transaction rows for cardOps if needed
     const existingCardTxs = (state.transactions||[]).filter(t=>t&&!t.deletedAt&&t.source&&String(t.source).startsWith('card-purchase:'));
@@ -360,6 +362,7 @@ function renderFullStatementModalContent(){
       if(t.linkedCardOpId && cardOpIds.has(t.linkedCardOpId)) return true;
       if(t.linkedCardPaymentRecordId && cardPayIds.has(t.linkedCardPaymentRecordId)) return true;
       if(t.source === 'card-payment' && String(t.title||'').includes(cName)) return true;
+      if(cNameLow && String(t.accountLabel||'').trim().toLowerCase() === cNameLow) return true;
       return false;
     }).map((x, idx)=>normalizeCardStatementItem(x,card,idx));
   }

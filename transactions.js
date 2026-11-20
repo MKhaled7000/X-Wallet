@@ -2,10 +2,10 @@
 
 /* ---- Original app.js lines 1100-1458 ---- */
 let activeReportCategoryFilter = null;
-let transAdvFilter = { dateFrom:'', dateTo:'', accountId:'', accountLabel:'', mainCat:'', subCat:'', amountFrom:'', amountTo:'' };
+let transAdvFilter = { dateFrom:'', dateTo:'', accountId:'', accountLabel:'', mainCat:'', subCat:'', amountFrom:'', amountTo:'', type:'' };
 
 function hasAnyTransAdvFilter(){
-  return !!(transAdvFilter.dateFrom || transAdvFilter.dateTo || transAdvFilter.accountId || transAdvFilter.mainCat || transAdvFilter.subCat || transAdvFilter.amountFrom || transAdvFilter.amountTo);
+  return !!(transAdvFilter.dateFrom || transAdvFilter.dateTo || transAdvFilter.accountId || transAdvFilter.mainCat || transAdvFilter.subCat || transAdvFilter.amountFrom || transAdvFilter.amountTo || transAdvFilter.type);
 }
 
 function updateTransFilterGridUI(){
@@ -13,9 +13,11 @@ function updateTransFilterGridUI(){
   const amCard = document.getElementById('fCardAmt');
   const aCard = document.getElementById('fCardAcc');
   const cCard = document.getElementById('fCardCat');
+  const tCard = document.getElementById('fCardType');
   const box = document.getElementById('mmSearchBox');
   const isFilterOpen = box && box.style.display !== 'none';
   const hasAny = hasAnyTransAdvFilter() || !!(document.getElementById('actSearch')?.value || '').trim();
+  document.getElementById('btnToggleFilterHdr')?.classList.toggle('active', isFilterOpen || hasAnyTransAdvFilter());
 
   // 2.3 Replace month stepper with Cancel Filter button when filter is open or active
   const stepper = document.getElementById('transNavStepper');
@@ -62,6 +64,13 @@ function updateTransFilterGridUI(){
     else if(transAdvFilter.mainCat || transAdvFilter.subCat) cTxt = `${transAdvFilter.mainCat || transAdvFilter.subCat} ✕`;
     document.getElementById('fValCat').textContent = cTxt;
   }
+  if(tCard){
+    const hasT = !!transAdvFilter.type;
+    tCard.classList.toggle('active', hasT);
+    const tMap = { income:'دخل', expense:'مصروفات', transfer:'تحويلات' };
+    const el = document.getElementById('fValType');
+    if(el) el.textContent = hasT ? `${tMap[transAdvFilter.type] || transAdvFilter.type} ✕` : '';
+  }
   updateFabVisibility();
 }
 
@@ -95,25 +104,38 @@ function handleFilterCardTap(kind, ev){
     renderTransactionsScreen();
     return;
   }
+  if(kind === 'type' && transAdvFilter.type){
+    transAdvFilter.type = '';
+    updateTransFilterGridUI();
+    renderTransactionsScreen();
+    return;
+  }
   openTransFilterPrompt(kind);
 }
 
 function closeAndClearSearchFilter(){
   const box = document.getElementById('mmSearchBox');
   if(box) box.style.display = 'none';
+  const row = document.getElementById('transSearchRow');
+  if(row) row.style.display = 'none';
+  _transSearchActive = false;
   document.getElementById('btnToggleSearch')?.classList.remove('active');
+  document.getElementById('btnToggleFilterHdr')?.classList.remove('active');
+  document.getElementById('btnToggleTransSearchHdr')?.classList.remove('active');
   clearTransactionsSearch();
+  if(typeof updateFabVisibility === 'function') updateFabVisibility();
 }
 
 function toggleSearchFilterGrid(){
   const box = document.getElementById('mmSearchBox');
-  const btn = document.getElementById('btnToggleSearch');
+  const btn = document.getElementById('btnToggleFilterHdr') || document.getElementById('btnToggleSearch');
   if(!box) return;
   const open = box.style.display === 'none';
   box.style.display = open ? 'block' : 'none';
   btn?.classList.toggle('active', open || hasAnyTransAdvFilter());
-  if(open && activeTransSubTab === 'monthly'){
-    switchTransSubTab('daily');
+  if(open){
+    try{ history.pushState({xwGuard:2, xwFilter:1}, ''); }catch(_){}
+    if(activeTransSubTab === 'monthly') switchTransSubTab('daily');
   }
   updateTransFilterGridUI();
 }
@@ -294,7 +316,28 @@ function openTransFilterPrompt(kind){
     `;
     showAppCustomForm('فلترة بالقسم الرئيسي والفرعي', html, null, true);
     renderFilterCatColumnsModal();
+    return;
   }
+  if(kind === 'type'){
+    const opts = [
+      { id:'income', name:'دخل' },
+      { id:'expense', name:'مصروفات' },
+      { id:'transfer', name:'تحويلات' }
+    ];
+    const listHtml = `<div class="cs-opt-list">` + opts.map(o=>`
+      <button type="button" class="cs-opt-btn ${transAdvFilter.type===o.id?'selected':''}" onclick="selectTransFilterType('${o.id}')">
+        <span>${o.name}</span><span>${transAdvFilter.type===o.id?'●':'○'}</span>
+      </button>
+    `).join('') + `</div>`;
+    showAppCustomForm('فلترة بالنوع', listHtml, null, true);
+  }
+}
+
+function selectTransFilterType(tp){
+  transAdvFilter.type = tp || '';
+  closeAppDialog();
+  updateTransFilterGridUI();
+  renderTransactionsScreen();
 }
 
 function selectTransFilterAccount(id, name){
@@ -340,7 +383,7 @@ function onTransactionsSearchInput(){
 }
 function clearTransactionsSearch(){
   activeReportCategoryFilter = null;
-  transAdvFilter = { dateFrom:'', dateTo:'', accountId:'', accountLabel:'', mainCat:'', subCat:'', amountFrom:'', amountTo:'' };
+  transAdvFilter = { dateFrom:'', dateTo:'', accountId:'', accountLabel:'', mainCat:'', subCat:'', amountFrom:'', amountTo:'', type:'' };
   setv('actAccountFilter', '');
   const inp = document.getElementById('actSearch');
   if(inp) inp.value = '';
@@ -375,7 +418,11 @@ function switchTransSubTab(mode){
     switchReportTab(mode);
     return;
   }
-  activeTransSubTab = (mode === 'monthly' || mode === 'commitments') ? mode : 'daily';
+  if(mode === 'commitments'){
+    go('commitments', document.querySelector('.nav[data-page="commitments"]'));
+    return;
+  }
+  activeTransSubTab = (mode === 'monthly') ? 'monthly' : 'daily';
   document.getElementById('transTabDaily')?.classList.toggle('active', activeTransSubTab === 'daily' || activeTransSubTab === 'monthly');
   document.getElementById('transTabCommit')?.classList.toggle('active', activeTransSubTab === 'commitments');
 
@@ -502,13 +549,19 @@ function txMatchesAccount(it, targetAccId){
   if(targetAccId.startsWith('card:')){
     const cid = targetAccId.replace('card:','');
     const opId = String(it.source||'').replace('card-purchase:','');
-    const op = state.cardOps.find(o=>o.id===opId);
-    return !!(op && op.cardId === cid);
+    const op = (state.cardOps||[]).find(o=>String(o.id)===opId);
+    if(op && String(op.cardId) === cid) return true;
+    const card = (state.cards||[]).find(c=>String(c.id)===cid);
+    if(card){
+      const cLbl = String(card.name||'').trim().toLowerCase();
+      if(cLbl && String(it.accountLabel||'').trim().toLowerCase() === cLbl) return true;
+    }
+    return false;
   }
   const sid = String(targetAccId);
   if(String(it.accountId||'') === sid || String(it.toAccountId||'') === sid) return true;
 
-  const targetAcc = state.accounts.find(a=>a.id === sid);
+  const targetAcc = (state.accounts||[]).find(a=>String(a.id) === sid);
   if(targetAcc){
     const lbl = String(it.accountLabel||'').trim().toLowerCase();
     if(lbl && lbl === String(targetAcc.name||'').trim().toLowerCase()) return true;
@@ -748,6 +801,11 @@ function renderTransactionsScreen(){
     if(transAdvFilter.dateTo && dSlice > transAdvFilter.dateTo) return false;
     if(transAdvFilter.mainCat && String(it.category||'').trim() !== transAdvFilter.mainCat) return false;
     if(transAdvFilter.subCat && String(it.subCategory||'').trim() !== transAdvFilter.subCat) return false;
+    if(transAdvFilter.type){
+      if(transAdvFilter.type === 'income' && it.type !== 'income') return false;
+      if(transAdvFilter.type === 'expense' && !isActualExpenseTx(it)) return false;
+      if(transAdvFilter.type === 'transfer' && it.type !== 'transfer') return false;
+    }
     if(transAdvFilter.amountFrom || transAdvFilter.amountTo){
       const itemAmt = Math.abs(Number(it.amount)||0);
       const hasF = transAdvFilter.amountFrom !== '' && Number.isFinite(Number(transAdvFilter.amountFrom));

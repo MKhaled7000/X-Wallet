@@ -152,6 +152,7 @@ function applyPreferences(){
   const rsty = p.recordStyle || 'framed';
   document.documentElement.setAttribute('data-record-style', rsty);
   setv('prefRecordStyle', rsty);
+  if(typeof applyPageVisibilityPrefs === 'function') applyPageVisibilityPrefs();
 
   const th = THEMES[p.theme] || THEMES.mint;
   document.documentElement.style.setProperty('--mint', th.mint);

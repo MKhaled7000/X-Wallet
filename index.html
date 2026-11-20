@@ -5,7 +5,7 @@
 <title>X-Wallet</title>
 <link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;600;700&family=Almarai:wght@400;700&family=Amiri:wght@400;700&family=Cairo:wght@400;700&family=Changa:wght@400;600;700&family=El+Messiri:wght@400;600;700&family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Inter:wght@400;600;700&family=Mada:wght@400;600;700&family=Noto+Sans+Arabic:wght@400;600;700&family=Poppins:wght@400;600;700&family=Readex+Pro:wght@400;600;700&family=Roboto:wght@400;500;700&family=Rubik:wght@400;600;700&family=Tajawal:wght@400;700&family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=15.2.5">
+<link rel="stylesheet" href="styles.css?v=15.2.6">
 </head>
 <body>
 <div id="globalUpdateBar" class="global-update-bar">
@@ -45,28 +45,22 @@
 
   <!-- Controls for Transactions (#trans) -->
   <div class="utb-right" id="hdrTransControls">
-    <button type="button" class="utb-ico-btn" id="btnToggleTransSearchHdr" onclick="toggleTransSearchDrawer()" title="بحث وفلترة">
+    <button type="button" class="utb-ico-btn" id="btnToggleTransSearchHdr" onclick="toggleTransSearchBarOnly()" title="بحث">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     </button>
-    <button type="button" class="utb-ico-btn" id="btnToggleMonthlyTop" onclick="toggleMonthlySummaryView()" title="ملخص السنة (شهري)">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <button type="button" class="utb-ico-btn" id="btnToggleFilterHdr" onclick="toggleFilterFromFab()" title="فلترة">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
     </button>
     <div class="ym-stepper utb-stepper" id="transNavStepper" dir="ltr">
-      <button type="button" class="step-arrow" onclick="shiftHeaderTransOrCom(-1)">‹</button>
+      <button type="button" class="step-arrow" onclick="shiftTransPeriod(-1)">‹</button>
       <button type="button" class="step-label" onclick="openTransPeriodPicker()" id="homePeriodLabel">نوفمبر 2026</button>
-      <button type="button" class="step-arrow" onclick="shiftHeaderTransOrCom(1)">›</button>
+      <button type="button" class="step-arrow" onclick="shiftTransPeriod(1)">›</button>
     </div>
     <button type="button" class="cancel-filter-top-btn utb-cancel-flt" id="btnCancelFilterTop" style="display:none" onclick="closeAndClearSearchFilter()">✕ إلغاء</button>
   </div>
 
-  <!-- Controls for Analytics (#analytics) -->
+  <!-- Controls for Analytics (#analytics): chart shown by default, no toggle icon -->
   <div class="utb-right" id="hdrAnaControls" style="display:none">
-    <button type="button" class="utb-ico-btn" id="repSelectedCatBtn" style="display:none;width:auto;padding:0 8px;gap:4px;border-color:var(--mint);color:var(--mint)" onclick="closeCatDetailModal()" title="رجوع لكل البنود">
-      <span>←</span><b id="catDetailTitle" style="font-size:.7rem;max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">البند</b>
-    </button>
-    <button type="button" class="utb-ico-btn" id="btnToggleMainRepChart" onclick="toggleUnifiedReportChart()" title="إظهار / إخفاء الرسم البياني">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
-    </button>
     <input type="hidden" id="repPeriodMode" value="monthly">
     <div class="ym-stepper utb-stepper" id="repStepperBox" dir="ltr">
       <button type="button" class="step-arrow" onclick="shiftReportPeriod(-1)">‹</button>
@@ -85,12 +79,24 @@
     </div>
   </div>
 
-  <!-- Controls for Wallet (#wallet): 4 compact tool buttons in place of date -->
+  <!-- Controls for Wallet (#wallet): 4 compact tool buttons -->
   <div class="utb-right utb-wallet-tools" id="hdrWalletControls" style="display:none">
     <button type="button" class="utb-ico-btn" id="wtBtnAdd" onclick="openWalletAddChoiceModal()" title="إضافة حساب أو بطاقة">＋</button>
     <button type="button" class="utb-ico-btn" id="wtBtnReorder" onclick="toggleWalletToolbarMode('reorder')" title="ترتيب الحسابات والبطاقات">⇅</button>
     <button type="button" class="utb-ico-btn" id="wtBtnHide" onclick="toggleWalletToolbarMode('hide')" title="إخفاء / إظهار حسابات">👁</button>
     <button type="button" class="utb-ico-btn danger-ico" id="wtBtnDelete" onclick="toggleWalletToolbarMode('delete')" title="حذف حساب أو بطاقة">🗑</button>
+  </div>
+
+  <!-- Controls for Commitments (#commitments) -->
+  <div class="utb-right" id="hdrComControls" style="display:none">
+    <button type="button" class="utb-ico-btn" id="btnToggleComSearchHdr" onclick="toggleComSearchBar()" title="بحث الالتزامات">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </button>
+    <div class="ym-stepper utb-stepper" dir="ltr">
+      <button type="button" class="step-arrow" onclick="shiftActiveMonth(-1)">‹</button>
+      <button type="button" class="step-label" onclick="openHomePeriodPicker()" id="comMonthLabel">نوفمبر 2026</button>
+      <button type="button" class="step-arrow" onclick="shiftActiveMonth(1)">›</button>
+    </div>
   </div>
 </header>
 
@@ -99,49 +105,52 @@
      ========================================================= -->
 <section id="trans" class="screen active">
   <div id="homeAvailableTotal" style="display:none">0 EGP</div>
-  <div style="display:none"><b id="repBoxTotalInc">0 EGP</b><b id="repBoxTotalExp">0 EGP</b><span id="comMonthLabel">نوفمبر 2026</span></div>
+  <div style="display:none"><b id="repBoxTotalInc">0 EGP</b><b id="repBoxTotalExp">0 EGP</b></div>
 
-  <!-- Detached Search & Filter Drawer (opens cleanly when 🔍 in header is tapped — zero overlap!) -->
-  <div id="transSearchDrawer" class="trans-search-drawer" style="display:none">
+  <!-- Independent Search Bar (toggled by 🔍 in header or FAB) -->
+  <div id="transSearchRow" class="trans-search-drawer" style="display:none">
     <div class="tsd-row">
       <div class="mm-inline-search-bar" style="flex:1">
-        <input id="actSearch" type="search" name="x_tx_search" autocomplete="off" data-lpignore="true" placeholder="ابحث" oninput="onUnifiedSearchInput()">
+        <input id="actSearch" type="search" name="x_tx_search" autocomplete="off" data-lpignore="true" placeholder="ابحث" oninput="onTransactionsSearchInput()">
         <button type="button" id="btnClearSearch" onclick="clearTransactionsSearch()" title="مسح البحث والفلاتر" style="display:none">✕</button>
       </div>
-      <button type="button" class="mm-filter-icon-btn standalone" id="btnToggleSearch" onclick="toggleSearchFilterGrid()" title="فلترة متقدمة">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-      </button>
     </div>
-    <div id="mmSearchBox" class="filter-bar-detached" style="display:none">
-      <div class="mm-filter-chips-grid four-in-row" id="mmFilterChipsGrid">
-        <button type="button" class="mm-f-card" id="fCardDate" onclick="handleFilterCardTap('date', event)">
-          <span class="mm-f-lbl">بالتاريخ</span>
-          <b class="mm-f-val" id="fValDate"></b>
-        </button>
-        <button type="button" class="mm-f-card" id="fCardAmt" onclick="handleFilterCardTap('amount', event)">
-          <span class="mm-f-lbl">بالمبلغ</span>
-          <b class="mm-f-val" id="fValAmt"></b>
-        </button>
-        <button type="button" class="mm-f-card" id="fCardAcc" onclick="handleFilterCardTap('account', event)">
-          <span class="mm-f-lbl">بالحساب</span>
-          <b class="mm-f-val" id="fValAcc"></b>
-        </button>
-        <button type="button" class="mm-f-card" id="fCardCat" onclick="handleFilterCardTap('cat', event)">
-          <span class="mm-f-lbl">بالقسم</span>
-          <b class="mm-f-val" id="fValCat"></b>
-        </button>
-      </div>
+  </div>
+
+  <!-- Independent 5-Card Filter Bar (toggled directly with 1 tap by Filter icon in header or FAB!) -->
+  <div id="mmSearchBox" class="filter-bar-detached standalone-filter-bar" style="display:none">
+    <div class="mm-filter-chips-grid five-in-row" id="mmFilterChipsGrid">
+      <button type="button" class="mm-f-card" id="fCardDate" onclick="handleFilterCardTap('date', event)">
+        <span class="mm-f-lbl">بالتاريخ</span>
+        <b class="mm-f-val" id="fValDate"></b>
+      </button>
+      <button type="button" class="mm-f-card" id="fCardAmt" onclick="handleFilterCardTap('amount', event)">
+        <span class="mm-f-lbl">بالمبلغ</span>
+        <b class="mm-f-val" id="fValAmt"></b>
+      </button>
+      <button type="button" class="mm-f-card" id="fCardAcc" onclick="handleFilterCardTap('account', event)">
+        <span class="mm-f-lbl">بالحساب</span>
+        <b class="mm-f-val" id="fValAcc"></b>
+      </button>
+      <button type="button" class="mm-f-card" id="fCardCat" onclick="handleFilterCardTap('cat', event)">
+        <span class="mm-f-lbl">بالقسم</span>
+        <b class="mm-f-val" id="fValCat"></b>
+      </button>
+      <button type="button" class="mm-f-card" id="fCardType" onclick="handleFilterCardTap('type', event)">
+        <span class="mm-f-lbl">بالنوع</span>
+        <b class="mm-f-val" id="fValType"></b>
+      </button>
     </div>
   </div>
 
   <div id="transDailyMainWrap">
     <div class="mm-stats-card compact-stats-strip">
       <div class="mm-stats">
-        <div class="mm-stat-box">
+        <div class="mm-stat-box clickable-stat" onclick="switchTransSubTab('inc')" title="اضغط لعرض تحليل الدخل">
           <small>الدخل</small>
           <b class="blue" id="incomeHero">0</b>
         </div>
-        <div class="mm-stat-box">
+        <div class="mm-stat-box clickable-stat" onclick="switchTransSubTab('exp')" title="اضغط لعرض تحليل المصروفات">
           <small>المصروفات</small>
           <b class="red" id="expenseHero">0</b>
         </div>
@@ -152,13 +161,6 @@
       </div>
     </div>
     <div id="dailyTransactionsFeed"></div>
-  </div>
-
-  <div id="transCommitmentsWrap" style="display:none">
-    <div style="display:none"><span id="comHeroMonthLabel">نوفمبر 2026</span><span id="comHeroTotal">0 EGP</span><input id="comSearch" type="hidden" value=""></div>
-    <div class="panel" style="padding:0;overflow:hidden">
-      <div class="com-table-wrap" id="commitmentsList"></div>
-    </div>
   </div>
 </section>
 
@@ -186,7 +188,7 @@
       </div>
 
       <div id="repMainContentWrap">
-        <div class="panel" id="repChartPanel" style="display:none;flex-direction:column;align-items:center;padding:14px 12px">
+        <div class="panel" id="repChartPanel" style="display:flex;flex-direction:column;align-items:center;padding:14px 12px">
           <div id="repDonutWrap" style="position:relative;width:166px;height:166px;display:grid;place-items:center;margin-bottom:10px"></div>
           <div id="repLegendChips" style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;width:100%"></div>
         </div>
@@ -271,6 +273,32 @@
 </section>
 
 <!-- =========================================================
+     4. شاشة الالتزامات المستقلة
+     ========================================================= -->
+<section id="commitments" class="screen">
+  <div style="display:none"><span id="comHeroMonthLabel">نوفمبر 2026</span><span id="comHeroTotal">0 EGP</span></div>
+  <div id="comSearchBarWrap" class="trans-search-drawer" style="display:none">
+    <div class="tsd-row">
+      <div class="mm-inline-search-bar" style="flex:1">
+        <input id="comSearch" type="search" name="x_com_search" autocomplete="off" data-lpignore="true" placeholder="ابحث في الالتزامات" oninput="renderPlanScreen()">
+        <button type="button" id="btnClearComSearch" onclick="document.getElementById('comSearch').value='';renderPlanScreen()" title="مسح البحث" style="display:none">✕</button>
+      </div>
+    </div>
+  </div>
+  <div class="mm-stats-card compact-stats-strip">
+    <div class="mm-stats" style="grid-template-columns:1fr">
+      <div class="mm-stat-box">
+        <small>إجمالي التزامات الشهر</small>
+        <b class="orange" id="comSummaryTotal">0</b>
+      </div>
+    </div>
+  </div>
+  <div class="panel" style="padding:0;overflow:hidden">
+    <div class="com-table-wrap" id="commitmentsList"></div>
+  </div>
+</section>
+
+<!-- =========================================================
      5. شاشة المزيد (#8)
      ========================================================= -->
 <section id="settings" class="screen">
@@ -285,7 +313,7 @@
         <small>تطوير: م/ محمد خالد</small>
       </div>
     </div>
-    <span class="tag" id="devCardVerBadge" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V15.2.5</span>
+    <span class="tag" id="devCardVerBadge" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V15.2.6</span>
   </div>
 
   <!-- 2.1 & 2.2 & 2.3 كل خيارات المزيد تفتح في صفحة مستقلة بدون أسهم وبشكل مضغوط -->
@@ -354,6 +382,10 @@
   <button class="nav" data-page="wallet" onclick="go('wallet',this)">
     <svg viewBox="0 0 24 24" fill="none"><rect x="2.5" y="5.5" width="19" height="13" rx="3" fill="#73a7ff" fill-opacity=".22" stroke="#73a7ff" stroke-width="1.8"/><circle cx="16.5" cy="12" r="1.5" fill="#73a7ff"/></svg>
     <span>المحفظة</span>
+  </button>
+  <button class="nav" data-page="commitments" onclick="go('commitments',this)">
+    <svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="4.5" width="17" height="16" rx="3" fill="#b69aff" fill-opacity=".2" stroke="#b69aff" stroke-width="1.8"/><path d="M8 2.5v4M16 2.5v4M3.5 9.5h17" stroke="#b69aff" stroke-width="1.8" stroke-linecap="round"/></svg>
+    <span>الالتزامات</span>
   </button>
 
   <button class="nav" data-page="settings" onclick="go('settings',this)">
@@ -587,61 +619,24 @@
      ========================================================= -->
 <div class="modal fullpage-modal with-bottom-nav" id="statementFullModal" onclick="if(event.target===this)closeFullStatementModal()">
   <div class="sheet fullpage-sheet" style="overflow-y:auto;padding-bottom:80px!important">
-    <!-- الصف الأول: اللوجو واسم التاب الحالية اللي كنت فيها -->
-    <header class="top" style="flex-shrink:0">
-      <div class="brand">
+    <header class="top unified-top-bar" style="flex-shrink:0">
+      <div class="utb-left">
         <div class="logo"><img src="icon-192.png" alt="X-Wallet"></div>
-        <b>X-Wallet</b>
+        <button type="button" class="utb-tab-btn" id="stmtModalTitle" onclick="closeFullStatementModal()" title="الرجوع للمحفظة">← الحساب</button>
       </div>
-      <div class="top-tab-title" id="stmtTopTabTitle">الحسابات</div>
-    </header>
-
-    <!-- الصف الثاني: الشمال اسم الحساب/البطاقة للرجوع، واليمين تعديل وحذف -->
-    <div class="stmt-action-header-row" style="flex-shrink:0">
-      <button type="button" class="sub-tab-btn active stmt-name-back-btn" id="stmtModalTitle" onclick="closeFullStatementModal()">← الحساب</button>
-      <div class="stmt-hdr-right-btns">
-        <button type="button" class="sub-tab-btn stmt-hdr-edit" onclick="editCurrentStatementEntity()">تعديل</button>
-        <button type="button" class="sub-tab-btn stmt-hdr-del" onclick="deleteCurrentStatementEntity()">حذف</button>
-      </div>
-    </div>
-
-    <!-- الصف الثالث والرابع: مربع البحث والتاريخ + الـ 3 مربعات (دخل / مصروفات / صافي) -->
-    <div class="mm-header-card" style="flex-shrink:0">
-      <div class="mm-nav-row trans-search-nav-row" id="stmtMonthNavRow">
-        <div class="mm-search-with-filter-wrap">
-          <div class="mm-inline-search-bar">
-            <input id="stmtSearchInp" type="search" name="x_stmt_search" autocomplete="off" data-lpignore="true" placeholder="ابحث" oninput="renderFullStatementModalContent()">
-          </div>
-          <button type="button" class="mm-filter-icon-btn standalone" id="btnToggleStmtFilter" onclick="toggleStmtFilterGrid()" title="فلترة كشف الحساب">
-            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-          </button>
-        </div>
-        <div class="ym-stepper" dir="ltr">
+      <div class="utb-right">
+        <button type="button" class="utb-ico-btn" onclick="editCurrentStatementEntity()" title="تعديل">✎</button>
+        <button type="button" class="utb-ico-btn danger-ico" onclick="deleteCurrentStatementEntity()" title="حذف">🗑</button>
+        <div class="ym-stepper utb-stepper" dir="ltr">
           <button type="button" class="step-arrow" onclick="shiftStatementMonth(-1)">‹</button>
           <button type="button" class="step-label" onclick="openStatementPeriodModeDialog()" id="stmtPeriodLabel">نوفمبر 2026</button>
           <button type="button" class="step-arrow" onclick="shiftStatementMonth(1)">›</button>
         </div>
       </div>
-      <div id="stmtFilterBox" class="filter-bar-detached" style="display:none;margin-bottom:8px!important">
-        <div class="mm-filter-chips-grid four-in-row">
-          <button type="button" class="mm-f-card" id="stmtFCardDate" onclick="handleStmtFilterTap('date')">
-            <span class="mm-f-lbl">بالتاريخ</span>
-            <b class="mm-f-val" id="stmtFValDate"></b>
-          </button>
-          <button type="button" class="mm-f-card" id="stmtFCardAmt" onclick="handleStmtFilterTap('amount')">
-            <span class="mm-f-lbl">بالمبلغ</span>
-            <b class="mm-f-val" id="stmtFValAmt"></b>
-          </button>
-          <button type="button" class="mm-f-card" id="stmtFCardType" onclick="handleStmtFilterTap('type')">
-            <span class="mm-f-lbl">بالنوع</span>
-            <b class="mm-f-val" id="stmtFValType"></b>
-          </button>
-          <button type="button" class="mm-f-card" id="stmtFCardCat" onclick="handleStmtFilterTap('cat')">
-            <span class="mm-f-lbl">بالقسم</span>
-            <b class="mm-f-val" id="stmtFValCat"></b>
-          </button>
-        </div>
-      </div>
+    </header>
+    <div style="display:none"><span id="stmtTopTabTitle">الحسابات</span><input id="stmtSearchInp" value=""></div>
+
+    <div class="mm-stats-card compact-stats-strip" style="flex-shrink:0">
       <div class="mm-stats">
         <div class="mm-stat-box">
           <small>الدخل</small>
@@ -662,18 +657,19 @@
   </div>
 </div>
 
-
 <!-- =========================================================
      #5.2 شاشة تخصيص الأقسام الكبيرة بنفس الهيدر والشريط السفلي
      ========================================================= -->
 <div class="modal fullpage-modal with-bottom-nav" id="catsManagerModal" onclick="if(event.target===this)closeCategoriesManagerModal()">
   <div class="sheet fullpage-sheet" style="overflow-y:auto;padding-bottom:84px!important">
-    <header class="top" style="flex-shrink:0">
-      <div class="brand">
+    <header class="top unified-top-bar" style="flex-shrink:0">
+      <div class="utb-left">
         <div class="logo"><img src="icon-192.png" alt="X-Wallet"></div>
-        <b>X-Wallet</b>
+        <button type="button" class="utb-tab-btn" onclick="closeCategoriesManagerModal()">تخصيص الأقسام</button>
       </div>
-      <div class="top-tab-title" onclick="closeCategoriesManagerModal()" style="cursor:pointer">تخصيص الأقسام</div>
+      <div class="utb-right">
+        <button type="button" class="utb-ico-btn" onclick="closeCategoriesManagerModal()" title="رجوع">←</button>
+      </div>
     </header>
 
     <div class="sub-tabs" style="grid-template-columns:1fr 1fr;flex-shrink:0">
@@ -705,12 +701,14 @@
 <!-- Independent Full-Page Settings Sub-Pages Modal -->
 <div class="modal fullpage-modal" id="settingsSubModal" onclick="if(event.target===this)closeSettingsSubPage()">
   <div class="sheet fullpage-sheet">
-    <header class="top" style="flex-shrink:0">
-      <div class="brand">
+    <header class="top unified-top-bar" style="flex-shrink:0">
+      <div class="utb-left">
         <div class="logo"><img src="icon-192.png" alt="X-Wallet"></div>
-        <b>X-Wallet</b>
+        <button type="button" class="utb-tab-btn" id="settingsSubModalTitle" onclick="closeSettingsSubPage()">الإعدادات</button>
       </div>
-      <div class="top-tab-title" id="settingsSubModalTitle" onclick="closeSettingsSubPage()" style="cursor:pointer">الإعدادات</div>
+      <div class="utb-right">
+        <button type="button" class="utb-ico-btn" onclick="closeSettingsSubPage()" title="رجوع">←</button>
+      </div>
     </header>
     <div class="dev-profile-card compact-dev-card pinned-sub-dev-card" onclick="openAboutAppModal()" style="cursor:pointer;flex-shrink:0">
       <div class="dev-card-left">
@@ -721,7 +719,7 @@
           <small>تطوير: م/ محمد خالد</small>
         </div>
       </div>
-      <span class="tag" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V15.2.5</span>
+      <span class="tag" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V15.2.6</span>
     </div>
     <div class="set-sub-scroll">
       <div class="set-sub-pane" id="setPane_general" style="display:none"><div class="c-list aligned-settings-list">
@@ -750,6 +748,13 @@
           <button type="button" class="smallbtn aligned-ctrl-btn" id="installAppBtn" onclick="installPWA()">📲 تثبيت التطبيق</button>
         </div>
       </div>
+      <div class="hint" style="margin:10px 2px 5px;font-size:.74rem;color:var(--mint);font-weight:700">عرض / إخفاء الصفحات</div>
+      <div class="c-list aligned-settings-list">
+        <div class="c-row"><label>صفحة المعاملات</label><label class="xw-switch"><input type="checkbox" id="prefShowPage_trans" checked onchange="onPageVisibilityChanged()"><span class="xw-slider"></span></label></div>
+        <div class="c-row"><label>صفحة التحليل</label><label class="xw-switch"><input type="checkbox" id="prefShowPage_analytics" checked onchange="onPageVisibilityChanged()"><span class="xw-slider"></span></label></div>
+        <div class="c-row"><label>صفحة المحفظة</label><label class="xw-switch"><input type="checkbox" id="prefShowPage_wallet" checked onchange="onPageVisibilityChanged()"><span class="xw-slider"></span></label></div>
+        <div class="c-row"><label>صفحة الالتزامات</label><label class="xw-switch"><input type="checkbox" id="prefShowPage_commitments" checked onchange="onPageVisibilityChanged()"><span class="xw-slider"></span></label></div>
+      </div>
       <button type="button" class="primary" style="margin-top:8px" onclick="saveGeneralSettings()">حفظ الإعدادات</button></div>
       <div class="set-sub-pane" id="setPane_appearance" style="display:none"><div class="c-list aligned-settings-list">
         <div class="c-row">
@@ -762,7 +767,7 @@
           </select>
         </div>
         <div class="c-row">
-          <label>شكل الاختيارات</label>
+          <label>تصميم الاختيارات</label>
           <select id="prefFieldStyle" onchange="previewFieldStyle(this.value)">
             <option value="frameless">سادة</option>
             <option value="divider">خط فاصل</option>
@@ -772,7 +777,7 @@
           </select>
         </div>
         <div class="c-row">
-          <label>شكل الهيدر</label>
+          <label>تصميم الهيدر</label>
           <select id="prefHeaderStyle" onchange="previewHeaderStyle(this.value)">
             <option value="framed">فريم</option>
             <option value="frameless">سادة</option>
@@ -782,7 +787,7 @@
           </select>
         </div>
         <div class="c-row">
-          <label>شكل البنود</label>
+          <label>تصميم البنود</label>
           <select id="prefItemStyle" onchange="previewItemStyle(this.value)">
             <option value="framed">فريم</option>
             <option value="frameless">سادة</option>
@@ -792,7 +797,7 @@
           </select>
         </div>
         <div class="c-row">
-          <label>شكل السجل</label>
+          <label>تصميم السجل</label>
           <select id="prefRecordStyle" onchange="previewRecordStyle(this.value)">
             <option value="framed">فريم</option>
             <option value="frameless">سادة</option>
@@ -924,7 +929,7 @@
       <div class="set-sub-pane" id="setPane_updates" style="display:none"><div class="c-list aligned-settings-list">
         <div class="c-row">
           <span class="c-lbl">الإصدار الحالي</span>
-          <span class="upd-equal-box" id="appVersionTag">V15.2.5</span>
+          <span class="upd-equal-box" id="appVersionTag">V15.2.6</span>
         </div>
         <div class="c-row">
           <span class="c-lbl">فحص التحديثات</span>
@@ -951,7 +956,7 @@
     </h3>
     <img src="icon-192.png" alt="X-Wallet" style="width:68px;height:68px;border-radius:18px;margin:0 auto 8px">
     <b style="font-size:1.1rem;color:var(--text);display:block">X-Wallet</b>
-    <span style="font-size:.78rem;color:var(--mint);display:block;margin-bottom:8px">مديرك المالي الذكي — الإصدار V15.2.5</span>
+    <span style="font-size:.78rem;color:var(--mint);display:block;margin-bottom:8px">مديرك المالي الذكي — الإصدار V15.2.6</span>
     <div style="background:var(--surface);border:1px solid var(--line2);border-radius:12px;padding:10px;font-size:.74rem;line-height:1.7;color:var(--text-sub);text-align:right">
       <div>• تطوير: م/ محمد خالد</div>
       <div>• التخزين: محلي على جهازك مع قفل التطبيق برمز PIN أو البصمة</div>
@@ -967,12 +972,14 @@
 <!-- Full-Page Salary Calculator Modal (Reversed Tabs: مدخلات الشهر | إعدادات مرتب السنة) -->
 <div class="modal fullpage-modal" id="salaryModal" onclick="if(event.target===this)closeSalaryModal()">
   <div class="sheet fullpage-sheet">
-    <header class="top" style="flex-shrink:0">
-      <div class="brand">
+    <header class="top unified-top-bar" style="flex-shrink:0">
+      <div class="utb-left">
         <div class="logo"><img src="icon-192.png" alt="X-Wallet"></div>
-        <b>X-Wallet</b>
+        <button type="button" class="utb-tab-btn" onclick="closeSalaryModal()">حاسبة المرتب</button>
       </div>
-      <div class="top-tab-title" onclick="closeSalaryModal()" style="cursor:pointer">حاسبة المرتب</div>
+      <div class="utb-right">
+        <button type="button" class="utb-ico-btn" onclick="closeSalaryModal()" title="رجوع">←</button>
+      </div>
     </header>
     <div class="sub-tabs" style="flex-shrink:0">
       <button type="button" class="sub-tab-btn active" id="salSubTabMonth" onclick="switchSalarySubView('month')">مدخلات الشهر</button>
@@ -1024,12 +1031,14 @@
 <!-- Full-Page Annual Report Modal -->
 <div class="modal fullpage-modal" id="annualReportModal" onclick="if(event.target===this)closeAnnualReportModal()">
   <div class="sheet fullpage-sheet">
-    <header class="top" style="flex-shrink:0">
-      <div class="brand">
+    <header class="top unified-top-bar" style="flex-shrink:0">
+      <div class="utb-left">
         <div class="logo"><img src="icon-192.png" alt="X-Wallet"></div>
-        <b>X-Wallet</b>
+        <button type="button" class="utb-tab-btn" onclick="closeAnnualReportModal()">التقرير السنوي</button>
       </div>
-      <div class="top-tab-title" onclick="closeAnnualReportModal()" style="cursor:pointer">التقرير السنوي</div>
+      <div class="utb-right">
+        <button type="button" class="utb-ico-btn" onclick="closeAnnualReportModal()" title="رجوع">←</button>
+      </div>
     </header>
     <div style="flex:1;overflow-y:auto;padding:10px 12px 24px">
       <div id="planViewYr">
@@ -1183,27 +1192,27 @@
 
 <!-- SQL.js is required by migration.js to read Money Manager .mmbak SQLite backups. -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
-<script src="core.js?v=15.2.5"></script>
-<script src="security.js?v=15.2.5"></script>
-<script src="storage.js?v=15.2.5"></script>
-<script src="backup.js?v=15.2.5"></script>
-<script src="financial-engine.js?v=15.2.5"></script>
-<script src="components.js?v=15.2.5"></script>
-<script src="settings.js?v=15.2.5"></script>
-<script src="dashboard.js?v=15.2.5"></script>
-<script src="transactions.js?v=15.2.5"></script>
-<script src="migration.js?v=15.2.5"></script>
-<script src="accounts.js?v=15.2.5"></script>
-<script src="installments.js?v=15.2.5"></script>
-<script src="cards.js?v=15.2.5"></script>
-<script src="reports.js?v=15.2.5"></script>
-<script src="payroll.js?v=15.2.5"></script>
-<script src="analytics.js?v=15.2.5"></script>
-<script src="quick-entry.js?v=15.2.5"></script>
-<script src="sync.js?v=15.2.5"></script>
-<script src="management.js?v=15.2.5"></script>
-<script src="cloud-backup.js?v=15.2.5"></script>
-<script src="single-currency.js?v=15.2.5"></script>
-<script src="app.js?v=15.2.5"></script>
+<script src="core.js?v=15.2.6"></script>
+<script src="security.js?v=15.2.6"></script>
+<script src="storage.js?v=15.2.6"></script>
+<script src="backup.js?v=15.2.6"></script>
+<script src="financial-engine.js?v=15.2.6"></script>
+<script src="components.js?v=15.2.6"></script>
+<script src="settings.js?v=15.2.6"></script>
+<script src="dashboard.js?v=15.2.6"></script>
+<script src="transactions.js?v=15.2.6"></script>
+<script src="migration.js?v=15.2.6"></script>
+<script src="accounts.js?v=15.2.6"></script>
+<script src="installments.js?v=15.2.6"></script>
+<script src="cards.js?v=15.2.6"></script>
+<script src="reports.js?v=15.2.6"></script>
+<script src="payroll.js?v=15.2.6"></script>
+<script src="analytics.js?v=15.2.6"></script>
+<script src="quick-entry.js?v=15.2.6"></script>
+<script src="sync.js?v=15.2.6"></script>
+<script src="management.js?v=15.2.6"></script>
+<script src="cloud-backup.js?v=15.2.6"></script>
+<script src="single-currency.js?v=15.2.6"></script>
+<script src="app.js?v=15.2.6"></script>
 </body>
 </html>

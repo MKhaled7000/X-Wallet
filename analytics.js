@@ -10,8 +10,8 @@
 let activeReportTab = 'exp';
 let reportPeriodMode = 'monthly';
 let reportYear = new Date().getFullYear();
-let mainRepChartOpen = false;
-let catDrillChartOpen = false;
+let mainRepChartOpen = true;
+let catDrillChartOpen = true;
 
 function openNativeInputPicker(id){
   const el = document.getElementById(id);
@@ -367,12 +367,12 @@ function buildSvgLineChartWithYAxis(monthTotals, isInc){
 
 function openCategoryDrillDown(catName, txType){
   activeCatDrillState = { catName, txType, subFilter: '' };
-  catDrillChartOpen = false;
+  catDrillChartOpen = true;
   const rmw = document.getElementById('repModeSelectWrap'); if(rmw) rmw.style.display = 'none';
   const rsc = document.getElementById('repSelectedCatBtn'); if(rsc) rsc.style.display = 'inline-flex';
   document.getElementById('repMainContentWrap').style.display = 'none';
   document.getElementById('catDetailInlineWrap').style.display = 'block';
-  document.getElementById('btnToggleMainRepChart')?.classList.toggle('active', false);
+  if(typeof updateTopTabTitle === 'function') updateTopTabTitle('analytics');
   renderCategoryDrillDownContent();
 }
 
@@ -434,7 +434,7 @@ function renderCategoryDrillDownContent(){
     <table class="subcat-table">
       <thead>
         <tr>
-          <th>الصنف (اضغط للفلترة)</th>
+          <th>الصنف</th>
           <th>النسبة</th>
           <th class="num">المبلغ</th>
         </tr>
@@ -477,7 +477,7 @@ function renderCategoryDrillDownContent(){
   document.getElementById('catDetailBody').innerHTML = `
     <div class="panel" style="padding:0;overflow:hidden;margin-bottom:4px">${subTableHtml}</div>
     <div class="panel" id="catDrillChartPanel" style="display:${catDrillChartOpen?'block':'none'};padding:12px 10px;margin-top:8px;margin-bottom:4px">${lineChartHtml}</div>
-    <div class="green-line-divider"><span>التقرير التفصيلي</span></div>
+
     <div>${dailyFeedHtml}</div>
   `;
 }
@@ -493,7 +493,7 @@ function closeCatDetailModal(){
   if(catBtn) catBtn.style.display = 'none';
   if(mainWrap) mainWrap.style.display = 'block';
   if(drillWrap) drillWrap.style.display = 'none';
-  document.getElementById('btnToggleMainRepChart')?.classList.toggle('active', mainRepChartOpen);
+  if(typeof updateTopTabTitle === 'function') updateTopTabTitle('analytics');
 }
 
 

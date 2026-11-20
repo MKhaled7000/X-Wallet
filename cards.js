@@ -911,10 +911,16 @@ function renderPlanScreen(){
   refreshCommitmentCurrencyPickers();
   const m = selected();
   const { items, totalDue, conversionErrors=[] } = getUnifiedMonthlyDues(m);
-  document.getElementById('comHeroMonthLabel').textContent = formatYMArabic(m);
+  const heroMonthEl = document.getElementById('comHeroMonthLabel');
+  if(heroMonthEl) heroMonthEl.textContent = formatYMArabic(m);
   const missingCurrencies=[...new Set(conversionErrors.map(x=>x.currency))];
-  document.getElementById('comHeroTotal').textContent = totalDue===null ? `تعذر احتساب الإجمالي بالجنيه؛ راجع أسعار: ${missingCurrencies.join('، ')}` : maskable(egpSmart(totalDue));
-  document.getElementById('comMonthLabel').textContent = formatYMArabic(m);
+  const dueText = totalDue===null ? `تعذر احتساب الإجمالي بالجنيه؛ راجع أسعار: ${missingCurrencies.join('، ')}` : maskable(egpSmart(totalDue));
+  const heroTotalEl = document.getElementById('comHeroTotal');
+  if(heroTotalEl) heroTotalEl.textContent = dueText;
+  const sumTotalEl = document.getElementById('comSummaryTotal');
+  if(sumTotalEl) sumTotalEl.textContent = dueText;
+  const comMonthEl = document.getElementById('comMonthLabel');
+  if(comMonthEl) comMonthEl.textContent = formatYMArabic(m);
 
   const comQ = (document.getElementById('comSearch')?.value || '').trim().toLowerCase();
   const clrComBtn = document.getElementById('btnClearComSearch');

@@ -6772,3 +6772,115 @@ header.top.unified-top-bar {
 .mm-stats-card.compact-stats-strip .mm-stat-box b {
   font-size: .78rem !important;
 }
+
+
+/* =========================================================
+   X-Wallet V15.2.6 Polish:
+   - 1.6 Strictly aligned vertical divider line before Amount (.tx-amt-col)
+   - 1.9 Same background for .day-head as daily list, keeping bottom divider line
+   - 1.10/1.11/6.1 Unified ultra-compact Row 2 stats strip + clickable Income/Expenses
+   - 1.12 5-card Filter grid (بالتاريخ | بالمبلغ | بالحساب | بالقسم | بالنوع)
+   - 6.2/6.3 Identical unified header & profile card across #settings and all sub-pages
+   ========================================================= */
+
+/* 1.6 Strictly aligned divider line between Account and Amount in Daily Records */
+[data-record-style="divider"] .tx-acc-col {
+  border-right: 0 !important;
+  padding: 0 8px !important;
+}
+[data-record-style="divider"] .tx-amt-col {
+  width: 98px !important;
+  min-width: 98px !important;
+  max-width: 98px !important;
+  border-left: 1px solid var(--line2) !important;
+  padding-left: 8px !important;
+  text-align: right !important;
+  box-sizing: border-box !important;
+}
+
+/* 1.9 Same background for .day-head as list body, preserving bottom hairline */
+.day-head {
+  background: transparent !important;
+  border-bottom: 1px solid var(--line) !important;
+}
+
+/* 1.10 / 1.11 / 6.1 Unified Compact Row 2 Stats Strip across all pages */
+.mm-stats-card.compact-stats-strip {
+  padding: 3px 5px !important;
+  margin-bottom: 6px !important;
+  border-radius: 12px !important;
+  min-height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+.mm-stats-card.compact-stats-strip .mm-stats {
+  width: 100% !important;
+  gap: 5px !important;
+}
+.mm-stats-card.compact-stats-strip .mm-stat-box {
+  padding: 3px 4px !important;
+  border-radius: 8px !important;
+}
+.mm-stats-card.compact-stats-strip .mm-stat-box.clickable-stat {
+  cursor: pointer;
+}
+.mm-stats-card.compact-stats-strip .mm-stat-box.clickable-stat:active {
+  background: var(--surface2) !important;
+}
+
+/* 1.12 5-Card Standalone Filter Bar */
+.filter-bar-detached.standalone-filter-bar {
+  margin: 0 0 6px !important;
+  padding: 5px !important;
+  background: var(--panel2) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 13px !important;
+}
+.mm-filter-chips-grid.five-in-row {
+  direction: ltr;
+  display: grid !important;
+  grid-template-columns: repeat(5, 1fr) !important;
+  gap: 4px !important;
+  padding: 0 !important;
+}
+.mm-filter-chips-grid.five-in-row .mm-f-card {
+  min-height: 34px !important;
+  padding: 4px 2px !important;
+  border-radius: 8px !important;
+}
+.mm-filter-chips-grid.five-in-row .mm-f-lbl {
+  font-size: .66rem !important;
+  font-weight: 400 !important;
+}
+.mm-filter-chips-grid.five-in-row .mm-f-val {
+  font-size: .6rem !important;
+}
+.mm-filter-chips-grid.five-in-row .mm-f-val:empty {
+  display: none;
+}
+
+/* 6.2 & 6.3 Exact 1:1 Unified Header & Profile Card across #settings & ALL sub-pages */
+.app > header.top.unified-top-bar,
+.modal.fullpage-modal .sheet.fullpage-sheet > header.top.unified-top-bar,
+#settingsSubModal .sheet.fullpage-sheet > header.top.unified-top-bar,
+#salaryModal .sheet.fullpage-sheet > header.top.unified-top-bar,
+#annualReportModal .sheet.fullpage-sheet > header.top.unified-top-bar,
+#catsManagerModal .sheet.fullpage-sheet > header.top.unified-top-bar,
+#statementFullModal .sheet.fullpage-sheet > header.top.unified-top-bar {
+  margin: 2px 0 8px 0 !important;
+  padding: 4px 2px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+#settings .dev-profile-card.compact-dev-card,
+#settingsSubModal .dev-profile-card.pinned-sub-dev-card {
+  padding: 7px 11px !important;
+  margin: 0 0 7px 0 !important;
+  border-radius: 14px !important;
+  height: auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}

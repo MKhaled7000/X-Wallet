@@ -4,19 +4,25 @@ function syncUnifiedHeaderForPage(pageId){
   const hTrans = document.getElementById('hdrTransControls');
   const hAna = document.getElementById('hdrAnaControls');
   const hWal = document.getElementById('hdrWalletControls');
+  const hCom = document.getElementById('hdrComControls');
   if(hTrans) hTrans.style.display = (curId === 'trans') ? 'inline-flex' : 'none';
   if(hAna) hAna.style.display = (curId === 'analytics') ? 'inline-flex' : 'none';
   if(hWal) hWal.style.display = (curId === 'wallet') ? 'inline-flex' : 'none';
+  if(hCom) hCom.style.display = (curId === 'commitments') ? 'inline-flex' : 'none';
 }
 
 function cycleCurrentTopSubTab(){
   const curId = document.querySelector('.screen.active')?.id || 'trans';
   if(curId === 'trans'){
-    const next = (activeTransSubTab === 'commitments') ? 'daily' : 'commitments';
+    const next = (activeTransSubTab === 'monthly') ? 'daily' : 'monthly';
     switchTransSubTab(next);
     return;
   }
   if(curId === 'analytics'){
+    if(typeof activeCatDrillState !== 'undefined' && activeCatDrillState){
+      closeCatDetailModal();
+      return;
+    }
     const order = ['exp', 'inc', 'trn'];
     const idx = order.indexOf(activeReportTab || 'exp');
     switchReportTab(order[(idx + 1) % order.length]);
@@ -25,23 +31,48 @@ function cycleCurrentTopSubTab(){
 }
 
 function shiftHeaderTransOrCom(delta){
-  if(activeTransSubTab === 'commitments') shiftActiveMonth(delta);
+  const curId = document.querySelector('.screen.active')?.id || 'trans';
+  if(curId === 'commitments') shiftActiveMonth(delta);
   else shiftTransPeriod(delta);
 }
 
-function toggleTransSearchDrawer(){
-  const drw = document.getElementById('transSearchDrawer');
+function toggleTransSearchBarOnly(){
+  const row = document.getElementById('transSearchRow');
   const btn = document.getElementById('btnToggleTransSearchHdr');
-  if(!drw) return;
-  const opening = drw.style.display === 'none';
-  drw.style.display = opening ? 'flex' : 'none';
+  const inp = document.getElementById('actSearch');
+  if(!row) return;
+  const opening = row.style.display === 'none';
+  row.style.display = opening ? 'flex' : 'none';
+  _transSearchActive = opening;
   btn?.classList.toggle('active', opening);
   if(opening){
-    setTimeout(()=>document.getElementById('actSearch')?.focus(), 50);
+    try{ history.pushState({xwGuard:2, xwSearch:1}, ''); }catch(_){}
+    setTimeout(()=>inp?.focus(), 40);
   } else {
-    const box = document.getElementById('mmSearchBox');
-    if(box) box.style.display = 'none';
-    clearTransactionsSearch();
+    if(inp){ inp.value = ''; inp.blur(); }
+    onTransactionsSearchInput();
+  }
+  updateFabVisibility();
+}
+
+function toggleTransSearchDrawer(){
+  toggleTransSearchBarOnly();
+}
+
+function toggleComSearchBar(){
+  const wrap = document.getElementById('comSearchBarWrap');
+  const btn = document.getElementById('btnToggleComSearchHdr');
+  const inp = document.getElementById('comSearch');
+  if(!wrap) return;
+  const opening = wrap.style.display === 'none';
+  wrap.style.display = opening ? 'block' : 'none';
+  btn?.classList.toggle('active', opening);
+  if(opening){
+    try{ history.pushState({xwGuard:2, xwComSearch:1}, ''); }catch(_){}
+    setTimeout(()=>inp?.focus(), 40);
+  } else {
+    if(inp){ inp.value = ''; inp.blur(); }
+    if(typeof renderPlanScreen === 'function') renderPlanScreen();
   }
 }
 
@@ -63,8 +94,8 @@ function onUnifiedSearchInput(){
 /* ---- Original app.js lines 836-1099 ---- */
 /* Navigation & Page Title Card */
 const TAB_TITLES = {
-  ar: { trans:'المعاملات', analytics:'التحليل', wallet:'المحفظة', settings:'المزيد' },
-  en: { trans:'Transactions', analytics:'Analytics', wallet:'Wallet', forecast:'Planning', settings:'More' }
+  ar: { trans:'المعاملات', analytics:'التحليل', wallet:'المحفظة', commitments:'الالتزامات', settings:'المزيد' },
+  en: { trans:'Transactions', analytics:'Analytics', wallet:'Wallet', commitments:'Commitments', forecast:'Planning', settings:'More' }
 };
 
 function updateTopTabTitle(pageId){
@@ -74,12 +105,15 @@ function updateTopTabTitle(pageId){
   const lang = state.prefs?.lang || 'ar';
   syncUnifiedHeaderForPage(curId);
   if(curId === 'trans'){
-    if(activeTransSubTab === 'commitments') el.textContent = lang==='en' ? 'Commitments' : 'التزامات';
-    else if(activeTransSubTab === 'monthly') el.textContent = lang==='en' ? 'Summary' : 'الملخص';
+    if(activeTransSubTab === 'monthly') el.textContent = lang==='en' ? 'Summary' : 'الملخص';
     else el.textContent = lang==='en' ? 'Records' : 'السجل';
     return;
   }
   if(curId === 'analytics'){
+    if(typeof activeCatDrillState !== 'undefined' && activeCatDrillState && activeCatDrillState.catName){
+      el.textContent = '← ' + activeCatDrillState.catName;
+      return;
+    }
     if(activeReportTab === 'inc') el.textContent = lang==='en' ? 'Income' : 'الدخل';
     else if(activeReportTab === 'trn') el.textContent = lang==='en' ? 'Transfers' : 'التحويلات';
     else el.textContent = lang==='en' ? 'Expenses' : 'المصروفات';
@@ -87,6 +121,10 @@ function updateTopTabTitle(pageId){
   }
   if(curId === 'wallet'){
     el.textContent = lang==='en' ? 'Wallet' : 'المحفظة';
+    return;
+  }
+  if(curId === 'commitments'){
+    el.textContent = lang==='en' ? 'Commitments' : 'الالتزامات';
     return;
   }
   if(curId === 'forecast'){
@@ -237,8 +275,14 @@ function updateFabVisibility(){
 function toggleFilterFromFab(){
   const box = document.getElementById('mmSearchBox');
   const isFilterOpen = box && box.style.display !== 'none';
-  if(isFilterOpen || hasAnyTransAdvFilter()){
-    closeAndClearSearchFilter();
+  if(isFilterOpen){
+    if(hasAnyTransAdvFilter()){
+      closeAndClearSearchFilter();
+    } else {
+      box.style.display = 'none';
+      document.getElementById('btnToggleFilterHdr')?.classList.remove('active');
+      updateTransFilterGridUI();
+    }
   } else {
     toggleSearchFilterGrid();
   }
@@ -246,19 +290,7 @@ function toggleFilterFromFab(){
 }
 
 function toggleSearchFromFab(){
-  const inp = document.getElementById('actSearch');
-  const hasQ = !!(inp?.value || '').trim();
-  if(_transSearchActive || hasQ){
-    _transSearchActive = false;
-    if(inp){ inp.value = ''; inp.blur(); }
-    onTransactionsSearchInput();
-  } else {
-    _transSearchActive = true;
-    try{ history.pushState({xwGuard:2, xwSearch:1}, ''); }catch(_){}
-    inp?.focus();
-    inp?.scrollIntoView({behavior:'smooth', block:'center'});
-  }
-  updateFabVisibility();
+  toggleTransSearchBarOnly();
 }
 
 function closeAllOpenModalsForce(){
@@ -352,7 +384,7 @@ function renderActiveScreenOnly(){
     if(activeCatDrillState) renderCategoryDrillDownContent();
   }
   else if(activePage === 'wallet') renderAccountsAndCards();
-  else if(activePage === 'plan') renderPlanScreen();
+  else if(activePage === 'commitments' || activePage === 'plan') renderPlanScreen();
   else if(activePage === 'settings'){
     renderSettingsCategories();
     renderAutoSnapshotsList();
@@ -374,14 +406,35 @@ function renderAll(){
 }
 
 /* Horizontal Swipe Navigation */
+function applyPageVisibilityPrefs(){
+  const hidden = (state.prefs && state.prefs.hiddenPages) || {};
+  ['trans', 'analytics', 'wallet', 'commitments'].forEach(pid => {
+    const isHidden = !!hidden[pid];
+    const nav = document.querySelector(`.nav[data-page="${pid}"]`);
+    if(nav) nav.style.display = isHidden ? 'none' : '';
+    const cb = document.getElementById('prefShowPage_' + pid);
+    if(cb) cb.checked = !isHidden;
+  });
+}
+
+function onPageVisibilityChanged(){
+  state.prefs = state.prefs || {};
+  state.prefs.hiddenPages = state.prefs.hiddenPages || {};
+  ['trans', 'analytics', 'wallet', 'commitments'].forEach(pid => {
+    const cb = document.getElementById('prefShowPage_' + pid);
+    if(cb) state.prefs.hiddenPages[pid] = !cb.checked;
+  });
+  applyPageVisibilityPrefs();
+  persist();
+}
+
 (function initSwipeNavigation(){
-  const MAIN_PAGES = ['trans', 'analytics', 'wallet', 'settings'];
+  const ALL_MAIN_PAGES = ['trans', 'analytics', 'wallet', 'commitments', 'settings'];
+  const getVisibleMainPages = () => {
+    const hidden = (state.prefs && state.prefs.hiddenPages) || {};
+    return ALL_MAIN_PAGES.filter(p => p === 'settings' || !hidden[p]);
+  };
   const SUB_TABS = {
-    trans: {
-      list: ['daily', 'commitments'],
-      getActive: () => activeTransSubTab || 'daily',
-      setActive: (val) => switchTransSubTab(val)
-    },
     analytics: {
       list: ['inc', 'exp', 'trn'],
       getActive: () => activeReportTab || 'exp',
@@ -441,6 +494,7 @@ function renderAll(){
       else if(dx > 0 && isExp) setSettingsCatTab('income');
       return;
     }
+    const MAIN_PAGES = getVisibleMainPages();
     const curPage = document.querySelector('.screen.active')?.id || 'trans';
     const pageIdx = MAIN_PAGES.indexOf(curPage);
     if(pageIdx === -1) return;
@@ -449,12 +503,15 @@ function renderAll(){
 
     if(state.prefs?.swipeMode === 'months'){
       if(curPage === 'trans'){
-        if(activeTransSubTab === 'commitments') shiftActiveMonth(step);
-        else shiftTransPeriod(step);
+        shiftTransPeriod(step);
         return;
       }
       if(curPage === 'analytics'){
         shiftReportPeriod(step);
+        return;
+      }
+      if(curPage === 'commitments'){
+        shiftActiveMonth(step);
         return;
       }
     }
