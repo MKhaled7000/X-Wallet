@@ -179,6 +179,16 @@ window.addEventListener('popstate', function(){
     try{history.pushState({xwGuard:2},'');}catch(_){}
     return;
   }
+  const anaRow = document.getElementById('anaSearchRow');
+  const anaInp = document.getElementById('anaSearchInp');
+  if((anaRow && anaRow.style.display !== 'none') || (anaInp && anaInp.value)){
+    if(anaRow) anaRow.style.display = 'none';
+    if(anaInp){ anaInp.value = ''; anaInp.blur(); }
+    document.getElementById('btnToggleAnaSearchHdr')?.classList.remove('active');
+    if(typeof renderReportsScreen === 'function') renderReportsScreen();
+    try{history.pushState({xwGuard:2},'');}catch(_){}
+    return;
+  }
 
   const activePage = document.querySelector('.screen.active')?.id;
   if(activePage === 'trans' && activeTransSubTab === 'monthly'){
@@ -194,9 +204,10 @@ window.addEventListener('popstate', function(){
     return;
   }
   const em = document.getElementById('exitConfirmModal');
-  if(em && !em.classList.contains('show')){
+  if(em){
     em.classList.add('show');
   }
+  try{ history.pushState({xwGuard:2}, ''); }catch(_){}
 });
 
 /* Auto-Collapse Accordions */

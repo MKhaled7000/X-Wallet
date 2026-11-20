@@ -293,7 +293,7 @@ function renderFullStatementModalContent(){
 
   if(kind === 'account'){
     acc = (state.accounts||[]).find(a=>String(a.id)===String(id)) || null;
-    document.getElementById('stmtModalTitle').textContent = acc ? `← ${acc.name}` : '← الحساب';
+    document.getElementById('stmtModalTitle').textContent = acc ? acc.name : 'الحساب';
 
     const txItems = activeStatementItems(state.transactions)
       .filter(t => txMatchesAccount(t, id) && (isYearly ? String(t.date||'').startsWith(yStr) : monthKey(t.date)===ym))
@@ -339,7 +339,7 @@ function renderFullStatementModalContent(){
     const cName = card ? card.name : 'بطاقة';
     const cNameLow = cName.trim().toLowerCase();
     const cardCurrency=String(card?.currency||'EGP').toUpperCase();
-    document.getElementById('stmtModalTitle').textContent = `← ${cName}`;
+    document.getElementById('stmtModalTitle').textContent = cName;
 
     const cardOpIds = new Set((state.cardOps||[]).filter(o=>String(o.cardId)===String(id)).map(o=>o.id));
     const cardPayIds = new Set((state.cardPayments||[]).filter(p=>String(p.cardId)===String(id)).map(p=>p.id));
@@ -672,4 +672,19 @@ function saveFullAccountCardForm(){
     closeFullStatementModal();
   }
   closeAccountModal(); persist(); toast(isEdit ? 'تم التحويل إلى بطاقة ✓' : 'تمت إضافة البطاقة ✓');
+}
+
+function openStatementEntitySwitcher(){
+  const curKind = activeStatementState?.kind || 'account';
+  const curId = String(activeStatementState?.id || '');
+  const accBtns = (state.accounts || []).filter(a=>!a.hidden).map(a => {
+    const sel = (curKind === 'account' && String(a.id) === curId);
+    return `<button type="button" class="cs-opt-btn ${sel?'selected':''}" onclick="closeAppDialog();openAccountStatement('${escJs(a.id)}')"><span>🏦 ${esc(a.name)}</span><span>${sel?'●':'○'}</span></button>`;
+  }).join('');
+  const cardBtns = (state.cards || []).filter(c=>!c.hidden).map(c => {
+    const sel = (curKind === 'card' && String(c.id) === curId);
+    return `<button type="button" class="cs-opt-btn ${sel?'selected':''}" onclick="closeAppDialog();openCardStatement('${escJs(c.id)}')"><span>💳 ${esc(c.name)}</span><span>${sel?'●':'○'}</span></button>`;
+  }).join('');
+  const html = `<div class="cs-opt-list">${accBtns}${cardBtns}</div>`;
+  showAppCustomForm('اختر الحساب أو البطاقة', html, null, true);
 }

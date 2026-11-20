@@ -293,18 +293,83 @@ function toggleSearchFromFab(){
   toggleTransSearchBarOnly();
 }
 
-function closeAllOpenModalsForce(){
-  if(state?.prefs?.modalMode === 'multi') return;
+function closeAllOpenModalsForce(forceAll){
+  if(!forceAll && state?.prefs?.modalMode === 'multi') return;
   ['quickModal','salaryModal','annualReportModal','catsManagerModal','statementFullModal',
    'accountModal','themeGridModal','settingsSubModal','aboutAppModal','appDialogModal',
-   'customSelectModal','ymModal','updateAvailableModal'].forEach(mid=>{
+   'customSelectModal','ymModal','updateAvailableModal','exitConfirmModal'].forEach(mid=>{
     document.getElementById(mid)?.classList.remove('show');
   });
   if(typeof activeCatDrillState !== 'undefined' && activeCatDrillState) closeCatDetailModal();
   if(typeof closeQmMonthsMenu === 'function') closeQmMonthsMenu();
 }
+function toggleAnalyticsStatTab(mode){
+  const curId = document.querySelector('.screen.active')?.id;
+  if(curId === 'analytics' && activeReportTab === mode){
+    go('trans', document.querySelector('.nav[data-page="trans"]'));
+    return;
+  }
+  switchReportTab(mode);
+}
+function onSearchInputBlurAutoClose(which){
+  setTimeout(()=>{
+    if(which === 'trans'){
+      const inp = document.getElementById('actSearch');
+      const row = document.getElementById('transSearchRow');
+      if(inp && !inp.value.trim() && row && row.style.display !== 'none'){
+        row.style.display = 'none';
+        _transSearchActive = false;
+        document.getElementById('btnToggleTransSearchHdr')?.classList.remove('active');
+        updateFabVisibility();
+      }
+    } else if(which === 'ana'){
+      const inp = document.getElementById('anaSearchInp');
+      const row = document.getElementById('anaSearchRow');
+      if(inp && !inp.value.trim() && row && row.style.display !== 'none'){
+        row.style.display = 'none';
+        document.getElementById('btnToggleAnaSearchHdr')?.classList.remove('active');
+      }
+    }
+  }, 140);
+}
+function toggleAnaSearchBar(){
+  const row = document.getElementById('anaSearchRow');
+  const btn = document.getElementById('btnToggleAnaSearchHdr');
+  const inp = document.getElementById('anaSearchInp');
+  if(!row) return;
+  const opening = row.style.display === 'none';
+  row.style.display = opening ? 'flex' : 'none';
+  btn?.classList.toggle('active', opening);
+  if(opening){
+    try{ history.pushState({xwGuard:2, xwAnaSearch:1}, ''); }catch(_){}
+    setTimeout(()=>inp?.focus(), 40);
+  } else {
+    if(inp){ inp.value = ''; inp.blur(); }
+    if(typeof renderReportsScreen === 'function') renderReportsScreen();
+  }
+}
+function clearAnaSearch(){
+  const inp = document.getElementById('anaSearchInp');
+  if(inp) inp.value = '';
+  const clr = document.getElementById('btnClearAnaSearch');
+  if(clr) clr.style.display = 'none';
+  if(typeof renderReportsScreen === 'function') renderReportsScreen();
+}
+function toggleAnaChartFromHeader(){
+  if(typeof activeCatDrillState !== 'undefined' && activeCatDrillState){
+    catDrillChartOpen = !catDrillChartOpen;
+    const p = document.getElementById('catDrillChartPanel');
+    if(p) p.style.display = catDrillChartOpen ? 'block' : 'none';
+    document.getElementById('btnToggleAnaChartHdr')?.classList.toggle('active', catDrillChartOpen);
+  } else {
+    mainRepChartOpen = !mainRepChartOpen;
+    const p = document.getElementById('repChartPanel');
+    if(p) p.style.display = mainRepChartOpen ? 'flex' : 'none';
+    document.getElementById('btnToggleAnaChartHdr')?.classList.toggle('active', mainRepChartOpen);
+  }
+}
 function go(id, btn){
-  closeAllOpenModalsForce();
+  closeAllOpenModalsForce(true);
   if(id === 'trans'){
     homePeriodMode = 'monthly';
     activeTransSubTab = 'daily';

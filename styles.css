@@ -6884,3 +6884,213 @@ header.top.unified-top-bar {
   max-width: 100% !important;
   box-sizing: border-box !important;
 }
+
+
+/* =========================================================
+   X-WALLET V15.2.7 POLISH & UNIFIED DESIGN SYSTEM
+   ========================================================= */
+
+/* 10. Active Tab Name inside a crisp Frame */
+.utb-tab-btn {
+  border: 1px solid rgba(67, 214, 178, 0.42) !important;
+  background: rgba(67, 214, 178, 0.08) !important;
+  border-radius: 10px !important;
+  padding: 5px 12px !important;
+  min-height: 32px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: .82rem !important;
+  font-weight: 700 !important;
+}
+
+/* 2. Exact Wallet-matched Compact Stats Strip across Trans, Analytics, Wallet, Statement */
+.mm-stats-card.compact-stats-strip,
+#trans .mm-stats-card,
+#analytics .mm-stats-card,
+#wallet .mm-stats-card,
+#statementFullModal .mm-stats-card {
+  padding: 6px 8px !important;
+  margin-bottom: 8px !important;
+  border-radius: 14px !important;
+  min-height: 44px !important;
+}
+.mm-stats-card.compact-stats-strip .mm-stats {
+  gap: 0 !important;
+}
+.mm-stats-card.compact-stats-strip .mm-stat-box {
+  padding: 2px 4px !important;
+  gap: 2px !important;
+}
+.mm-stats-card.compact-stats-strip .mm-stat-box small {
+  font-size: .72rem !important;
+}
+.mm-stats-card.compact-stats-strip .mm-stat-box b {
+  font-size: .82rem !important;
+  font-weight: 700 !important;
+}
+
+/* 5. Equalize number sizes with text across the app */
+.tx-amt-col,
+.wallet-card-two-col .wallet-card-cols,
+.wth-right-total,
+#accountsList .acc-bal,
+#accountsList strong,
+#cardsList strong,
+#repCatBreakdownList .listitem strong {
+  font-size: .8rem !important;
+}
+.tx-cat-col b,
+.tx-acc-col small,
+.wth-title,
+#repCatBreakdownList .listitem .info b {
+  font-size: .8rem !important;
+}
+
+/* 14. Fix Category alignment in Quick Entry (#quickModal) */
+#quickModal .c-row .picker-trigger {
+  justify-content: flex-start !important;
+  text-align: left !important;
+  direction: ltr !important;
+  border-left: 0 !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+#quickModal .c-row .picker-trigger b {
+  text-align: left !important;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 16. Installment / Repeat (1/6) badge above account name */
+.tx-inst-badge {
+  display: block;
+  font-size: .7rem;
+  font-weight: 600;
+  color: var(--mint);
+  opacity: .92;
+  line-height: 1.15;
+  margin-bottom: 1px;
+}
+
+/* 8. Interactive Line Chart Tooltip */
+.line-chart-tooltip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 5px 12px;
+  margin-bottom: 6px;
+  border-radius: 10px;
+  background: rgba(67, 214, 178, 0.12);
+  border: 1px solid rgba(67, 214, 178, 0.35);
+  font-size: .78rem;
+  color: var(--text);
+}
+
+/* 6. Background Gradient & Pattern Options */
+html[data-bg-gradient="solid"] body {
+  background-image: none !important;
+}
+html[data-bg-gradient="glow"] body {
+  background-image:
+    radial-gradient(circle at 18% 12%, rgba(67, 214, 178, 0.16), transparent 44%),
+    radial-gradient(circle at 82% 85%, rgba(115, 167, 255, 0.14), transparent 48%) !important;
+}
+html[data-bg-pattern="lines"] body::before,
+html[data-bg-pattern="grid"] body::before,
+html[data-bg-pattern="dots"] body::before,
+html[data-bg-pattern="frames"] body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: .16;
+}
+html[data-bg-pattern="lines"] body::before {
+  background-image: repeating-linear-gradient(135deg, var(--line2) 0 1px, transparent 1px 16px);
+}
+html[data-bg-pattern="grid"] body::before {
+  background-image:
+    linear-gradient(var(--line2) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line2) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+html[data-bg-pattern="dots"] body::before {
+  background-image: radial-gradient(var(--line2) 1.2px, transparent 1.2px);
+  background-size: 16px 16px;
+}
+html[data-bg-pattern="frames"] body::before {
+  background-image:
+    linear-gradient(var(--line2) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line2) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* 17. Apply ALL 4 Design Options cleanly across ALL pages including #wallet */
+html[data-header-style="frameless"] .unified-top-bar,
+html[data-header-style="frameless"] .mm-stats-card {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+html[data-header-style="soft"] .unified-top-bar,
+html[data-header-style="soft"] .mm-stats-card {
+  background: var(--panel2) !important;
+  border-color: transparent !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.16) !important;
+}
+html[data-header-style="underline"] .unified-top-bar,
+html[data-header-style="underline"] .mm-stats-card {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1.5px solid var(--mint) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+html[data-item-style="frameless"] .wallet-section-card,
+html[data-item-style="frameless"] .panel,
+html[data-item-style="frameless"] #settings .fold-link-card,
+html[data-item-style="frameless"] .dev-profile-card {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html[data-item-style="soft"] .wallet-section-card,
+html[data-item-style="soft"] .panel,
+html[data-item-style="soft"] #settings .fold-link-card,
+html[data-item-style="soft"] .dev-profile-card {
+  background: var(--panel2) !important;
+  border: 0 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18) !important;
+}
+html[data-item-style="underline"] .wallet-section-card,
+html[data-item-style="underline"] .panel,
+html[data-item-style="underline"] #settings .fold-link-card,
+html[data-item-style="underline"] .dev-profile-card {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--line2) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+html[data-record-style="frameless"] #accountsList .listitem,
+html[data-record-style="frameless"] #cardsList .listitem,
+html[data-record-style="frameless"] #accountsList .wallet-acc-row,
+html[data-record-style="frameless"] #cardsList .wallet-card-row {
+  background: transparent !important;
+  border: 0 !important;
+}
+html[data-record-style="soft"] .day-group,
+html[data-record-style="soft"] #accountsList .listitem,
+html[data-record-style="soft"] #cardsList .listitem {
+  background: var(--panel2) !important;
+  border: 0 !important;
+  border-radius: 14px !important;
+}

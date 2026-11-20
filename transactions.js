@@ -32,44 +32,27 @@ function updateTransFilterGridUI(){
   if(dCard){
     const hasD = !!(transAdvFilter.dateFrom || transAdvFilter.dateTo);
     dCard.classList.toggle('active', hasD);
-    let dTxt = '';
-    if(transAdvFilter.dateFrom && transAdvFilter.dateTo && transAdvFilter.dateFrom !== transAdvFilter.dateTo){
-      dTxt = `${formatDateDMY(transAdvFilter.dateFrom).slice(0,5)}←${formatDateDMY(transAdvFilter.dateTo).slice(0,5)} ✕`;
-    } else if(transAdvFilter.dateFrom || transAdvFilter.dateTo){
-      dTxt = `${formatDateDMY(transAdvFilter.dateFrom || transAdvFilter.dateTo)} ✕`;
-    }
-    document.getElementById('fValDate').textContent = dTxt;
+    const el = document.getElementById('fValDate'); if(el) el.textContent = '';
   }
   if(amCard){
     const hasA = !!(transAdvFilter.amountFrom || transAdvFilter.amountTo);
     amCard.classList.toggle('active', hasA);
-    let aTxt = '';
-    if(transAdvFilter.amountFrom && transAdvFilter.amountTo && transAdvFilter.amountFrom !== transAdvFilter.amountTo){
-      aTxt = `${transAdvFilter.amountFrom}–${transAdvFilter.amountTo} ✕`;
-    } else if(transAdvFilter.amountFrom || transAdvFilter.amountTo){
-      aTxt = `${transAdvFilter.amountFrom || transAdvFilter.amountTo} ✕`;
-    }
-    document.getElementById('fValAmt').textContent = aTxt;
+    const el = document.getElementById('fValAmt'); if(el) el.textContent = '';
   }
   if(aCard){
     const hasAcc = !!transAdvFilter.accountId;
     aCard.classList.toggle('active', hasAcc);
-    document.getElementById('fValAcc').textContent = hasAcc ? `${transAdvFilter.accountLabel} ✕` : '';
+    const el = document.getElementById('fValAcc'); if(el) el.textContent = '';
   }
   if(cCard){
     const hasCat = !!(transAdvFilter.mainCat || transAdvFilter.subCat);
     cCard.classList.toggle('active', hasCat);
-    let cTxt = '';
-    if(transAdvFilter.mainCat && transAdvFilter.subCat) cTxt = `${transAdvFilter.mainCat}/${transAdvFilter.subCat} ✕`;
-    else if(transAdvFilter.mainCat || transAdvFilter.subCat) cTxt = `${transAdvFilter.mainCat || transAdvFilter.subCat} ✕`;
-    document.getElementById('fValCat').textContent = cTxt;
+    const el = document.getElementById('fValCat'); if(el) el.textContent = '';
   }
   if(tCard){
     const hasT = !!transAdvFilter.type;
     tCard.classList.toggle('active', hasT);
-    const tMap = { income:'دخل', expense:'مصروفات', transfer:'تحويلات' };
-    const el = document.getElementById('fValType');
-    if(el) el.textContent = hasT ? `${tMap[transAdvFilter.type] || transAdvFilter.type} ✕` : '';
+    const el = document.getElementById('fValType'); if(el) el.textContent = '';
   }
   updateFabVisibility();
 }
@@ -641,7 +624,33 @@ function buildDailyGroupedFeedHtml(itemsList, emptyMsg){
                          rawTitle.toLowerCase() === catClean.toLowerCase() ||
                          rawTitle.toLowerCase() === subClean.toLowerCase() ||
                          rawTitle.toLowerCase() === accName.toLowerCase();
-      const memoLine = isDupTitle ? '' : rawTitle;
+      let instBadge = '';
+      if(it.repeatIndex && it.repeatTotal && Number(it.repeatTotal) > 1){
+        instBadge = `(${it.repeatIndex}/${it.repeatTotal})`;
+      } else if(it.installmentIndex && it.installmentTotal && Number(it.installmentTotal) > 1){
+        instBadge = `(${it.installmentIndex}/${it.installmentTotal})`;
+      } else {
+        const ratioM = String(it.title||it.note||it.description||'').match(/\((\d{1,2}\/\d{1,2})\)/);
+        if(ratioM){
+          instBadge = `(${ratioM[1]})`;
+        } else if(it.source && String(it.source).startsWith('card-purchase:')){
+          const opId = String(it.source).replace('card-purchase:','');
+          const op = (state.cardOps||[]).find(o=>String(o.id)===opId);
+          if(op && Number(op.months) > 1){
+            const startYM = String(op.firstMonth || op.date || '').slice(0,7);
+            const curYM = String(it.date || '').slice(0,7);
+            let idxM = 1;
+            if(startYM.length === 7 && curYM.length === 7){
+              const [sy, sm] = startYM.split('-').map(Number);
+              const [cy, cm] = curYM.split('-').map(Number);
+              idxM = Math.max(1, Math.min(Number(op.months), (cy - sy)*12 + (cm - sm) + 1));
+            }
+            instBadge = `(${idxM}/${op.months})`;
+          }
+        }
+      }
+      const cleanMemo = instBadge ? rawTitle.replace(instBadge, '').trim() : rawTitle;
+      const memoLine = isDupTitle ? '' : cleanMemo;
       const itemKind = it._kind || 'tx';
       const itemCurrency=String(it.currency||state.accounts.find(a=>String(a.id)===String(it.accountId))?.currency||'EGP').toUpperCase();
 
@@ -654,6 +663,7 @@ function buildDailyGroupedFeedHtml(itemsList, emptyMsg){
               ${it.subCategory ? `<small>${esc(it.subCategory)}</small>` : ''}
             </div>
             <div class="tx-acc-col">
+              ${instBadge ? `<span class="tx-inst-badge" dir="ltr">${esc(instBadge)}</span>` : ''}
               ${memoLine ? `<span>${esc(memoLine)}</span>` : ''}
               <small>${esc(accName)}</small>
             </div>

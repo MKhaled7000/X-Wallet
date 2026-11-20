@@ -970,7 +970,8 @@ function saveQuickModal(){
       op.schedules = built.schedules;
     }
     state.cardOps.push(op);
-    const cardTx = {id:'card-purchase-'+op.id, type:'card_purchase', title:'شراء بالبطاقة - '+title, description, category:qmState.category||'مشتريات بطاقة', subCategory:qmState.subCategory||'', amount, date, ...currencySnapshot, accountId:null, source:'card-purchase:'+op.id, recurringMonthly:!!qmState.recurringMonthly, createdAt:nowTs};
+    const _rTotC = Number(qmState.recurringMonths||0);
+    const cardTx = {id:'card-purchase-'+op.id, type:'card_purchase', title:'شراء بالبطاقة - '+title, description, category:qmState.category||'مشتريات بطاقة', subCategory:qmState.subCategory||'', amount, date, ...currencySnapshot, accountId:null, source:'card-purchase:'+op.id, recurringMonthly:!!qmState.recurringMonthly, repeatIndex:(qmState.recurringMonthly && _rTotC > 1)?1:undefined, repeatTotal:(qmState.recurringMonthly && _rTotC > 1)?_rTotC:undefined, createdAt:nowTs};
     state.transactions.push(cardTx);
     if(qmState.recurringMonthly) upsertRecurringMonthlyCommitment(cardTx);
     if(opType === 'installment') syncCardInstallmentsToCommitments();
@@ -990,6 +991,8 @@ function saveQuickModal(){
     ...currencySnapshot,
     accountId: qmState.accountId || null,
     recurringMonthly: !!qmState.recurringMonthly,
+    repeatIndex: (qmState.recurringMonthly && Number(qmState.recurringMonths||0) > 1) ? 1 : undefined,
+    repeatTotal: (qmState.recurringMonthly && Number(qmState.recurringMonths||0) > 1) ? Number(qmState.recurringMonths) : undefined,
     createdAt: nowTs
   };
   state.transactions.push(createdTx);

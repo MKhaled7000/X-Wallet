@@ -5,7 +5,7 @@
 <title>X-Wallet</title>
 <link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;600;700&family=Almarai:wght@400;700&family=Amiri:wght@400;700&family=Cairo:wght@400;700&family=Changa:wght@400;600;700&family=El+Messiri:wght@400;600;700&family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Inter:wght@400;600;700&family=Mada:wght@400;600;700&family=Noto+Sans+Arabic:wght@400;600;700&family=Poppins:wght@400;600;700&family=Readex+Pro:wght@400;600;700&family=Roboto:wght@400;500;700&family=Rubik:wght@400;600;700&family=Tajawal:wght@400;700&family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=15.2.6">
+<link rel="stylesheet" href="styles.css?v=15.2.7">
 </head>
 <body>
 <div id="globalUpdateBar" class="global-update-bar">
@@ -59,9 +59,15 @@
     <button type="button" class="cancel-filter-top-btn utb-cancel-flt" id="btnCancelFilterTop" style="display:none" onclick="closeAndClearSearchFilter()">✕ إلغاء</button>
   </div>
 
-  <!-- Controls for Analytics (#analytics): chart shown by default, no toggle icon -->
+  <!-- Controls for Analytics (#analytics): Search + Chart toggle + Date stepper -->
   <div class="utb-right" id="hdrAnaControls" style="display:none">
     <input type="hidden" id="repPeriodMode" value="monthly">
+    <button type="button" class="utb-ico-btn" id="btnToggleAnaSearchHdr" onclick="toggleAnaSearchBar()" title="بحث في التحليل">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </button>
+    <button type="button" class="utb-ico-btn active" id="btnToggleAnaChartHdr" onclick="toggleAnaChartFromHeader()" title="إظهار / إخفاء الرسم البياني">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+    </button>
     <div class="ym-stepper utb-stepper" id="repStepperBox" dir="ltr">
       <button type="button" class="step-arrow" onclick="shiftReportPeriod(-1)">‹</button>
       <button type="button" class="step-label" onclick="openReportPeriodPicker()" id="repPeriodLabel">نوفمبر 2026</button>
@@ -111,7 +117,7 @@
   <div id="transSearchRow" class="trans-search-drawer" style="display:none">
     <div class="tsd-row">
       <div class="mm-inline-search-bar" style="flex:1">
-        <input id="actSearch" type="search" name="x_tx_search" autocomplete="off" data-lpignore="true" placeholder="ابحث" oninput="onTransactionsSearchInput()">
+        <input id="actSearch" type="search" name="x_tx_search" autocomplete="off" data-lpignore="true" placeholder="ابحث" oninput="onTransactionsSearchInput()" onblur="onSearchInputBlurAutoClose('trans')">
         <button type="button" id="btnClearSearch" onclick="clearTransactionsSearch()" title="مسح البحث والفلاتر" style="display:none">✕</button>
       </div>
     </div>
@@ -169,14 +175,22 @@
      ========================================================= -->
 <section id="analytics" class="screen">
   <div id="transAnalyticsWrap">
+    <div id="anaSearchRow" class="trans-search-drawer" style="display:none">
+      <div class="tsd-row">
+        <div class="mm-inline-search-bar" style="flex:1">
+          <input id="anaSearchInp" type="search" autocomplete="off" placeholder="ابحث في البنود..." oninput="renderReportsScreen()" onblur="onSearchInputBlurAutoClose('ana')">
+          <button type="button" id="btnClearAnaSearch" onclick="clearAnaSearch()" title="مسح البحث" style="display:none">✕</button>
+        </div>
+      </div>
+    </div>
     <div id="repViewMonthly">
       <div class="mm-stats-card compact-stats-strip">
         <div class="mm-stats">
-          <div class="mm-stat-box">
+          <div class="mm-stat-box clickable-stat" onclick="toggleAnalyticsStatTab('inc')">
             <small>الدخل</small>
             <b class="blue" id="repStatsInc">0</b>
           </div>
-          <div class="mm-stat-box">
+          <div class="mm-stat-box clickable-stat" onclick="toggleAnalyticsStatTab('exp')">
             <small>المصروفات</small>
             <b class="red" id="repStatsExp">0</b>
           </div>
@@ -313,7 +327,7 @@
         <small>تطوير: م/ محمد خالد</small>
       </div>
     </div>
-    <span class="tag" id="devCardVerBadge" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V15.2.6</span>
+    <span class="tag" id="devCardVerBadge" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V15.2.7</span>
   </div>
 
   <!-- 2.1 & 2.2 & 2.3 كل خيارات المزيد تفتح في صفحة مستقلة بدون أسهم وبشكل مضغوط -->
@@ -622,11 +636,10 @@
     <header class="top unified-top-bar" style="flex-shrink:0">
       <div class="utb-left">
         <div class="logo"><img src="icon-192.png" alt="X-Wallet"></div>
-        <button type="button" class="utb-tab-btn" id="stmtModalTitle" onclick="closeFullStatementModal()" title="الرجوع للمحفظة">← الحساب</button>
+        <button type="button" class="utb-tab-btn" id="stmtModalTitle" onclick="openStatementEntitySwitcher()" title="تبديل الحساب أو البطاقة">الحساب</button>
       </div>
       <div class="utb-right">
         <button type="button" class="utb-ico-btn" onclick="editCurrentStatementEntity()" title="تعديل">✎</button>
-        <button type="button" class="utb-ico-btn danger-ico" onclick="deleteCurrentStatementEntity()" title="حذف">🗑</button>
         <div class="ym-stepper utb-stepper" dir="ltr">
           <button type="button" class="step-arrow" onclick="shiftStatementMonth(-1)">‹</button>
           <button type="button" class="step-label" onclick="openStatementPeriodModeDialog()" id="stmtPeriodLabel">نوفمبر 2026</button>
@@ -719,7 +732,7 @@
           <small>تطوير: م/ محمد خالد</small>
         </div>
       </div>
-      <span class="tag" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V15.2.6</span>
+      <span class="tag" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V15.2.7</span>
     </div>
     <div class="set-sub-scroll">
       <div class="set-sub-pane" id="setPane_general" style="display:none"><div class="c-list aligned-settings-list">
@@ -767,43 +780,57 @@
           </select>
         </div>
         <div class="c-row">
-          <label>تصميم الاختيارات</label>
-          <select id="prefFieldStyle" onchange="previewFieldStyle(this.value)">
-            <option value="frameless">سادة</option>
-            <option value="divider">خط فاصل</option>
-            <option value="framed">فريم</option>
-            <option value="soft">ناعم</option>
-            <option value="underline">خط سفلي</option>
+          <label>تدرج الخلفية</label>
+          <select id="prefBgGradient" onchange="previewBgGradient(this.value)">
+            <option value="gradient">مموج</option>
+            <option value="solid">لون واحد</option>
+            <option value="glow">متوهج</option>
           </select>
         </div>
         <div class="c-row">
-          <label>تصميم الهيدر</label>
+          <label>نقشة الخلفية</label>
+          <select id="prefBgPattern" onchange="previewBgPattern(this.value)">
+            <option value="plain">سادة</option>
+            <option value="lines">خطوط</option>
+            <option value="grid">شبكة</option>
+            <option value="dots">نقاط</option>
+            <option value="frames">فريمات</option>
+          </select>
+        </div>
+        <div class="c-row">
+          <label>تصميم الشريط العلوي</label>
           <select id="prefHeaderStyle" onchange="previewHeaderStyle(this.value)">
             <option value="framed">فريم</option>
             <option value="frameless">سادة</option>
-            <option value="divider">خط فاصل</option>
             <option value="soft">ناعم</option>
             <option value="underline">خط سفلي</option>
           </select>
         </div>
         <div class="c-row">
-          <label>تصميم البنود</label>
+          <label>تصميم البطاقات والبنود</label>
           <select id="prefItemStyle" onchange="previewItemStyle(this.value)">
             <option value="framed">فريم</option>
             <option value="frameless">سادة</option>
-            <option value="divider">خط فاصل</option>
             <option value="soft">ناعم</option>
             <option value="underline">خط سفلي</option>
           </select>
         </div>
         <div class="c-row">
-          <label>تصميم السجل</label>
+          <label>تصميم حقول الإدخال</label>
+          <select id="prefFieldStyle" onchange="previewFieldStyle(this.value)">
+            <option value="framed">فريم</option>
+            <option value="frameless">سادة</option>
+            <option value="soft">ناعم</option>
+            <option value="underline">خط سفلي</option>
+          </select>
+        </div>
+        <div class="c-row">
+          <label>تصميم صفوف السجل</label>
           <select id="prefRecordStyle" onchange="previewRecordStyle(this.value)">
             <option value="framed">فريم</option>
             <option value="frameless">سادة</option>
-            <option value="divider">خط فاصل</option>
             <option value="soft">ناعم</option>
-            <option value="underline">خط سفلي</option>
+            <option value="divider">أعمدة بخط فاصل</option>
           </select>
         </div>
         <div class="c-row">
@@ -929,7 +956,7 @@
       <div class="set-sub-pane" id="setPane_updates" style="display:none"><div class="c-list aligned-settings-list">
         <div class="c-row">
           <span class="c-lbl">الإصدار الحالي</span>
-          <span class="upd-equal-box" id="appVersionTag">V15.2.6</span>
+          <span class="upd-equal-box" id="appVersionTag">V15.2.7</span>
         </div>
         <div class="c-row">
           <span class="c-lbl">فحص التحديثات</span>
@@ -956,7 +983,7 @@
     </h3>
     <img src="icon-192.png" alt="X-Wallet" style="width:68px;height:68px;border-radius:18px;margin:0 auto 8px">
     <b style="font-size:1.1rem;color:var(--text);display:block">X-Wallet</b>
-    <span style="font-size:.78rem;color:var(--mint);display:block;margin-bottom:8px">مديرك المالي الذكي — الإصدار V15.2.6</span>
+    <span style="font-size:.78rem;color:var(--mint);display:block;margin-bottom:8px">مديرك المالي الذكي — الإصدار V15.2.7</span>
     <div style="background:var(--surface);border:1px solid var(--line2);border-radius:12px;padding:10px;font-size:.74rem;line-height:1.7;color:var(--text-sub);text-align:right">
       <div>• تطوير: م/ محمد خالد</div>
       <div>• التخزين: محلي على جهازك مع قفل التطبيق برمز PIN أو البصمة</div>
@@ -1192,27 +1219,27 @@
 
 <!-- SQL.js is required by migration.js to read Money Manager .mmbak SQLite backups. -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
-<script src="core.js?v=15.2.6"></script>
-<script src="security.js?v=15.2.6"></script>
-<script src="storage.js?v=15.2.6"></script>
-<script src="backup.js?v=15.2.6"></script>
-<script src="financial-engine.js?v=15.2.6"></script>
-<script src="components.js?v=15.2.6"></script>
-<script src="settings.js?v=15.2.6"></script>
-<script src="dashboard.js?v=15.2.6"></script>
-<script src="transactions.js?v=15.2.6"></script>
-<script src="migration.js?v=15.2.6"></script>
-<script src="accounts.js?v=15.2.6"></script>
-<script src="installments.js?v=15.2.6"></script>
-<script src="cards.js?v=15.2.6"></script>
-<script src="reports.js?v=15.2.6"></script>
-<script src="payroll.js?v=15.2.6"></script>
-<script src="analytics.js?v=15.2.6"></script>
-<script src="quick-entry.js?v=15.2.6"></script>
-<script src="sync.js?v=15.2.6"></script>
-<script src="management.js?v=15.2.6"></script>
-<script src="cloud-backup.js?v=15.2.6"></script>
-<script src="single-currency.js?v=15.2.6"></script>
-<script src="app.js?v=15.2.6"></script>
+<script src="core.js?v=15.2.7"></script>
+<script src="security.js?v=15.2.7"></script>
+<script src="storage.js?v=15.2.7"></script>
+<script src="backup.js?v=15.2.7"></script>
+<script src="financial-engine.js?v=15.2.7"></script>
+<script src="components.js?v=15.2.7"></script>
+<script src="settings.js?v=15.2.7"></script>
+<script src="dashboard.js?v=15.2.7"></script>
+<script src="transactions.js?v=15.2.7"></script>
+<script src="migration.js?v=15.2.7"></script>
+<script src="accounts.js?v=15.2.7"></script>
+<script src="installments.js?v=15.2.7"></script>
+<script src="cards.js?v=15.2.7"></script>
+<script src="reports.js?v=15.2.7"></script>
+<script src="payroll.js?v=15.2.7"></script>
+<script src="analytics.js?v=15.2.7"></script>
+<script src="quick-entry.js?v=15.2.7"></script>
+<script src="sync.js?v=15.2.7"></script>
+<script src="management.js?v=15.2.7"></script>
+<script src="cloud-backup.js?v=15.2.7"></script>
+<script src="single-currency.js?v=15.2.7"></script>
+<script src="app.js?v=15.2.7"></script>
 </body>
 </html>

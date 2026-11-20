@@ -140,16 +140,22 @@ function applyPreferences(){
   const bg = p.bgMode || 'dark';
   document.documentElement.setAttribute('data-bg', bg);
   setv('prefBgMode', bg);
-  const fs = p.fieldStyle || 'frameless';
+  const bgG = p.bgGradient || 'gradient';
+  document.documentElement.setAttribute('data-bg-gradient', bgG);
+  setv('prefBgGradient', bgG);
+  const bgP = p.bgPattern || 'plain';
+  document.documentElement.setAttribute('data-bg-pattern', bgP);
+  setv('prefBgPattern', bgP);
+  const fs = (p.fieldStyle === 'divider') ? 'underline' : (p.fieldStyle || 'frameless');
   document.documentElement.setAttribute('data-field-style', fs);
   setv('prefFieldStyle', fs);
-  const hs = p.headerStyle || 'framed';
+  const hs = (p.headerStyle === 'divider') ? 'underline' : (p.headerStyle || 'framed');
   document.documentElement.setAttribute('data-header-style', hs);
   setv('prefHeaderStyle', hs);
-  const isty = p.itemStyle || 'framed';
+  const isty = (p.itemStyle === 'divider') ? 'underline' : (p.itemStyle || 'framed');
   document.documentElement.setAttribute('data-item-style', isty);
   setv('prefItemStyle', isty);
-  const rsty = p.recordStyle || 'framed';
+  const rsty = (p.recordStyle === 'underline') ? 'divider' : (p.recordStyle || 'framed');
   document.documentElement.setAttribute('data-record-style', rsty);
   setv('prefRecordStyle', rsty);
   if(typeof applyPageVisibilityPrefs === 'function') applyPageVisibilityPrefs();
@@ -712,4 +718,17 @@ function openMoveSubCatModal(fromMain, subName, mode){
     </button>
   `).join('') + `</div>`;
   showAppCustomForm(`نقل «${subName}» إلى:`, html, null, true);
+}
+
+function previewBgGradient(v){
+  state.prefs = state.prefs || {};
+  state.prefs.bgGradient = v || 'gradient';
+  document.documentElement.setAttribute('data-bg-gradient', state.prefs.bgGradient);
+  persist();
+}
+function previewBgPattern(v){
+  state.prefs = state.prefs || {};
+  state.prefs.bgPattern = v || 'plain';
+  document.documentElement.setAttribute('data-bg-pattern', state.prefs.bgPattern);
+  persist();
 }

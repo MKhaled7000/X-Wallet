@@ -259,10 +259,18 @@ function renderReportsScreen(){
     grandTotal = round2(grandTotal + amt);
   }
 
-  const entries = Object.entries(byMain).sort((a,b)=>b[1]-a[1]);
+  const anaQ = (document.getElementById('anaSearchInp')?.value || '').trim().toLowerCase();
+  const clrAna = document.getElementById('btnClearAnaSearch');
+  if(clrAna) clrAna.style.display = anaQ ? 'block' : 'none';
+  const entries = Object.entries(byMain)
+    .filter(([cat]) => !anaQ || cat.toLowerCase().includes(anaQ))
+    .sort((a,b)=>b[1]-a[1]);
   const donutWrap = document.getElementById('repDonutWrap');
   const chipsWrap = document.getElementById('repLegendChips');
   const listEl = document.getElementById('repCatBreakdownList');
+  const repPanel = document.getElementById('repChartPanel');
+  if(repPanel) repPanel.style.display = mainRepChartOpen ? 'flex' : 'none';
+  document.getElementById('btnToggleAnaChartHdr')?.classList.toggle('active', mainRepChartOpen);
 
   if(!entries.length || grandTotal <= 0){
     donutWrap.innerHTML = '<div class="empty">لا توجد بيانات</div>';
@@ -271,19 +279,28 @@ function renderReportsScreen(){
     return;
   }
 
-  let accPct = 0;
-  const stops = [];
-  entries.forEach(([cat, amt], idx)=>{
-    const color = CHART_COLORS[idx % CHART_COLORS.length];
-    const pct = (amt / grandTotal) * 100;
-    stops.push(`${color} ${accPct.toFixed(2)}% ${(accPct + pct).toFixed(2)}%`);
-    accPct += pct;
-  });
+  const r = 64, circ = 2 * Math.PI * r;
+  let offsetAcc = 0;
+  const repTypeStr0 = isInc ? 'income' : 'expense';
+  window.__xwDonutSlices = entries.map(([cat, amt], idx)=>({
+    cat, amt, pct: Math.max(1, Math.round((amt / grandTotal) * 100)),
+    color: CHART_COLORS[idx % CHART_COLORS.length], repType: repTypeStr0
+  }));
+  window.__xwDonutActiveIdx = -1;
+  const segsHtml = window.__xwDonutSlices.map((sl, idx)=>{
+    const frac = sl.amt / grandTotal;
+    const dashLen = Math.max(1.5, frac * circ);
+    const seg = `<circle class="donut-seg" data-idx="${idx}" cx="82" cy="82" r="${r}" fill="none" stroke="${sl.color}" stroke-width="26" stroke-dasharray="${dashLen.toFixed(2)} ${(circ - dashLen).toFixed(2)}" stroke-dashoffset="${(-offsetAcc).toFixed(2)}" style="cursor:pointer;transition:stroke-width .15s,opacity .15s" onclick="onDonutSliceTap(${idx})"/>`;
+    offsetAcc += dashLen;
+    return seg;
+  }).join('');
   donutWrap.innerHTML = `
-    <div style="width:162px;height:162px;border-radius:50%;background:conic-gradient(${stops.join(',')});display:grid;place-items:center;box-shadow:0 6px 20px #0004">
-      <div style="width:96px;height:96px;border-radius:50%;background:var(--panel);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:4px">
-        <small style="font-size:.6rem;color:var(--muted)">${isInc?'الدخل':'المصروفات'}</small>
-        <b style="font-size:.76rem;direction:ltr">${maskable(fmtInt(grandTotal))}</b>
+    <div style="position:relative;width:164px;height:164px;display:grid;place-items:center">
+      <svg viewBox="0 0 164 164" width="164" height="164" style="transform:rotate(-90deg);overflow:visible">${segsHtml}</svg>
+      <div id="repDonutCenter" onclick="onDonutCenterTap()" style="position:absolute;width:96px;height:96px;border-radius:50%;background:var(--panel);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:6px;cursor:pointer;box-shadow:0 4px 14px #0003">
+        <small id="repDonutCenterLbl" style="font-size:.62rem;color:var(--muted);max-width:84px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${isInc?'الدخل':'المصروفات'}</small>
+        <b id="repDonutCenterVal" style="font-size:.76rem;direction:ltr">${maskable(fmtInt(grandTotal))}</b>
+        <span id="repDonutCenterPct" style="font-size:.62rem;color:var(--mint);display:none"></span>
       </div>
     </div>
   `;
@@ -343,12 +360,14 @@ function buildSvgLineChartWithYAxis(monthTotals, isInc){
   const areaPoints = `${pts[0].x.toFixed(1)},${(padT+plotH).toFixed(1)} ${polyPoints} ${pts[11].x.toFixed(1)},${(padT+plotH).toFixed(1)}`;
 
   const dotsAndLabelsHtml = pts.map(p => `
-    <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.4" fill="${strokeColor}" stroke="var(--panel)" stroke-width="1.5"/>
+    <circle class="line-pt-hit" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="12" fill="transparent" style="cursor:pointer" onclick="onLineChartPointTap(${p.m}, ${p.val}, this)"/>
+    <circle class="line-pt-dot" data-m="${p.m}" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.6" fill="${strokeColor}" stroke="var(--panel)" stroke-width="1.5" style="pointer-events:none;transition:r .15s"/>
     ${p.val > 0 ? `<text x="${p.x.toFixed(1)}" y="${Math.max(10, p.y - 6).toFixed(1)}" fill="var(--text)" font-size="8.5" text-anchor="middle">${fmtInt(p.val)}</text>` : ''}
     <text x="${p.x.toFixed(1)}" y="${h - 7}" fill="var(--muted)" font-size="9" text-anchor="middle">${p.m}</text>
   `).join('');
 
   return `
+    <div id="lineChartTooltip" class="line-chart-tooltip" style="display:none"></div>
     <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;display:block;overflow:visible">
       <defs>
         <linearGradient id="lineAreaGrad" x1="0" y1="0" x2="0" y2="1">
@@ -497,3 +516,41 @@ function closeCatDetailModal(){
 }
 
 
+
+function onDonutSliceTap(idx){
+  const list = window.__xwDonutSlices || [];
+  const sl = list[idx];
+  if(!sl) return;
+  if(window.__xwDonutActiveIdx === idx){
+    openCategoryDrillDown(sl.cat, sl.repType);
+    return;
+  }
+  window.__xwDonutActiveIdx = idx;
+  document.querySelectorAll('#repDonutWrap .donut-seg').forEach((el, i)=>{
+    el.setAttribute('stroke-width', i === idx ? '31' : '24');
+    el.style.opacity = i === idx ? '1' : '0.45';
+  });
+  const lbl = document.getElementById('repDonutCenterLbl');
+  const valEl = document.getElementById('repDonutCenterVal');
+  const pctEl = document.getElementById('repDonutCenterPct');
+  if(lbl){ lbl.textContent = sl.cat; lbl.style.color = sl.color; }
+  if(valEl) valEl.textContent = maskable(fmtInt(sl.amt));
+  if(pctEl){ pctEl.textContent = sl.pct + '%'; pctEl.style.display = 'inline'; }
+}
+function onDonutCenterTap(){
+  const idx = window.__xwDonutActiveIdx;
+  const list = window.__xwDonutSlices || [];
+  if(idx >= 0 && list[idx]) openCategoryDrillDown(list[idx].cat, list[idx].repType);
+}
+function onLineChartPointTap(mNum, valNum, hitEl){
+  const tip = document.getElementById('lineChartTooltip');
+  const mName = (typeof monthNamesAr !== 'undefined' && monthNamesAr[mNum - 1]) ? monthNamesAr[mNum - 1] : ('شهر ' + mNum);
+  if(tip){
+    tip.style.display = 'flex';
+    tip.innerHTML = `<span>${esc(mName)}</span><b dir="ltr">${maskable(egp(valNum))}</b>`;
+  }
+  const svg = hitEl?.closest('svg');
+  svg?.querySelectorAll('.line-pt-dot').forEach(d => {
+    d.setAttribute('r', String(d.dataset.m) === String(mNum) ? '6' : '3.6');
+  });
+}
