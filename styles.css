@@ -6355,3 +6355,272 @@ html.xwallet-boot-loading .app{visibility:hidden !important}
   border-color: var(--red) !important;
   color: var(--red) !important;
 }
+
+
+/* =========================================================
+   X-Wallet V15.2.4 Fixes & Global Style Application:
+   1. Fix #catsManagerModal.with-bottom-nav z-index above #quickModal
+   2. Fix .xw-switch normal 44x24px size inside #accountModal & all modals
+   3. Strict 100% vertical alignment for data-field-style="divider"
+   4. Apply Header/Item/Record styles across ALL pages (#trans, #analytics, #wallet, #settings, modals)
+   5. Compact top rows (2, 3, 4) in #trans & #analytics
+   ========================================================= */
+
+/* 1. Ensure Categories Manager always opens ABOVE #quickModal (z-index: 65) */
+#catsManagerModal,
+#catsManagerModal.with-bottom-nav {
+  z-index: 88 !important;
+}
+
+/* 2. Normal 44x24px toggle switch size everywhere including #accountModal */
+.c-row > label.xw-switch,
+#accountModal .c-row > label.xw-switch,
+.modal .c-row > label.xw-switch {
+  width: 44px !important;
+  min-width: 44px !important;
+  max-width: 44px !important;
+  height: 24px !important;
+  flex: 0 0 44px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+#qmDateRow {
+  overflow: visible !important;
+  position: relative !important;
+  z-index: 9 !important;
+}
+#qmRecurWrap .inline-months-menu {
+  min-width: 64px !important;
+  right: 0 !important;
+  left: auto !important;
+}
+
+/* 3. Strict 100% vertical alignment for data-field-style="divider" */
+[data-field-style="divider"] .c-row {
+  padding: 7px 14px !important;
+}
+[data-field-style="divider"] .c-row > label:not(.xw-switch),
+[data-field-style="divider"] .c-row > .c-lbl {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  padding-right: 10px !important;
+}
+[data-field-style="divider"] .c-row > input,
+[data-field-style="divider"] .c-row > select,
+[data-field-style="divider"] .c-row > .custom-sel-trigger,
+[data-field-style="divider"] .c-row > .picker-trigger,
+[data-field-style="divider"] .c-row > .aligned-ctrl-btn,
+[data-field-style="divider"] .c-row > .upd-equal-box,
+[data-field-style="divider"] .c-row > .seg-group,
+[data-field-style="divider"] .c-row > .c-row-btns,
+[data-field-style="divider"] #settingsSubModal .aligned-settings-list .c-row > input,
+[data-field-style="divider"] #settingsSubModal .aligned-settings-list .c-row > select,
+[data-field-style="divider"] #settingsSubModal .aligned-settings-list .c-row > .custom-sel-trigger,
+[data-field-style="divider"] #settingsSubModal .aligned-settings-list .c-row > .aligned-ctrl-btn,
+[data-field-style="divider"] #settingsSubModal .aligned-settings-list .c-row > .upd-equal-box,
+[data-field-style="divider"] #settingsSubModal .aligned-settings-list .c-row > .c-row-btns {
+  width: 126px !important;
+  min-width: 126px !important;
+  max-width: 126px !important;
+  flex: 0 0 126px !important;
+  border-left: 1px solid var(--line2) !important;
+  padding-left: 10px !important;
+  box-sizing: border-box !important;
+}
+
+/* 4. Apply Header & Item Styles Globally across #trans, #analytics, #wallet, #settings, #statementFullModal, #catsManagerModal */
+[data-header-style="frameless"] .screen .sub-tabs .sub-tab-btn,
+[data-header-style="frameless"] .modal .sub-tabs .sub-tab-btn {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1.5px solid transparent !important;
+  border-radius: 0 !important;
+}
+[data-header-style="frameless"] .screen .sub-tabs .sub-tab-btn.active,
+[data-header-style="frameless"] .modal .sub-tabs .sub-tab-btn.active {
+  border-bottom-color: var(--mint) !important;
+  color: var(--mint) !important;
+}
+[data-header-style="frameless"] .mm-header-card,
+[data-header-style="frameless"] .mm-stats-card,
+[data-header-style="frameless"] .wallet-toolbar {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+[data-header-style="frameless"] .mm-stat-box,
+[data-header-style="frameless"] .mm-inline-search-bar,
+[data-header-style="frameless"] .mm-filter-icon-btn.standalone,
+[data-header-style="frameless"] .ym-stepper,
+[data-header-style="frameless"] .rep-cycle-btn,
+[data-header-style="frameless"] .mm-tool-btn,
+[data-header-style="frameless"] .wallet-toolbar .wt-btn {
+  background: transparent !important;
+  border: 0 !important;
+}
+
+[data-header-style="soft"] .screen .sub-tabs .sub-tab-btn,
+[data-header-style="soft"] .modal .sub-tabs .sub-tab-btn,
+[data-header-style="soft"] .wallet-toolbar .wt-btn {
+  background: var(--surface) !important;
+  border: 0 !important;
+  border-radius: 99px !important;
+}
+[data-header-style="soft"] .screen .sub-tabs .sub-tab-btn.active,
+[data-header-style="soft"] .modal .sub-tabs .sub-tab-btn.active {
+  background: #43d6b222 !important;
+  color: var(--mint) !important;
+}
+[data-header-style="soft"] .mm-header-card,
+[data-header-style="soft"] .mm-stats-card {
+  background: var(--panel2) !important;
+  border: 0 !important;
+  border-radius: 16px !important;
+}
+[data-header-style="soft"] .mm-stat-box {
+  background: var(--surface) !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+}
+
+[data-header-style="divider"] .screen .sub-tabs,
+[data-header-style="divider"] .modal .sub-tabs,
+[data-header-style="divider"] .wallet-toolbar {
+  background: var(--panel2) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 12px !important;
+  gap: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+[data-header-style="divider"] .screen .sub-tabs .sub-tab-btn,
+[data-header-style="divider"] .modal .sub-tabs .sub-tab-btn,
+[data-header-style="divider"] .wallet-toolbar .wt-btn {
+  background: transparent !important;
+  border: 0 !important;
+  border-right: 1px solid var(--line2) !important;
+  border-radius: 0 !important;
+}
+[data-header-style="divider"] .screen .sub-tabs .sub-tab-btn:last-child,
+[data-header-style="divider"] .modal .sub-tabs .sub-tab-btn:last-child,
+[data-header-style="divider"] .wallet-toolbar .wt-btn:last-child {
+  border-right: 0 !important;
+}
+[data-header-style="divider"] .mm-stats-card {
+  background: var(--panel2) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 14px !important;
+  padding: 5px 0 !important;
+}
+[data-header-style="divider"] .mm-stats { gap: 0 !important; }
+[data-header-style="divider"] .mm-stat-box {
+  background: transparent !important;
+  border: 0 !important;
+  border-right: 1px solid var(--line2) !important;
+  border-radius: 0 !important;
+}
+[data-header-style="divider"] .mm-stat-box:last-child { border-right: 0 !important; }
+
+[data-header-style="underline"] .screen .sub-tabs .sub-tab-btn,
+[data-header-style="underline"] .modal .sub-tabs .sub-tab-btn {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important;
+}
+[data-header-style="underline"] .screen .sub-tabs .sub-tab-btn.active,
+[data-header-style="underline"] .modal .sub-tabs .sub-tab-btn.active {
+  border-bottom-color: var(--mint) !important;
+  color: var(--mint) !important;
+}
+[data-header-style="underline"] .mm-header-card,
+[data-header-style="underline"] .mm-stats-card {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1.5px solid var(--line2) !important;
+  border-radius: 0 !important;
+}
+[data-header-style="underline"] .mm-stat-box {
+  background: transparent !important;
+  border: 0 !important;
+  border-right: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+}
+[data-header-style="underline"] .mm-stat-box:last-child { border-right: 0 !important; }
+
+/* Item Style globally across Wallet cards, More cards, Analytics breakdown, Categories */
+[data-item-style="frameless"] .wallet-section-card,
+[data-item-style="frameless"] #analytics .panel,
+[data-item-style="frameless"] #catsManagerModal .cat-mgr-row {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+}
+[data-item-style="soft"] .wallet-section-card,
+[data-item-style="soft"] #analytics .panel,
+[data-item-style="soft"] #catsManagerModal .cat-mgr-row {
+  background: var(--panel2) !important;
+  border: 0 !important;
+  border-radius: 16px !important;
+}
+[data-item-style="underline"] .wallet-section-card,
+[data-item-style="underline"] #analytics .panel,
+[data-item-style="underline"] #catsManagerModal .cat-mgr-row {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1.5px solid var(--line2) !important;
+  border-radius: 0 !important;
+}
+
+/* 5. Compact Top Rows (2, 3, 4) in #trans & #analytics */
+#trans .sub-tabs,
+#analytics .sub-tabs {
+  padding: 2px 0 !important;
+  margin-bottom: 5px !important;
+}
+#trans .sub-tabs .sub-tab-btn,
+#analytics .sub-tabs .sub-tab-btn {
+  height: 30px !important;
+  min-height: 30px !important;
+  font-size: .74rem !important;
+}
+#trans .mm-header-card,
+#analytics .mm-header-card {
+  height: 42px !important;
+  min-height: 42px !important;
+  max-height: 42px !important;
+  padding: 3px 5px !important;
+  margin-bottom: 5px !important;
+}
+#trans .mm-header-card .mm-nav-row,
+#analytics .mm-header-card .mm-nav-row {
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+}
+#trans .mm-header-card .mm-inline-search-bar,
+#trans .mm-header-card .mm-filter-icon-btn.standalone,
+#trans .mm-header-card .ym-stepper,
+#analytics .mm-header-card .ym-stepper,
+#analytics .mm-header-card .rep-mode-box,
+#analytics .mm-header-card .rep-cycle-btn,
+#analytics .mm-header-card .mm-tool-btn,
+#analytics .mm-header-card .cat-selected-pill-btn {
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+}
+#trans .mm-stats-card,
+#analytics .mm-stats-card {
+  padding: 5px 6px !important;
+  margin-bottom: 6px !important;
+}
+#trans .mm-stat-box,
+#analytics .mm-stat-box {
+  padding: 4px 4px !important;
+}

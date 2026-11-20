@@ -1,17 +1,54 @@
 
+function closeQmRecurMenu(){
+  document.getElementById('qmRecurMonthsMenu')?.classList.remove('open');
+}
 function syncQmRecurringUI(){
+  const wrap = document.getElementById('qmRecurWrap');
   const btn = document.getElementById('qmRecurringBtn');
+  const badge = document.getElementById('qmRecurBadge');
   if(!btn) return;
   const allow = (qmState.type !== 'transfer');
-  btn.style.display = allow ? 'inline-flex' : 'none';
-  if(!allow) qmState.recurringMonthly = false;
+  if(wrap) wrap.style.display = allow ? 'inline-block' : 'none';
+  if(!allow){ qmState.recurringMonthly = false; closeQmRecurMenu(); }
   btn.classList.toggle('active', !!qmState.recurringMonthly);
+  const mVal = Number(qmState.recurringMonths || 0);
+  if(badge){
+    badge.style.display = (qmState.recurringMonthly && mVal > 0) ? 'inline' : 'none';
+    badge.textContent = mVal > 0 ? String(mVal) : '';
+  }
 }
-function toggleQmRecurringMonthly(){
+function toggleQmRecurringMonthly(ev){
+  if(ev) ev.stopPropagation();
   if(qmState.type === 'transfer') return;
-  qmState.recurringMonthly = !qmState.recurringMonthly;
+  const menu = document.getElementById('qmRecurMonthsMenu');
+  if(qmState.recurringMonthly){
+    if(menu && menu.classList.contains('open')){
+      closeQmRecurMenu();
+    } else {
+      qmState.recurringMonthly = false;
+      qmState.recurringMonths = 0;
+      setv('qmRecurMonths', '0');
+      closeQmRecurMenu();
+      syncQmRecurringUI();
+      toast('تم إلغاء التكرار الشهري');
+    }
+  } else {
+    qmState.recurringMonthly = true;
+    syncQmRecurringUI();
+    if(menu) menu.classList.add('open');
+  }
+}
+function selectQmRecurMonths(mVal){
+  const n = Math.max(0, Math.min(24, Number(mVal) || 0));
+  qmState.recurringMonthly = true;
+  qmState.recurringMonths = n;
+  setv('qmRecurMonths', String(n));
+  document.querySelectorAll('#qmRecurMonthsMenu .imm-opt').forEach(b => {
+    b.classList.toggle('active', Number(b.dataset.rm) === n);
+  });
+  closeQmRecurMenu();
   syncQmRecurringUI();
-  toast(qmState.recurringMonthly ? 'سيتم تكرار المعاملة شهرياً وإضافتها للالتزامات 🔁' : 'تم إلغاء التكرار الشهري');
+  toast(n > 0 ? `تم تفعيل التكرار الشهري لمدة ${n} شهر ✓` : 'تم تفعيل التكرار الشهري (مفتوح) ✓');
 }
 function getQmAccViewMode(){
   return (state.prefs && state.prefs.qmAccViewMode === 'list') ? 'list' : 'grid';
@@ -52,7 +89,8 @@ function upsertRecurringMonthlyCommitment(txObj){
     amount: round2(Number(txObj.amount) || 0),
     currency: 'EGP',
     start: startYM,
-    end: '',
+    durationMonths: Number(qmState.recurringMonths||0) || undefined,
+    end: Number(qmState.recurringMonths||0) > 0 ? addMonthsYM(startYM, Number(qmState.recurringMonths) - 1) : '',
     day: dayNum,
     category: txObj.category || '',
     subCategory: txObj.subCategory || '',
@@ -989,3 +1027,5 @@ function moveQuickAccLongPress(ev){
 function cancelQuickAccLongPress(){
   if(_qmLpTimer){ clearTimeout(_qmLpTimer); _qmLpTimer = null; }
 }
+
+document.addEventListener('click', e => { const rw = document.getElementById('qmRecurWrap'); if(rw && !rw.contains(e.target)) closeQmRecurMenu(); });

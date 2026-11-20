@@ -206,6 +206,7 @@ function applyPreferences(){
     defaultCurrencySelect.value=p.defaultCurrency||'EGP';
   }
   setv('prefMonthStartDay', String(p.monthStartDay || 1));
+  setv('prefSwipeMode', p.swipeMode || 'tabs');
   const privSw = document.getElementById('prefPrivacySwitch');
   if(privSw) privSw.checked = !!p.privacy;
   const decSw = document.getElementById('prefDecimalsSwitch');
@@ -239,6 +240,7 @@ function saveGeneralSettings(){
   state.prefs.defaultAccount = document.getElementById('prefDefaultAcc')?.value || '';
   state.prefs.defaultCurrency = requestedDefaultCurrency;
   state.prefs.monthStartDay = Number(document.getElementById('prefMonthStartDay')?.value || 1);
+  state.prefs.swipeMode = document.getElementById('prefSwipeMode')?.value || 'tabs';
   state.prefs.bgMode = _pendingBgMode || document.getElementById('prefBgMode')?.value || 'dark';
   state.prefs.fieldStyle = _pendingFieldStyle || document.getElementById('prefFieldStyle')?.value || 'frameless';
   state.prefs.headerStyle = _pendingHeaderStyle || document.getElementById('prefHeaderStyle')?.value || 'framed';

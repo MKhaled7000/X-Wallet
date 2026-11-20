@@ -44,11 +44,12 @@ const FAB_SHORTCUT_DEFS = [
   { id:'monthly', label:'📅 ملخص السنة' },
   { id:'yearly', label:'📊 التقرير السنوي' },
   { id:'salary', label:'💵 حاسبة الراتب' },
-  { id:'backup', label:'💾 نسخة سريعة' }
+  { id:'backup', label:'💾 نسخة سريعة' },
+  { id:'swipe', label:'⇄ تاب/شهر' }
 ];
 function getFabShortcutsList(){
   const arr = state.prefs?.fabShortcuts;
-  return Array.isArray(arr) && arr.length ? arr : ['search','filter','monthly','yearly','salary','backup'];
+  return Array.isArray(arr) && arr.length ? arr : ['search','filter','swipe','monthly','yearly','salary','backup'];
 }
 function isFabSpeedDialEnabled(){
   return state.prefs?.fabSpeedDial !== false;
@@ -103,6 +104,7 @@ function renderFabSpeedMenuItems(){
     if(d.id === 'search') act = hasQ;
     else if(d.id === 'filter') act = isFilterOpen || hasAdv;
     else if(d.id === 'monthly') act = isMonthly;
+    else if(d.id === 'swipe') act = (state.prefs?.swipeMode === 'months');
     const ico = d.label.split(' ')[0]; const iconsOnly = isFabIconsOnly();
     const distIdx = list.length - idx;
     return `<button type="button" style="--sd-idx:${distIdx}" class="fab-speed-item ${act?'active':''} ${iconsOnly?'icons-only':''}" onclick="runFabShortcut('${d.id}')" title="${d.label}">${iconsOnly ? ico : d.label}</button>`;
@@ -115,6 +117,13 @@ function runFabShortcut(id){
   else if(id === 'monthly') toggleMonthlySummaryView();
   else if(id === 'yearly'){ openAnnualReportModal(); }
   else if(id === 'salary'){ openSalaryModal(); }
+  else if(id === 'swipe'){
+    state.prefs = state.prefs || {};
+    state.prefs.swipeMode = (state.prefs.swipeMode === 'months') ? 'tabs' : 'months';
+    setv('prefSwipeMode', state.prefs.swipeMode);
+    persist();
+    toast(state.prefs.swipeMode === 'months' ? 'التمرير الآن: تبديل الشهور 📅' : 'التمرير الآن: تبديل القوائم ⇄');
+  }
   else if(id === 'backup'){
     if(typeof backup === 'function') backup();
   }
@@ -377,6 +386,18 @@ function renderAll(){
     if(pageIdx === -1) return;
 
     const step = (dx < 0) ? 1 : -1;
+
+    if(state.prefs?.swipeMode === 'months'){
+      if(curPage === 'trans'){
+        if(activeTransSubTab === 'commitments') shiftActiveMonth(step);
+        else shiftTransPeriod(step);
+        return;
+      }
+      if(curPage === 'analytics'){
+        shiftReportPeriod(step);
+        return;
+      }
+    }
 
     const subCfg = SUB_TABS[curPage];
     if(subCfg){
