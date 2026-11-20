@@ -144,8 +144,8 @@ function handleStmtFilterTap(kind){
     }
     const defS = selected() + '-01', defE = today();
     showAppCustomForm('فلترة بالتاريخ', `<div class="c-list">
-      <div class="c-row" onclick="openNativeInputPicker('stFDateF')"><label>من تاريخ</label><div class="picker-trigger" style="position:relative"><b id="stFDispF" dir="ltr">${formatDateDMY(defS)}</b><input id="stFDateF" type="date" value="${esc(defS)}" onchange="document.getElementById('stFDispF').textContent=formatDateDMY(this.value)" style="position:absolute;inset:0;opacity:0;width:100%;height:100%"></div></div>
-      <div class="c-row" onclick="openNativeInputPicker('stFDateT')"><label>إلى تاريخ</label><div class="picker-trigger" style="position:relative"><b id="stFDispT" dir="ltr">${formatDateDMY(defE)}</b><input id="stFDateT" type="date" value="${esc(defE)}" onchange="document.getElementById('stFDispT').textContent=formatDateDMY(this.value)" style="position:absolute;inset:0;opacity:0;width:100%;height:100%"></div></div>
+      <div class="c-row" onclick="openNativeInputPicker('stFDateF')"><label>من تاريخ</label><div class="picker-trigger" style="position:relative"><b id="stFDispF" dir="ltr">${formatDateDMY(defS)}</b><input id="stFDateF" type="hidden" value="${esc(defS)}" onchange="document.getElementById('stFDispF').textContent=formatDateDMY(this.value)"></div></div>
+      <div class="c-row" onclick="openNativeInputPicker('stFDateT')"><label>إلى تاريخ</label><div class="picker-trigger" style="position:relative"><b id="stFDispT" dir="ltr">${formatDateDMY(defE)}</b><input id="stFDateT" type="hidden" value="${esc(defE)}" onchange="document.getElementById('stFDispT').textContent=formatDateDMY(this.value)"></div></div>
     </div>`, ()=>{
       stmtAdvFilter.dateFrom = val('stFDateF')||'';
       stmtAdvFilter.dateTo = val('stFDateT')||'';

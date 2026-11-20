@@ -146,16 +146,20 @@ function applyPreferences(){
   const bgP = p.bgPattern || 'plain';
   document.documentElement.setAttribute('data-bg-pattern', bgP);
   setv('prefBgPattern', bgP);
-  const fs = (p.fieldStyle === 'divider') ? 'underline' : (p.fieldStyle || 'frameless');
+  const gf = (p.groupFrames !== false);
+  document.documentElement.setAttribute('data-group-frames', gf ? 'on' : 'off');
+  const gfCb = document.getElementById('prefGroupFrames');
+  if(gfCb) gfCb.checked = gf;
+  const fs = p.fieldStyle || 'frameless';
   document.documentElement.setAttribute('data-field-style', fs);
   setv('prefFieldStyle', fs);
-  const hs = (p.headerStyle === 'divider') ? 'underline' : (p.headerStyle || 'framed');
+  const hs = p.headerStyle || 'framed';
   document.documentElement.setAttribute('data-header-style', hs);
   setv('prefHeaderStyle', hs);
-  const isty = (p.itemStyle === 'divider') ? 'underline' : (p.itemStyle || 'framed');
+  const isty = p.itemStyle || 'framed';
   document.documentElement.setAttribute('data-item-style', isty);
   setv('prefItemStyle', isty);
-  const rsty = (p.recordStyle === 'underline') ? 'divider' : (p.recordStyle || 'framed');
+  const rsty = p.recordStyle || 'framed';
   document.documentElement.setAttribute('data-record-style', rsty);
   setv('prefRecordStyle', rsty);
   if(typeof applyPageVisibilityPrefs === 'function') applyPageVisibilityPrefs();
@@ -730,5 +734,12 @@ function previewBgPattern(v){
   state.prefs = state.prefs || {};
   state.prefs.bgPattern = v || 'plain';
   document.documentElement.setAttribute('data-bg-pattern', state.prefs.bgPattern);
+  persist();
+}
+
+function previewGroupFrames(checked){
+  state.prefs = state.prefs || {};
+  state.prefs.groupFrames = !!checked;
+  document.documentElement.setAttribute('data-group-frames', state.prefs.groupFrames ? 'on' : 'off');
   persist();
 }

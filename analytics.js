@@ -16,10 +16,11 @@ let catDrillChartOpen = true;
 function openNativeInputPicker(id){
   const el = document.getElementById(id);
   if(!el) return;
-  try{
-    if(typeof el.showPicker === 'function') el.showPicker();
-    else el.focus();
-  }catch(_){ el.focus(); }
+  if(typeof openAppDatePickerForInput === 'function'){
+    openAppDatePickerForInput(el);
+    return;
+  }
+  el.focus();
 }
 
 function syncRepInlineDateDisplays(){

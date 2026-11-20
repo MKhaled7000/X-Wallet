@@ -971,32 +971,65 @@ function saveQuickModal(){
     }
     state.cardOps.push(op);
     const _rTotC = Number(qmState.recurringMonths||0);
-    const cardTx = {id:'card-purchase-'+op.id, type:'card_purchase', title:'شراء بالبطاقة - '+title, description, category:qmState.category||'مشتريات بطاقة', subCategory:qmState.subCategory||'', amount, date, ...currencySnapshot, accountId:null, source:'card-purchase:'+op.id, recurringMonthly:!!qmState.recurringMonthly, repeatIndex:(qmState.recurringMonthly && _rTotC > 1)?1:undefined, repeatTotal:(qmState.recurringMonthly && _rTotC > 1)?_rTotC:undefined, createdAt:nowTs};
-    state.transactions.push(cardTx);
-    if(qmState.recurringMonthly) upsertRecurringMonthlyCommitment(cardTx);
+    if(opType === 'installment' && Array.isArray(op.schedules) && op.schedules.length > 1){
+      const dayPart = String(date||'').slice(8,10) || '01';
+      op.schedules.forEach((sc, idx) => {
+        const scDate = `${sc.month}-${dayPart}`;
+        const instAmt = round2(Number(sc.amount) || Number(op.installment) || (amount / op.schedules.length));
+        state.transactions.push({
+          id: idx === 0 ? ('card-purchase-' + op.id) : ('card-purchase-' + op.id + '-m' + (idx + 1)),
+          type: 'card_purchase',
+          title: 'شراء بالبطاقة - ' + title,
+          description,
+          category: qmState.category || 'مشتريات بطاقة',
+          subCategory: qmState.subCategory || '',
+          amount: instAmt,
+          date: scDate,
+          ...currencySnapshot,
+          accountId: null,
+          accountLabel: card.name,
+          source: 'card-purchase:' + op.id,
+          installmentIndex: idx + 1,
+          installmentTotal: op.schedules.length,
+          createdAt: nowTs + idx
+        });
+      });
+    } else {
+      const cardTx = {id:'card-purchase-'+op.id, type:'card_purchase', title:'شراء بالبطاقة - '+title, description, category:qmState.category||'مشتريات بطاقة', subCategory:qmState.subCategory||'', amount, date, ...currencySnapshot, accountId:null, accountLabel:card.name, source:'card-purchase:'+op.id, recurringMonthly:!!qmState.recurringMonthly, repeatIndex:(qmState.recurringMonthly && _rTotC > 1)?1:undefined, repeatTotal:(qmState.recurringMonthly && _rTotC > 1)?_rTotC:undefined, createdAt:nowTs};
+      state.transactions.push(cardTx);
+      if(qmState.recurringMonthly) upsertRecurringMonthlyCommitment(cardTx);
+    }
     if(opType === 'installment') syncCardInstallmentsToCommitments();
     persist(); refreshSecondaryFeeds(); closeQuickModal(); toast(opType==='installment'?'تم تسجيل التقسيط وإضافة أقساطه ✓':'تم تسجيل الشراء على البطاقة ✓');
     return;
   }
 
-  const createdTx = {
-    id: uid('tx'),
-    type: qmState.type,
-    category: qmState.category,
-    subCategory: qmState.subCategory || '',
-    title: note,
-    description,
-    amount,
-    date,
-    ...currencySnapshot,
-    accountId: qmState.accountId || null,
-    recurringMonthly: !!qmState.recurringMonthly,
-    repeatIndex: (qmState.recurringMonthly && Number(qmState.recurringMonths||0) > 1) ? 1 : undefined,
-    repeatTotal: (qmState.recurringMonthly && Number(qmState.recurringMonths||0) > 1) ? Number(qmState.recurringMonths) : undefined,
-    createdAt: nowTs
-  };
-  state.transactions.push(createdTx);
-  if(qmState.recurringMonthly) upsertRecurringMonthlyCommitment(createdTx);
+  const _repTot = (qmState.recurringMonthly && Number(qmState.recurringMonths||0) > 1) ? Number(qmState.recurringMonths) : 1;
+  const _baseYM = String(date||'').slice(0,7);
+  const _dayPart = String(date||'').slice(8,10) || '01';
+  let firstCreatedTx = null;
+  for(let rIdx = 0; rIdx < _repTot; rIdx++){
+    const txDate = rIdx === 0 ? date : `${addMonthsYM(_baseYM, rIdx)}-${_dayPart}`;
+    const rowTx = {
+      id: uid('tx'),
+      type: qmState.type,
+      category: qmState.category,
+      subCategory: qmState.subCategory || '',
+      title: note,
+      description,
+      amount,
+      date: txDate,
+      ...currencySnapshot,
+      accountId: qmState.accountId || null,
+      recurringMonthly: !!qmState.recurringMonthly,
+      repeatIndex: _repTot > 1 ? (rIdx + 1) : undefined,
+      repeatTotal: _repTot > 1 ? _repTot : undefined,
+      createdAt: nowTs + rIdx
+    };
+    state.transactions.push(rowTx);
+    if(rIdx === 0) firstCreatedTx = rowTx;
+  }
+  if(qmState.recurringMonthly && firstCreatedTx) upsertRecurringMonthlyCommitment(firstCreatedTx);
   persist(); refreshSecondaryFeeds(); closeQuickModal(); toast('تم الحفظ ✓');
 }
 

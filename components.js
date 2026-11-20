@@ -22,7 +22,7 @@ function showAppConfirm(title, msg, onConfirm, isDanger){
   okBtn.textContent = 'تأكيد';
   okBtn.style.background = isDanger ? 'var(--red)' : 'var(--mint)';
   okBtn.style.color = isDanger ? '#fff' : '#06221e';
-  document.getElementById('appDialogModal').classList.add('show');
+  document.getElementById('appDialogModal').classList.add('show'); if(typeof syncCustomSelectTriggers==='function') setTimeout(syncCustomSelectTriggers, 10);
 }
 function showAppPrompt(title, placeholder, initialValue, onSubmit, multiline, inputType){
   _appDialogState = { mode: multiline ? 'textarea' : 'prompt', onSubmit };
@@ -52,7 +52,7 @@ function showAppPrompt(title, placeholder, initialValue, onSubmit, multiline, in
   okBtn.textContent = 'تأكيد';
   okBtn.style.background = 'var(--mint)';
   okBtn.style.color = '#06221e';
-  document.getElementById('appDialogModal').classList.add('show');
+  document.getElementById('appDialogModal').classList.add('show'); if(typeof syncCustomSelectTriggers==='function') setTimeout(syncCustomSelectTriggers, 10);
 }
 function showAppCustomForm(title, bodyHtml, onSubmit, hideDefaultActions){
   _appDialogState = { mode:'custom', onSubmit };
@@ -67,7 +67,7 @@ function showAppCustomForm(title, bodyHtml, onSubmit, hideDefaultActions){
   okBtn.textContent = 'حفظ';
   okBtn.style.background = 'var(--mint)';
   okBtn.style.color = '#06221e';
-  document.getElementById('appDialogModal').classList.add('show');
+  document.getElementById('appDialogModal').classList.add('show'); if(typeof syncCustomSelectTriggers==='function') setTimeout(syncCustomSelectTriggers, 10);
   syncCustomSelectTriggers();
 }
 function submitAppDialog(){
@@ -122,6 +122,8 @@ window.addEventListener('popstate', function(){
   if(ym && ym.classList.contains('show')){ ym.classList.remove('show'); try{history.pushState({xwGuard:2},'');}catch(_){} return; }
   const cs = document.getElementById('customSelectModal');
   if(cs && cs.classList.contains('show')){ closeCustomSelectModal(); try{history.pushState({xwGuard:2},'');}catch(_){} return; }
+  const dp = document.getElementById('appDatePickerModal');
+  if(dp && dp.classList.contains('show')){ closeAppDatePicker(); try{history.pushState({xwGuard:2},'');}catch(_){} return; }
   const ad = document.getElementById('appDialogModal');
   if(ad && ad.classList.contains('show')){ closeAppDialog(); try{history.pushState({xwGuard:2},'');}catch(_){} return; }
   const am = document.getElementById('accountModal');
@@ -533,3 +535,112 @@ function applyLanguageTranslations(lang){
   syncCustomSelectTriggers();
 }
 
+
+
+/* =========================================================
+   INTERNAL APP CALENDAR DATE PICKER (Replaces Native Date Picker)
+   ========================================================= */
+let _adpState = { targetEl: null, year: 2026, month: 11, selectedYMD: '' };
+
+function openAppDatePickerForInput(el){
+  if(!el) return;
+  const cur = /^\d{4}-\d{2}-\d{2}$/.test(String(el.value||'')) ? String(el.value) : today();
+  const [y, m] = cur.split('-').map(Number);
+  _adpState = { targetEl: el, year: y || new Date().getFullYear(), month: m || (new Date().getMonth()+1), selectedYMD: cur };
+  renderAppDatePicker();
+  document.getElementById('appDatePickerModal')?.classList.add('show');
+  try{ history.pushState({xwGuard:2, xwDp:1}, ''); }catch(_){}
+}
+function closeAppDatePicker(){
+  document.getElementById('appDatePickerModal')?.classList.remove('show');
+}
+function shiftAppDatePickerMonth(delta){
+  _adpState.month += delta;
+  if(_adpState.month < 1){ _adpState.month = 12; _adpState.year -= 1; }
+  else if(_adpState.month > 12){ _adpState.month = 1; _adpState.year += 1; }
+  renderAppDatePicker();
+}
+function selectAppDateYMD(ymd){
+  if(_adpState.targetEl){
+    _adpState.targetEl.value = ymd;
+    _adpState.targetEl.dispatchEvent(new Event('change', { bubbles: true }));
+    if(typeof _adpState.targetEl.onchange === 'function'){
+      try{ _adpState.targetEl.onchange.call(_adpState.targetEl); }catch(_){}
+    }
+  }
+  closeAppDatePicker();
+}
+function pickAppDateToday(){
+  selectAppDateYMD(today());
+}
+function renderAppDatePicker(){
+  const { year, month, selectedYMD } = _adpState;
+  const ymStr = `${year}-${String(month).padStart(2,'0')}`;
+  const lbl = document.getElementById('adpMonthYearLbl');
+  if(lbl) lbl.textContent = (typeof formatYMArabic === 'function') ? formatYMArabic(ymStr) : ymStr;
+  const grid = document.getElementById('adpDaysGrid');
+  if(!grid) return;
+  const firstDow = new Date(year, month - 1, 1).getDay();
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const td = today();
+  let html = '';
+  for(let i = 0; i < firstDow; i++) html += '<span class="adp-empty"></span>';
+  for(let d = 1; d <= daysInMonth; d++){
+    const ymd = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isSel = (ymd === selectedYMD);
+    const isTd = (ymd === td);
+    html += `<button type="button" class="adp-day ${isSel?'selected':''} ${isTd?'today':''}" onclick="selectAppDateYMD('${ymd}')">${d}</button>`;
+  }
+  grid.innerHTML = html;
+}
+
+/* 1-Step Back: Auto-close Search Bar the instant Android Virtual Keyboard is dismissed */
+(function initSingleStepKeyboardSearchClose(){
+  if(typeof window === 'undefined' || !window.visualViewport) return;
+  let maxH = window.visualViewport.height;
+  let kbOpenForSearch = false;
+  window.visualViewport.addEventListener('resize', () => {
+    const h = window.visualViewport.height;
+    if(h > maxH) maxH = h;
+    const ae = document.activeElement;
+    const isSearchFocused = !!(ae && (ae.id === 'actSearch' || ae.id === 'anaSearchInp' || ae.id === 'comSearch'));
+    if(isSearchFocused && h < maxH - 100){
+      kbOpenForSearch = ae.id;
+      return;
+    }
+    if(kbOpenForSearch && h >= maxH - 60){
+      const targetId = kbOpenForSearch;
+      kbOpenForSearch = false;
+      if(targetId === 'actSearch'){
+        const row = document.getElementById('transSearchRow');
+        const inp = document.getElementById('actSearch');
+        if(row && row.style.display !== 'none'){
+          row.style.display = 'none';
+          _transSearchActive = false;
+          if(inp){ inp.value = ''; inp.blur(); }
+          document.getElementById('btnToggleTransSearchHdr')?.classList.remove('active');
+          if(typeof clearTransactionsSearch === 'function') clearTransactionsSearch();
+          if(typeof updateFabVisibility === 'function') updateFabVisibility();
+        }
+      } else if(targetId === 'anaSearchInp'){
+        const row = document.getElementById('anaSearchRow');
+        const inp = document.getElementById('anaSearchInp');
+        if(row && row.style.display !== 'none'){
+          row.style.display = 'none';
+          if(inp){ inp.value = ''; inp.blur(); }
+          document.getElementById('btnToggleAnaSearchHdr')?.classList.remove('active');
+          if(typeof renderReportsScreen === 'function') renderReportsScreen();
+        }
+      } else if(targetId === 'comSearch'){
+        const wrap = document.getElementById('comSearchBarWrap');
+        const inp = document.getElementById('comSearch');
+        if(wrap && wrap.style.display !== 'none'){
+          wrap.style.display = 'none';
+          if(inp){ inp.value = ''; inp.blur(); }
+          document.getElementById('btnToggleComSearchHdr')?.classList.remove('active');
+          if(typeof renderPlanScreen === 'function') renderPlanScreen();
+        }
+      }
+    }
+  });
+})();

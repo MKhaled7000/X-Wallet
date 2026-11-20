@@ -7094,3 +7094,82 @@ html[data-record-style="soft"] #cardsList .listitem {
   border: 0 !important;
   border-radius: 14px !important;
 }
+
+
+/* =========================================================
+   X-WALLET V15.2.8 INTERNAL CALENDAR + UNIFIED SIZING + FRAMES TOGGLE
+   ========================================================= */
+.adp-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.adp-head b { font-size: .88rem; color: var(--text); }
+.adp-nav {
+  width: 34px; height: 34px; border-radius: 10px;
+  border: 1px solid var(--line2); background: var(--surface2);
+  color: var(--text); font-size: 1.05rem; cursor: pointer; display: grid; place-items: center;
+}
+.adp-weekdays, .adp-days {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center;
+}
+.adp-weekdays { margin-bottom: 6px; font-size: .72rem; color: var(--muted); }
+.adp-day {
+  height: 36px; border-radius: 10px; border: 1px solid transparent;
+  background: transparent; color: var(--text); font-size: .8rem; cursor: pointer;
+}
+.adp-day.today { border-color: rgba(67, 214, 178, 0.55); color: var(--mint); }
+.adp-day.selected { background: var(--mint); color: #06131a; font-weight: 700; }
+
+/* 3. Unified Tab Name Box Width across ALL pages */
+.utb-tab-btn {
+  min-width: 96px !important;
+  max-width: 155px !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* 4. Unify Analytics & Wallet row height and font size to match Daily Records */
+#repCatBreakdownList .listitem,
+#accountsList .listitem,
+#cardsList .listitem,
+#accountsList .wallet-acc-row,
+#cardsList .wallet-card-row {
+  min-height: 44px !important;
+  padding: 9px 10px !important;
+  font-size: .8rem !important;
+}
+#repCatBreakdownList .listitem b,
+#repCatBreakdownList .listitem strong,
+#accountsList .listitem b,
+#accountsList .listitem strong,
+#cardsList .listitem b,
+#cardsList .listitem strong {
+  font-size: .8rem !important;
+}
+
+/* 6a. Group / Day Frames Toggle (data-group-frames="off") */
+html[data-group-frames="off"] .day-group,
+html[data-group-frames="off"] .wallet-section-card,
+html[data-group-frames="off"] #repCatBreakdownList,
+html[data-group-frames="off"] #repChartPanel,
+html[data-group-frames="off"] #settings .c-list,
+html[data-group-frames="off"] #settings .fold-link-card {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+html[data-group-frames="off"] .day-group {
+  border-bottom: 1px solid var(--line) !important;
+  padding-bottom: 4px !important;
+  margin-bottom: 6px !important;
+}
+html[data-group-frames="off"] .wallet-section-card {
+  border-bottom: 1px solid var(--line) !important;
+  padding-bottom: 6px !important;
+}

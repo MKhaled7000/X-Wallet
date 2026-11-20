@@ -238,14 +238,14 @@ function openTransFilterPrompt(kind){
           <label>من تاريخ</label>
           <div class="picker-trigger" style="position:relative">
             <b id="fltFromDisp" dir="ltr">${formatDateDMY(defStart)}</b>
-            <input id="fltDateFromInp" type="date" value="${esc(defStart)}" onchange="document.getElementById('fltFromDisp').textContent=formatDateDMY(this.value)" style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer">
+            <input id="fltDateFromInp" type="hidden" value="${esc(defStart)}" onchange="document.getElementById('fltFromDisp').textContent=formatDateDMY(this.value)">
           </div>
         </div>
         <div class="c-row" onclick="openNativeInputPicker('fltDateToInp')">
           <label>إلى تاريخ</label>
           <div class="picker-trigger" style="position:relative">
             <b id="fltToDisp" dir="ltr">${formatDateDMY(defEnd)}</b>
-            <input id="fltDateToInp" type="date" value="${esc(defEnd)}" onchange="document.getElementById('fltToDisp').textContent=formatDateDMY(this.value)" style="position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer">
+            <input id="fltDateToInp" type="hidden" value="${esc(defEnd)}" onchange="document.getElementById('fltToDisp').textContent=formatDateDMY(this.value)">
           </div>
         </div>
       </div>

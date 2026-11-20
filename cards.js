@@ -727,7 +727,7 @@ function openPayDueDialog(kind, entityId, opId, month, defaultAmt, itemTitle){
     <div class="c-list">
       <div class="c-row"><label>البند</label><input value="${esc(itemTitle)}" readonly style="color:var(--mint)"></div>
       <div class="c-row"><label>السداد من حساب</label><select id="payDueAccSel">${accOpts}</select></div>
-      <div class="c-row"><label>تاريخ السداد</label><input id="payDueDateInp" type="date" value="${today()}"></div>
+      <div class="c-row" onclick="openNativeInputPicker('payDueDateInp')"><label>تاريخ السداد</label><div class="picker-trigger"><b id="payDueDateDisp" dir="ltr">${formatDateDMY(today())}</b><input id="payDueDateInp" type="hidden" value="${today()}" onchange="document.getElementById('payDueDateDisp').textContent=formatDateDMY(this.value)"></div></div>
       <div class="c-row"><label>المبلغ المسدد (${esc(targetCurrency)})</label><input id="payDueAmtInp" type="number" step="0.01" value="${defaultAmt}"></div>
     </div>
     <p class="hint">كل مبالغ المحفظة بالجنيه المصري؛ المبلغ المدخل هو نفسه الذي سيُخصم من الحساب.</p>
