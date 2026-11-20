@@ -1,0 +1,6357 @@
+:root{
+  --bg:#0b1220;--bg-grad:radial-gradient(ellipse at 80% -10%,#1b3450 0,transparent 42%);
+  --panel:#121d2e;--panel2:#18263a;--surface:#0e1929;--surface2:#142136;
+  --line:#25354b;--line2:#2f4562;--muted:#91a2b9;--text:#f4f7fb;--text-sub:#dce8f8;
+  --nav-bg:#0d1726f2;--modal-bg:#050a12e6;--scheme:dark;
+  --mint:#43d6b2;--mint2:#1a9c94;--hero1:#1b8f83;--hero2:#145e68;--hero3:#174b63;
+  --blue:#73a7ff;--orange:#ffbd69;--red:#ff7285;--purple:#b69aff;--radius:20px;--scale:1
+}
+[data-bg="light"]{
+  --bg:#f1f5f9;--bg-grad:radial-gradient(ellipse at 80% -10%,#dbeafe 0,transparent 45%);
+  --panel:#ffffff;--panel2:#f8fafc;--surface:#f1f5f9;--surface2:#e2e8f0;
+  --line:#cbd5e1;--line2:#94a3b8;--muted:#475569;--text:#0f172a;--text-sub:#1e293b;
+  --nav-bg:#ffffffee;--modal-bg:#0f172a99;--scheme:light;
+}
+[data-bg="metallic"]{
+  --bg:#16191e;--bg-grad:linear-gradient(160deg,#252a32 0%,#16191e 48%,#101216 100%);
+  --panel:#1f242c;--panel2:#282e38;--surface:#15181e;--surface2:#232832;
+  --line:#38414f;--line2:#4b5565;--muted:#9ca3af;--text:#f3f4f6;--text-sub:#e5e7eb;
+  --nav-bg:#16191ef5;--modal-bg:#080a0de6;--scheme:dark;
+}
+[data-bg="black"]{
+  --bg:#000000;--bg-grad:none;
+  --panel:#0a0a0a;--panel2:#121212;--surface:#050505;--surface2:#141414;
+  --line:#222222;--line2:#333333;--muted:#888888;--text:#ffffff;--text-sub:#e5e5e5;
+  --nav-bg:#000000f5;--modal-bg:#000000eb;--scheme:dark;
+}
+
+*{box-sizing:border-box}
+html{font-size:calc(16px * var(--scale))}
+body{margin:0;background:var(--bg-grad),var(--bg);color:var(--text);font-family:system-ui,'Noto Sans Arabic','Tahoma',sans-serif;min-height:100vh;padding-bottom:105px;transition:background .2s,color .2s}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{max-width:520px;margin:auto;padding:14px 15px 30px}
+
+
+/* Global Light/Regular Typography (Bold reserved ONLY for Titles/Headings) */
+body{font-weight:400}
+b,strong{font-weight:400}
+.brand b,.section-head h2,.sheet h3,details.fold > summary{font-weight:400}
+
+/* Top Header */
+.top{display:flex;justify-content:space-between;align-items:center;margin:4px 0 14px}
+.brand{display:flex;align-items:center;gap:10px}
+.logo{width:42px;height:42px;border-radius:14px;background:#0b1220;border:1px solid var(--line2);display:grid;place-items:center;overflow:hidden;padding:3px;box-shadow:0 6px 20px #0004}
+.logo img{width:100%;height:100%;object-fit:contain;display:block;border-radius:10px}
+.brand b{font-size:1.22rem;letter-spacing:-.4px;font-weight:700}
+.brand small{display:block;color:var(--muted);font-size:.66rem;margin-top:-2px}
+.top-right{display:flex;align-items:center;gap:7px}
+.avatar{min-width:38px;height:38px;padding:0 11px;border-radius:13px;background:var(--surface2);border:1px solid var(--line);color:var(--text-sub);display:grid;place-items:center;font-weight:400;font-size:.82rem;white-space:nowrap}
+.icon-pill{height:38px;padding:0 10px;border-radius:13px;background:var(--panel2);border:1px solid var(--line);color:var(--text);font-size:.76rem;font-weight:400;display:inline-flex;align-items:center;justify-content:center}
+.icon-pill.active{border-color:var(--mint);color:var(--mint);background:var(--surface)}
+
+/* Slim Liquidity Bar in Transactions Home */
+.liq-strip{background:linear-gradient(135deg,var(--hero1),var(--hero2) 60%,var(--hero3));border:1px solid #ffffff30;border-radius:18px;padding:11px 15px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;box-shadow:0 10px 25px #0003}
+.liq-strip span{font-size:.74rem;color:#e6faf5;font-weight:400}
+.liq-strip b{font-size:1.12rem;font-weight:400;direction:ltr;color:#fff}
+
+/* Month Stepper & MM-Style 3-Column Summary Strip */
+.mm-header-card{background:linear-gradient(150deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:20px;padding:12px;margin-bottom:12px}
+.mm-nav-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.ym-stepper{display:inline-flex;align-items:center;background:var(--surface);border:1px solid var(--line2);border-radius:12px;overflow:hidden}
+.ym-stepper button.step-arrow{background:transparent;border:0;color:var(--mint);padding:6px 12px;font-size:1rem;font-weight:400;line-height:1}
+.ym-stepper button.step-label{background:transparent;border:0;border-right:1px solid var(--line2);border-left:1px solid var(--line2);color:var(--text);padding:6px 10px;font-size:.78rem;font-weight:400;min-width:110px;text-align:center}
+.mm-tools{display:flex;gap:6px}
+.mm-tool-btn{width:34px;height:34px;border-radius:11px;background:var(--surface);border:1px solid var(--line2);color:var(--text-sub);display:grid;place-items:center;font-size:.85rem}
+.mm-tool-btn.active{border-color:var(--mint);color:var(--mint)}
+
+.mm-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.mm-stat-box{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:8px 4px}
+.mm-stat-box small{display:block;font-size:.66rem;color:var(--muted)}
+.mm-stat-box b{display:block;font-size:.86rem;margin-top:3px;direction:ltr}
+
+/* Daily Grouped Transaction List (Amount Right, Cat/SubCat & Memo Left) */
+.day-group{background:linear-gradient(150deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;margin-bottom:10px;overflow:hidden}
+.day-head{background:var(--surface);padding:8px 13px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);font-size:.74rem}
+.day-head-right{display:flex;align-items:center;gap:7px}
+.day-num{font-size:1rem;font-weight:400;color:var(--text)}
+.day-badge{background:var(--surface2);color:var(--text-sub);padding:2px 7px;border-radius:7px;font-size:.64rem;font-weight:400}
+.day-ym{color:var(--muted);font-size:.68rem}
+.day-totals{display:flex;gap:12px;direction:ltr;font-weight:400;font-size:.76rem}
+
+.tx-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;border-bottom:1px solid var(--line);cursor:pointer}
+.tx-row:last-child{border-bottom:0}
+.tx-amt-right{font-size:.86rem;font-weight:400;direction:ltr;white-space:nowrap;text-align:right;flex-shrink:0;min-width:86px}
+.tx-mid-acc{flex:1;min-width:0;text-align:center}
+.tx-mid-acc span{display:block;font-size:.74rem;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-mid-acc small{display:block;font-size:.66rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-cat-left{min-width:95px;max-width:145px;text-align:left;flex-shrink:0}
+.tx-cat-left b{display:block;font-size:.72rem;font-weight:400;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-cat-left small{display:block;font-size:.72rem;font-weight:400;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.tap-actions{display:none;padding:8px 13px;background:var(--surface);border-bottom:1px solid var(--line);gap:6px;flex-wrap:wrap}
+.tx-wrap.expanded .tap-actions,.listitem.expanded .tap-actions{display:flex}
+
+/* Hero & Cards */
+.hero{background:linear-gradient(135deg,var(--hero1),var(--hero2) 60%,var(--hero3));border:1px solid #ffffff33;border-radius:24px;padding:18px;position:relative;overflow:hidden;box-shadow:0 14px 35px #0003;margin-bottom:12px;color:#fff}
+.hero label{font-size:.75rem;color:#eafaf6}
+.hero .amount{font-size:1.9rem;font-weight:400;letter-spacing:-1px;margin:4px 0 2px;direction:ltr;text-align:right;color:#fff}
+.hero .sub{font-size:.68rem;color:#e0f7f2}
+.hero-foot{display:flex;gap:8px;margin-top:12px}
+.hero-pill{background:#ffffff19;border:1px solid #ffffff22;padding:7px 9px;border-radius:12px;font-size:.65rem;flex:1;color:#fff}
+.hero-pill b{display:block;font-size:.8rem;margin-top:2px;direction:ltr}
+
+.section-head{display:flex;justify-content:space-between;align-items:center;margin:18px 2px 9px}
+.section-head h2{font-size:.96rem;margin:0;font-weight:700}
+.section-head span{font-size:.7rem;color:var(--muted)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.metric{background:linear-gradient(150deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:13px}
+.metric small{font-size:.7rem;color:var(--muted);display:block}
+.metric strong{display:block;font-size:1.1rem;margin-top:6px;direction:ltr;text-align:right}
+.metric em{display:block;font-size:.63rem;color:var(--muted);font-style:normal;margin-top:2px}
+.mint{color:var(--mint)}.blue{color:var(--blue)}.orange{color:var(--orange)}.red{color:var(--red)}.purple{color:var(--purple)}
+[data-bg="light"] .mint{color:#0d9488}[data-bg="light"] .blue{color:#2563eb}[data-bg="light"] .orange{color:#d97706}[data-bg="light"] .red{color:#e11d48}
+.panel{background:linear-gradient(150deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:20px;padding:14px;margin-bottom:10px}
+.rowline{display:flex;justify-content:space-between;align-items:center;font-size:.76rem;margin:6px 0}
+.rowline span{color:var(--muted)}
+
+/* Bottom Navigation (5 Tabs) */
+.bottom{position:fixed;bottom:0;left:0;right:0;background:var(--nav-bg);backdrop-filter:blur(18px);border-top:1px solid var(--line);z-index:10;padding:8px max(8px,calc((100vw - 520px)/2)) calc(8px + env(safe-area-inset-bottom));display:flex;justify-content:space-around;gap:2px}
+.nav{border:0;background:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:4px;font-size:.62rem;flex:1;min-width:0;padding:2px 0;white-space:nowrap;opacity:.78}
+.nav svg{width:21px;height:21px;display:block}
+.nav.active{color:var(--mint);opacity:1;font-weight:400}
+
+/* Floating + Button on Bottom RIGHT */
+.fab{position:fixed;bottom:78px;right:18px;left:auto;z-index:12;width:56px;height:56px;border-radius:50%;border:3px solid var(--bg);background:linear-gradient(145deg,var(--mint),var(--mint2));color:#06221f;font-size:30px;font-weight:400;box-shadow:0 8px 25px #0006;display:grid;place-items:center}
+@media(min-width:560px){.fab{right:calc(50% - 245px);left:auto}}
+
+.screen{display:none}
+.screen.active{display:block}
+.listitem{display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.listitem:last-child{border:0}
+.listitem .info{flex:1;min-width:0}
+.listitem b{font-size:.82rem}
+.listitem small{display:block;color:var(--muted);font-size:.7rem;line-height:1.5}
+.listitem strong{font-size:.88rem;white-space:nowrap;direction:ltr}
+.tag{font-size:.64rem;padding:2px 7px;border-radius:7px;background:var(--surface2);color:var(--text-sub);white-space:nowrap;font-weight:400;border:1px solid var(--line)}
+.empty{text-align:center;color:var(--muted);padding:24px 10px;font-size:.75rem}
+
+/* Unified Aligned 1-Line Form Rows across ALL pages */
+.c-list{display:flex;flex-direction:column;gap:8px}
+.c-row{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:46px}
+.c-row > label,.c-row > .c-lbl{font-size:.76rem;font-weight:400;color:var(--text-sub);white-space:nowrap;width:36%;flex-shrink:0}
+.c-row input,.c-row select,.c-row .picker-trigger,.c-row .seg-group{width:64%;max-width:64%;min-width:0;height:36px;background:var(--surface2);border:1px solid var(--line2);border-radius:10px;padding:0 10px;color:var(--text);font-size:.76rem;outline:none;color-scheme:var(--scheme)}
+.c-row input,.c-row select{text-align:right}
+.c-row .picker-trigger{display:flex;align-items:center;justify-content:space-between;text-align:right;transition:border-color .15s}
+.c-row .picker-trigger.focused-field{border-color:var(--mint);box-shadow:0 0 0 2px #43d6b233}
+.c-row .picker-trigger span{color:var(--mint);font-size:.68rem}
+.c-row .seg-group{display:grid;grid-template-columns:1fr 1fr;padding:0;overflow:hidden}
+.seg-btn{border:0;background:transparent;color:var(--muted);font-size:.74rem;font-weight:400;height:100%}
+.seg-btn.active{background:var(--mint);color:#06221e}
+.c-row .theme-dots{width:64%;display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap;margin:0}
+.c-row .theme-dot{width:24px;height:24px;border-radius:50%;border:2px solid transparent;transition:transform .15s}
+.c-row .theme-dot.active{border-color:var(--text);transform:scale(1.15);box-shadow:0 0 0 2px var(--mint)}
+.c-row-btns{width:64%;display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
+
+/* Bottom-Sheet Ergonomic Quick Entry Modal (Thumb-Friendly Lower Half) */
+.modal{display:none;position:fixed;inset:0;background:var(--modal-bg);z-index:40;align-items:flex-end;justify-content:center;padding:0}
+.modal.show{display:flex}
+.modal.center-modal{align-items:center;padding:16px}
+.sheet{width:100%;max-width:520px;background:var(--panel);border-top:1px solid var(--line2);border-radius:24px 24px 0 0;padding:14px 14px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -12px 40px #000a;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column}
+.modal.center-modal .sheet{max-width:420px;border-radius:22px;border:1px solid var(--line2);padding:16px}
+.sheet h3{margin:0 0 10px;font-size:.96rem;font-weight:700;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+
+.qm-form-scroll{flex-shrink:0;display:flex;flex-direction:column;gap:6px}
+.qm-form-scroll .c-row{min-height:40px;padding:5px 10px}
+.qm-form-scroll .c-row input,.qm-form-scroll .c-row select,.qm-form-scroll .c-row .picker-trigger,.qm-form-scroll .c-row .seg-group{height:32px}
+
+.mm-type-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px;flex-shrink:0}
+.mm-tab{background:var(--surface);border:1px solid var(--line2);color:var(--muted);border-radius:10px;padding:7px 4px;font-size:.76rem;font-weight:400;text-align:center}
+.mm-tab.active.exp{border-color:var(--red);color:var(--red);background:#ff728518}
+.mm-tab.active.inc{border-color:var(--blue);color:var(--blue);background:#73a7ff18}
+.mm-tab.active.trn{border-color:var(--mint);color:var(--mint);background:#43d6b218}
+
+/* Lower-Half Thumb-Zone Picker Container (Fills bottom half down to action bar) */
+.qm-bottom-dock{margin-top:8px;background:var(--surface);border:1px solid var(--line2);border-radius:16px;padding:8px;height:245px;flex-shrink:0;display:flex;flex-direction:column;overflow:hidden}
+.quick-grid-head{display:flex;justify-content:space-between;align-items:center;font-size:.7rem;color:var(--muted);margin-bottom:6px;padding:0 4px;flex-shrink:0}
+.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;padding:2px;flex:1;min-height:0}
+.qg-item{background:var(--surface2);border:1px solid var(--line);color:var(--text-sub);border-radius:10px;padding:11px 5px;font-size:.74rem;font-weight:400;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qg-item.selected{border-color:var(--mint);background:#43d6b222;color:var(--mint)}
+
+/* Money Manager 2-Column Side-by-Side Category & Subcategory Picker in Lower Half */
+.mm-cat-split{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1;min-height:0;height:100%}
+.mm-cat-col{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:5px;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain;display:flex;flex-direction:column;gap:4px;height:100%}
+.mm-cat-col-title{font-size:.65rem;color:var(--muted);text-align:center;padding:3px 0 5px;border-bottom:1px solid var(--line);font-weight:400;position:sticky;top:0;background:var(--panel2);z-index:1}
+.mm-cat-item{background:transparent;border:1px solid transparent;color:var(--text-sub);border-radius:9px;padding:9px 8px;font-size:.72rem;font-weight:400;text-align:right;width:100%;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.mm-cat-item.active{background:#43d6b222;border-color:var(--mint);color:var(--mint)}
+
+/* Structured Category Manager Tree in Settings */
+.cat-mgr-row{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:6px;overflow:hidden}
+.cat-mgr-main{display:flex;align-items:center;justify-content:space-between;padding:9px 11px;gap:8px}
+.cat-mgr-main-title{flex:1;min-width:0;cursor:pointer}
+.cat-mgr-main-title b{font-size:.8rem;color:var(--text);display:block}
+.cat-mgr-main-title small{font-size:.65rem;color:var(--muted);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cat-mgr-icons{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.icon-act-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--line2);background:var(--surface2);color:var(--text);display:grid;place-items:center;font-size:.78rem;padding:0}
+.cat-mgr-subs{background:var(--panel2);border-top:1px solid var(--line);padding:6px 12px 6px 8px;display:flex;flex-direction:column;gap:4px}
+.cat-mgr-sub-row{display:flex;align-items:center;justify-content:space-between;padding:5px 8px;background:var(--surface);border-radius:8px;font-size:.74rem}
+
+/* Sub-tabs inside screens */
+.sub-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.sub-tab-btn{background:var(--panel2);border:1px solid var(--line);color:var(--muted);border-radius:13px;padding:10px;font-size:.78rem;font-weight:400;text-align:center}
+.sub-tab-btn.active{border-color:var(--mint);color:var(--mint);background:var(--surface)}
+
+/* Horizontal 3-button action bar */
+.h-action-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.h-action-btn{background:linear-gradient(150deg,var(--panel2),var(--panel));border:1px solid var(--line);color:var(--text);border-radius:14px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:.72rem;font-weight:400}
+.h-action-btn.active{border-color:var(--mint);background:var(--surface);color:var(--mint)}
+.card-subpanel{display:none;margin-bottom:12px}
+.card-subpanel.show{display:block}
+
+/* Accordion & Buttons */
+details.fold{background:linear-gradient(150deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;margin:10px 0;overflow:hidden}
+details.fold > summary{list-style:none;cursor:pointer;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:.84rem}
+details.fold > summary::-webkit-details-marker{display:none}
+details.fold[open] > summary{border-bottom:1px solid var(--line);background:var(--surface)}
+details.fold .fold-body{padding:12px 14px}
+
+.actions{display:flex;gap:8px;margin-top:10px;flex-shrink:0}
+.primary,.secondary{border:0;border-radius:12px;padding:11px 14px;font-weight:400;flex:1;font-size:.8rem}
+.primary{background:var(--mint);color:#06221e;width:100%}
+.secondary{background:var(--surface2);color:var(--text-sub);border:1px solid var(--line)}
+.smallbtn{border:1px solid var(--line2);background:var(--surface2);color:var(--text);border-radius:9px;padding:5px 10px;font-size:.7rem;font-weight:400}
+.smallbtn.danger{background:#4a2631;color:#ffdbe1;border:1px solid #75404b}
+.hint{font-size:.72rem;color:var(--muted);line-height:1.6;margin:6px 0}
+.file-hidden{display:none}
+.toast{position:fixed;top:15px;left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--mint);color:var(--text);padding:10px 15px;border-radius:13px;z-index:60;font-size:.75rem;display:none;max-width:90%;text-align:center;box-shadow:0 8px 25px #0005}
+
+
+/* Custom Centered Select Modal (Matches Exit Confirmation Card Design) */
+.custom-sel-trigger{width:64%;max-width:64%;min-width:0;height:36px;background:var(--surface2);border:1px solid var(--line2);border-radius:10px;padding:0 10px;color:var(--text);font-size:.76rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;text-align:right;overflow:hidden}
+.custom-sel-trigger span.cs-val{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.custom-sel-trigger span.cs-arr{color:var(--mint);font-size:.65rem;margin-right:6px;flex-shrink:0}
+.qm-form-scroll .custom-sel-trigger{height:32px}
+.cs-opt-list{display:flex;flex-direction:column;gap:7px;max-height:52vh;overflow-y:auto;margin:6px 0}
+.cs-opt-btn{width:100%;background:var(--surface);border:1px solid var(--line);color:var(--text-sub);border-radius:12px;padding:11px 14px;font-size:.82rem;display:flex;align-items:center;justify-content:space-between;text-align:right}
+.cs-opt-btn.selected{border-color:var(--mint);background:#43d6b21a;color:var(--mint)}
+
+/* Compact Month/Year Grid Picker */
+.ym-year-bar{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line2);border-radius:12px;padding:6px 10px;margin-bottom:10px}
+.ym-year-bar button{background:var(--surface2);border:1px solid var(--line);color:var(--text);width:32px;height:32px;border-radius:9px;font-weight:400}
+.ym-year-bar b{font-size:15px;color:var(--mint)}
+.ym-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.ym-cell{background:var(--surface);border:1px solid var(--line);color:var(--text-sub);border-radius:10px;padding:9px 4px;font-size:.75rem;font-weight:400;text-align:center}
+.ym-cell.active{background:var(--mint);color:#06221e;border-color:var(--mint)}
+
+/* Yearly Table */
+.yr-table-wrap{overflow-x:auto;margin-top:4px}
+.yr-table{width:100%;border-collapse:collapse;font-size:.72rem;text-align:right;min-width:340px}
+.yr-table th{color:var(--muted);padding:8px 6px;border-bottom:1px solid var(--line);background:var(--surface)}
+.yr-table td{padding:9px 6px;border-bottom:1px solid var(--line)}
+.yr-table tr.cur-row{background:#43d6b214}
+.yr-table td.num,.yr-table th.num{direction:ltr;text-align:left}
+
+
+/* V12.3 Compact Money Manager Layout & Fixed Left-to-Right Structure */
+.app {
+  max-width: 540px;
+  margin: auto;
+  padding: 8px 8px 24px;
+}
+
+/* Row 1: Top Header (Left: App Brand, Right: Current Tab Title) */
+.top {
+  direction: ltr;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2px 2px 8px;
+  padding: 2px 4px;
+}
+.brand {
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  padding: 2px;
+}
+.brand b {
+  font-size: 1.05rem;
+  letter-spacing: -.3px;
+  font-weight: 700;
+}
+.top-tab-title {
+  font-size: .98rem;
+  font-weight: 700;
+  color: var(--mint);
+  text-align: right;
+}
+
+/* Compact Header Card in Transactions & Reports */
+.mm-header-card {
+  background: linear-gradient(150deg, var(--panel2), var(--panel));
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+}
+/* Row 2: Left = Icons, Right = Month/Year Stepper */
+.mm-nav-row {
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.mm-tools {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.mm-tool-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  font-size: .82rem;
+}
+.ym-stepper {
+  direction: ltr;
+  border-radius: 10px;
+}
+.ym-stepper button.step-arrow {
+  padding: 4px 10px;
+  font-size: .95rem;
+}
+.ym-stepper button.step-label {
+  padding: 4px 10px;
+  font-size: .78rem;
+  min-width: 100px;
+}
+
+/* Row 3: Daily / Monthly Sub-tabs inside Transactions Header */
+.trans-mode-tabs {
+  direction: ltr;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--line);
+  margin: 0 -10px 8px;
+  padding: 0 10px;
+}
+.trans-mode-btn {
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  padding: 6px 4px;
+  font-size: .78rem;
+  text-align: center;
+  transition: color .15s, border-color .15s;
+}
+.trans-mode-btn.active {
+  color: var(--mint);
+  border-bottom-color: var(--mint);
+}
+
+/* Row 4: Compact 3 Summary Boxes (Left-to-Right: Income | Expenses | Net) */
+.mm-stats {
+  direction: ltr;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  text-align: center;
+}
+.mm-stat-box {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 5px 4px;
+}
+.mm-stat-box small {
+  font-size: .64rem;
+}
+.mm-stat-box b {
+  font-size: .82rem;
+  margin-top: 1px;
+  direction: ltr;
+}
+
+/* Compact Spacious Daily Group & Transaction Row (Money Manager Style) */
+.day-group {
+  border-radius: 13px;
+  margin-bottom: 7px;
+}
+.day-head {
+  direction: ltr;
+  padding: 6px 10px;
+  font-size: .73rem;
+}
+.day-head-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.day-totals {
+  direction: ltr;
+  display: flex;
+  gap: 12px;
+  font-size: .74rem;
+}
+
+/* Transaction Row: Left = Category/Subcat, Next to it = Memo + Account, Far Right = Amount */
+.tx-row {
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+}
+.tx-cat-col {
+  width: 96px;
+  min-width: 88px;
+  max-width: 108px;
+  text-align: left;
+  flex-shrink: 0;
+}
+.tx-cat-col b {
+  display: block;
+  font-size: .74rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tx-cat-col small {
+  display: block;
+  font-size: .66rem;
+  color: var(--muted);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tx-acc-col {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  padding-left: 2px;
+}
+.tx-acc-col span {
+  display: block;
+  font-size: .75rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tx-acc-col small {
+  display: block;
+  font-size: .68rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tx-amt-col {
+  font-size: .82rem;
+  direction: ltr;
+  white-space: nowrap;
+  text-align: right;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* Monthly Summary View in Transactions (Like Money Manager Monthly Tab) */
+.mm-month-row {
+  direction: ltr;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1fr;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+}
+.mm-month-row:last-child {
+  border-bottom: 0;
+}
+.mm-month-row.cur-month {
+  background: #43d6b212;
+}
+.mm-m-name b {
+  display: block;
+  font-size: .84rem;
+  color: var(--text);
+  text-align: left;
+}
+.mm-m-name small {
+  display: block;
+  font-size: .64rem;
+  color: var(--muted);
+  margin-top: 2px;
+  text-align: left;
+}
+.mm-m-inc {
+  text-align: center;
+  font-size: .8rem;
+  direction: ltr;
+}
+.mm-m-exp {
+  text-align: right;
+  direction: ltr;
+}
+.mm-m-exp b {
+  display: block;
+  font-size: .8rem;
+}
+.mm-m-exp small {
+  display: block;
+  font-size: .68rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* Sub-tabs & Bottom Nav Left-to-Right Order */
+.bottom {
+  direction: ltr;
+}
+.sub-tabs, .mm-type-tabs {
+  direction: ltr;
+}
+.yr-table {
+  min-width: 0;
+  width: 100%;
+}
+
+
+/* =========================================================
+   V12.4 Unified Left-to-Right Layout & Money Manager Styling
+   ========================================================= */
+html, body {
+  direction: ltr;
+  text-align: left;
+}
+
+/* 1. Wider spacing between transactions in Daily & Monthly feeds */
+.day-group {
+  border-radius: 14px;
+  margin-bottom: 10px;
+}
+.day-head {
+  direction: ltr;
+  padding: 8px 12px;
+  font-size: .76rem;
+}
+.tx-row {
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+}
+.tx-cat-col {
+  width: 104px;
+  min-width: 94px;
+  max-width: 115px;
+  text-align: left;
+  flex-shrink: 0;
+}
+.tx-cat-col b {
+  font-size: .77rem;
+  line-height: 1.35;
+}
+.tx-cat-col small {
+  font-size: .68rem;
+  margin-top: 2px;
+}
+.tx-acc-col {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  padding-left: 4px;
+}
+.tx-acc-col span {
+  font-size: .77rem;
+  line-height: 1.35;
+}
+.tx-acc-col small {
+  font-size: .69rem;
+  margin-top: 2px;
+}
+.tx-amt-col {
+  font-size: .85rem;
+  direction: ltr;
+  white-space: nowrap;
+  text-align: right;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.mm-month-row {
+  padding: 12px 14px;
+}
+
+/* 2. All Form Rows (.c-row) Across All Pages: Label on LEFT, Option/Input on RIGHT */
+.c-row {
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  min-height: 46px;
+}
+.c-row > label, .c-row > .c-lbl {
+  text-align: left;
+  width: 38%;
+  flex-shrink: 0;
+}
+.c-row input, .c-row select {
+  text-align: left;
+  direction: ltr;
+}
+.c-row .picker-trigger, .c-row .custom-sel-trigger {
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+}
+.c-row .custom-sel-trigger span.cs-arr {
+  margin-right: 0;
+  margin-left: 6px;
+}
+.c-row .theme-dots, .c-row-btns {
+  direction: ltr;
+  justify-content: flex-end;
+}
+
+/* 3. All Section Headers, Accordions, Cards, Metrics, Action Bars & List Items Left-to-Right */
+.section-head,
+details.fold > summary,
+.h-action-bar,
+.grid,
+.hero-foot,
+.rowline,
+.actions,
+.cat-mgr-main,
+.cat-mgr-sub-row {
+  direction: ltr;
+}
+.hero .amount,
+.metric strong {
+  text-align: left;
+}
+.listitem {
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 4px;
+  text-align: left;
+}
+.listitem .info {
+  text-align: left;
+}
+.listitem strong {
+  margin-left: auto;
+  text-align: right;
+}
+.yr-table {
+  direction: ltr;
+  text-align: left;
+}
+.yr-table th, .yr-table td {
+  text-align: left;
+}
+.yr-table td.num, .yr-table th.num {
+  text-align: right;
+}
+
+/* 4. Full-Screen Money Manager Style Transaction Entry Page (#quickModal) */
+.modal.fullpage-modal {
+  padding: 0;
+  align-items: stretch;
+  background: var(--bg);
+}
+.sheet.fullpage-sheet {
+  width: 100%;
+  max-width: 540px;
+  height: 100dvh;
+  max-height: 100dvh;
+  border-radius: 0;
+  border: 0;
+  background: var(--bg);
+  padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  box-shadow: none;
+}
+.qm-top-bar {
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 2px 10px;
+  flex-shrink: 0;
+}
+.qm-back-btn {
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  font-size: 1.25rem;
+  padding: 4px 8px;
+  line-height: 1;
+}
+.qm-top-bar b {
+  font-size: .98rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.qm-top-save {
+  background: var(--mint);
+  color: #06221e;
+  border: 0;
+  border-radius: 9px;
+  padding: 6px 14px;
+  font-size: .78rem;
+}
+
+/* Spacious Flat Underline Form Rows in Upper Half of Quick Entry (Like Image 4) */
+.qm-form-scroll {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
+  padding: 0 2px;
+}
+.qm-form-scroll .c-row {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  padding: 8px 4px;
+  min-height: 46px;
+}
+.qm-form-scroll .c-row > label {
+  width: 30%;
+  color: var(--muted);
+  font-size: .8rem;
+}
+.qm-form-scroll .c-row input,
+.qm-form-scroll .c-row select,
+.qm-form-scroll .c-row .picker-trigger,
+.qm-form-scroll .c-row .custom-sel-trigger,
+.qm-form-scroll .c-row .seg-group {
+  width: 70%;
+  max-width: 70%;
+  height: 36px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1.5px solid transparent;
+  border-radius: 0;
+  padding: 0 4px;
+  font-size: .85rem;
+  color: var(--text);
+}
+.qm-form-scroll .c-row input:focus,
+.qm-form-scroll .c-row .picker-trigger.focused-field {
+  border-bottom-color: var(--mint);
+  box-shadow: none;
+}
+
+/* Thumb-Zone Lower Half Dock in Quick Entry (Like Money Manager Category Grid at Bottom) */
+.qm-bottom-dock {
+  margin-top: auto;
+  margin-left: -14px;
+  margin-right: -14px;
+  background: var(--panel);
+  border: 0;
+  border-top: 1px solid var(--line2);
+  border-radius: 0;
+  padding: 0;
+  height: 44dvh;
+  min-height: 230px;
+  max-height: 340px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.qm-bottom-dock .quick-grid-head {
+  direction: ltr;
+  background: var(--surface2);
+  padding: 8px 14px;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--line);
+  font-size: .75rem;
+  color: var(--text-sub);
+}
+.qm-bottom-dock .quick-grid {
+  padding: 10px 12px;
+  align-content: start;
+}
+.qm-bottom-dock .mm-cat-split {
+  direction: ltr;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+.qm-bottom-dock .mm-cat-col {
+  background: var(--panel);
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-radius: 0;
+  padding: 0;
+  gap: 0;
+}
+.qm-bottom-dock .mm-cat-col:last-child {
+  border-right: 0;
+  background: var(--surface);
+}
+.qm-bottom-dock .mm-cat-col-title {
+  background: var(--panel2);
+  padding: 6px 10px;
+  font-size: .68rem;
+}
+.qm-bottom-dock .mm-cat-item {
+  direction: ltr;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  padding: 12px 12px;
+  font-size: .78rem;
+  text-align: left;
+}
+.qm-bottom-dock .mm-cat-item.active {
+  background: #43d6b224;
+  color: var(--mint);
+  border-left: 3px solid var(--mint);
+}
+.sheet.fullpage-sheet > .actions {
+  margin-top: 8px;
+}
+
+
+/* =========================================================
+   X-Wallet V13.0 Comprehensive UI & Layout Enhancements
+   ========================================================= */
+
+/* 10.3 Disable text selection across UI while keeping inputs selectable */
+*, *::before, *::after {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+input, textarea, [contenteditable="true"] {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
+}
+
+/* 10.1 & 10.2 Unified Header & Top-Right Page Title Card */
+.top {
+  direction: ltr;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 48px;
+  margin: 2px 0 10px;
+  padding: 0 2px;
+}
+.brand {
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  padding: 2px;
+}
+.brand b {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -.3px;
+}
+.top-tab-title {
+  background: linear-gradient(145deg, var(--panel2), var(--surface2));
+  border: 1px solid var(--mint);
+  color: var(--mint);
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-size: .84rem;
+  font-weight: 700;
+  box-shadow: 0 4px 12px #0003;
+  white-space: nowrap;
+}
+
+/* 4.1 & 10.2 Unified Sub-Tabs Across All Pages */
+.sub-tabs, .mm-type-tabs {
+  direction: ltr;
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.sub-tabs {
+  grid-template-columns: 1fr 1fr;
+}
+.sub-tab-btn, .mm-tab {
+  height: 40px;
+  padding: 0 10px;
+  border-radius: 12px;
+  font-size: .8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+.sub-tab-btn.active {
+  border-color: var(--mint);
+  color: var(--mint);
+  background: var(--surface);
+}
+
+/* 10.2 Unified Green Hero Card Across Accounts, Cards, and Commitments */
+.hero {
+  background: linear-gradient(135deg, var(--hero1), var(--hero2) 60%, var(--hero3));
+  border: 1px solid #ffffff30;
+  border-radius: 18px;
+  padding: 16px 18px;
+  min-height: 92px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 10px;
+  box-shadow: 0 10px 28px #0003;
+}
+.hero label {
+  font-size: .76rem;
+  color: #eafaf6;
+  margin-bottom: 4px;
+}
+.hero .amount {
+  font-size: 1.65rem;
+  margin: 0;
+  direction: ltr;
+  text-align: left;
+  color: #fff;
+}
+
+/* 2.1.2 Taller, Clearer Search Box */
+#mmSearchBox input#actSearch {
+  height: 42px !important;
+  font-size: .82rem !important;
+  padding: 8px 34px 8px 12px !important;
+  border-radius: 11px !important;
+}
+#mmSearchBox select#actAccountFilter {
+  height: 42px !important;
+  font-size: .78rem !important;
+  padding: 0 10px !important;
+  border-radius: 11px !important;
+}
+
+/* 2.3.5, 5.3, 6.3.4 Wide Equal-Width 3-Button Action Rows (نسخ - تعديل - حذف / كشف حساب - تعديل - حذف) */
+.tap-actions {
+  direction: ltr;
+  display: none;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  width: 100%;
+}
+.tx-wrap.expanded .tap-actions,
+.listitem.expanded .tap-actions {
+  display: grid;
+}
+.tap-actions .smallbtn {
+  height: 36px;
+  font-size: .76rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0 8px;
+}
+.listitem {
+  flex-wrap: wrap;
+  padding: 13px 8px;
+}
+.listitem .tap-actions,
+.listitem .card-detail-strip {
+  flex-basis: 100%;
+  margin-top: 10px;
+  border-bottom: 0;
+  border-radius: 11px;
+}
+.card-detail-strip {
+  direction: ltr;
+  display: none;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 10px 8px;
+  text-align: center;
+}
+.listitem.expanded .card-detail-strip {
+  display: grid;
+}
+.card-detail-strip div small {
+  display: block;
+  font-size: .65rem;
+  color: var(--muted);
+}
+.card-detail-strip div b {
+  display: block;
+  font-size: .78rem;
+  margin-top: 3px;
+  direction: ltr;
+}
+
+/* 3.2 Monthly Summary 4-Column Table (الشهر | الدخل | المصروفات | الصافي) */
+.mm-monthly-head {
+  direction: ltr;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr 1fr 1fr;
+  align-items: center;
+  padding: 9px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line2);
+  font-size: .72rem;
+  color: var(--muted);
+}
+.mm-month-row {
+  direction: ltr;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr 1fr 1fr;
+  align-items: center;
+  padding: 12px 12px;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  font-size: .78rem;
+}
+.mm-month-row > div,
+.mm-monthly-head > div {
+  text-align: left;
+  white-space: nowrap;
+}
+.mm-month-row > div.num,
+.mm-monthly-head > div.num {
+  text-align: right;
+  direction: ltr;
+}
+
+/* 1.2 Transfer Swap Button & Fee Pill */
+.swap-acc-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin: -4px 0;
+  padding: 0 8px;
+  position: relative;
+  z-index: 2;
+}
+.swap-acc-btn {
+  background: var(--surface2);
+  border: 1px solid var(--mint);
+  color: var(--mint);
+  border-radius: 9px;
+  padding: 3px 12px;
+  font-size: .78rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.fee-toggle-pill {
+  background: var(--surface2);
+  border: 1px solid var(--line2);
+  color: var(--mint);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: .72rem;
+  margin-left: 6px;
+  flex-shrink: 0;
+}
+.fee-toggle-pill.active {
+  background: #43d6b222;
+  border-color: var(--mint);
+}
+
+/* 8.4 Excel-Like Yearly Table with Sticky Month Column */
+.excel-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
+  border: 1px solid var(--line2);
+  border-radius: 12px;
+  background: var(--panel);
+}
+.excel-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: .72rem;
+  direction: ltr;
+}
+.excel-table th,
+.excel-table td {
+  padding: 7px 9px;
+  border-bottom: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  white-space: nowrap;
+  text-align: right;
+  direction: ltr;
+}
+.excel-table th {
+  background: var(--surface2);
+  color: var(--text-sub);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.excel-table th.sticky-col,
+.excel-table td.sticky-col {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: var(--surface);
+  text-align: left;
+  border-right: 2px solid var(--line2);
+  min-width: 68px;
+}
+.excel-table th.sticky-col {
+  z-index: 4;
+  background: var(--surface2);
+}
+.excel-table tr.cur-row td {
+  background: #43d6b215;
+}
+.excel-table tr.cur-row td.sticky-col {
+  background: #173837;
+}
+.excel-table tr.sum-row td {
+  background: var(--surface2);
+  border-top: 2px solid var(--line2);
+}
+
+/* 4.3 Category Drill-Down Monthly Bar Chart */
+.cat-trend-bars {
+  direction: ltr;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 4px;
+  align-items: end;
+  height: 120px;
+  padding: 14px 4px 4px;
+  border-bottom: 1px solid var(--line);
+}
+.cat-bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  min-width: 0;
+}
+.cat-bar-val {
+  font-size: .54rem;
+  color: var(--muted);
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.cat-bar-fill {
+  width: 72%;
+  background: linear-gradient(180deg, var(--mint), var(--mint2));
+  border-radius: 4px 4px 0 0;
+  min-height: 3px;
+  transition: height .2s;
+}
+.cat-bar-lbl {
+  font-size: .58rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+
+/* =========================================================
+   X-Wallet V13.1 Refinements & New Components
+   ========================================================= */
+
+/* General 1: Unified Dimensions & Aesthetic Polish for Top-Right Page Title Card */
+.top-tab-title {
+  min-width: 138px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: linear-gradient(145deg, var(--panel2), var(--surface2));
+  border: 1px solid var(--mint);
+  color: var(--mint);
+  font-size: .82rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0 4px 14px #0004, inset 0 1px 0 #ffffff14;
+  letter-spacing: -.1px;
+}
+
+/* 8.2 Icon + Text spacing in Settings & Fold Headers */
+.ic-txt {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.ic-txt i {
+  font-style: normal;
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  font-size: .82rem;
+}
+
+/* 3.3.2, 4.3.1, 5.3.1, 6.2 Framed Section Header Card */
+.sec-title-card {
+  direction: ltr;
+  background: linear-gradient(150deg, var(--panel2), var(--panel));
+  border: 1px solid var(--line2);
+  border-radius: 13px;
+  padding: 9px 14px;
+  margin: 14px 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.sec-title-card h2 {
+  font-size: .88rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text);
+}
+
+/* 1.5 Calm Frame Highlight for Segmented Buttons (شراء / تقسيط) instead of solid green */
+.seg-btn.active {
+  background: #43d6b21a !important;
+  color: var(--mint) !important;
+  border: 1px solid var(--mint) !important;
+  border-radius: 9px;
+}
+
+/* 1.6 Lighter Upper Section in Quick Entry matching Income/Expense/Transfer tab boxes */
+.qm-form-scroll {
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 6px 12px;
+  margin-top: 2px;
+}
+.qm-form-scroll .c-row:last-child {
+  border-bottom: 0;
+}
+.qm-desc-textarea {
+  width: 70%;
+  max-width: 70%;
+  min-height: 48px;
+  background: var(--surface);
+  border: 1px solid var(--line2);
+  border-radius: 9px;
+  padding: 6px 8px;
+  color: var(--text);
+  font-size: .78rem;
+  resize: none;
+  outline: none;
+  text-align: left;
+  direction: ltr;
+}
+.qm-desc-textarea:focus {
+  border-color: var(--mint);
+}
+
+/* 3.1 Two Summary Boxes Under Income & Expenses Tabs in Reports */
+.rep-dual-totals {
+  direction: ltr;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.rep-total-card {
+  background: linear-gradient(150deg, var(--panel2), var(--panel));
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px 10px;
+  text-align: center;
+}
+.rep-total-card.active-inc {
+  border-color: var(--blue);
+  background: #73a7ff12;
+}
+.rep-total-card.active-exp {
+  border-color: var(--red);
+  background: #ff728512;
+}
+.rep-total-card small {
+  display: block;
+  font-size: .66rem;
+  color: var(--muted);
+}
+.rep-total-card b {
+  display: block;
+  font-size: .88rem;
+  margin-top: 3px;
+  direction: ltr;
+}
+
+/* 3.3.3 Subcategory Breakdown 3-Column Table (الصنف | النسبة | المبلغ) */
+.subcat-table {
+  width: 100%;
+  border-collapse: collapse;
+  direction: ltr;
+  font-size: .78rem;
+}
+.subcat-table th,
+.subcat-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+.subcat-table th {
+  background: var(--surface);
+  color: var(--muted);
+  font-size: .72rem;
+}
+.subcat-table td.num,
+.subcat-table th.num {
+  text-align: right;
+  direction: ltr;
+}
+.subcat-table tr.total-row td {
+  background: var(--surface2);
+  color: var(--mint);
+  border-bottom: 1.5px solid var(--line2);
+}
+
+/* 6.2 & 6.3 Structured Columns for Monthly Dues & All Commitments */
+.com-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.com-grid-head,
+.com-grid-row {
+  direction: ltr;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 0.9fr;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 10px;
+  border-bottom: 1px solid var(--line);
+  font-size: .76rem;
+  text-align: left;
+}
+.com-grid-head {
+  background: var(--surface);
+  color: var(--muted);
+  font-size: .7rem;
+  border-bottom: 1px solid var(--line2);
+}
+.com-all-table {
+  width: 100%;
+  border-collapse: collapse;
+  direction: ltr;
+  font-size: .73rem;
+}
+.com-all-table th,
+.com-all-table td {
+  padding: 9px 7px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  white-space: nowrap;
+}
+.com-all-table th {
+  background: var(--surface);
+  color: var(--muted);
+  font-size: .68rem;
+}
+
+/* 8.1 Developer & App Profile Card in More Page */
+.dev-profile-card {
+  direction: ltr;
+  background: linear-gradient(145deg, var(--panel2), var(--surface));
+  border: 1px solid var(--line2);
+  border-radius: 18px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 8px 24px #0003;
+}
+.dev-card-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.dev-card-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #0b1220;
+  border: 1px solid var(--mint);
+  padding: 4px;
+  flex-shrink: 0;
+}
+.dev-card-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+}
+.dev-card-info b {
+  display: block;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.dev-card-info span {
+  display: block;
+  font-size: .72rem;
+  color: var(--text-sub);
+  margin-top: 2px;
+}
+.dev-card-info small {
+  display: block;
+  font-size: .64rem;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+
+/* =========================================================
+   X-Wallet V13.2 Fixes & Enhancements
+   ========================================================= */
+
+/* 5. Fix Modal Z-Index Stacking Order so Sub-Popups Always Open IN FRONT of Parent Modals */
+.modal.fullpage-modal {
+  z-index: 45 !important;
+}
+#accountModal,
+#appDialogModal,
+#updateAvailableModal {
+  z-index: 70 !important;
+}
+#ymModal,
+#customSelectModal,
+#exitConfirmModal {
+  z-index: 100 !important;
+}
+#appLockScreen {
+  z-index: 150 !important;
+}
+.toast {
+  z-index: 200 !important;
+}
+
+/* 1.1, 1.2, 1.3 Compact Upper Form + Fixed-Size Lower Dock + Clear Divider in Quick Entry (#quickModal) */
+.sheet.fullpage-sheet {
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom)) !important;
+  overflow: hidden !important;
+}
+.qm-top-bar {
+  padding: 2px 2px 6px !important;
+}
+#quickModal .mm-type-tabs {
+  margin-bottom: 6px !important;
+}
+#quickModal .mm-tab {
+  height: 34px !important;
+  font-size: .76rem !important;
+}
+.qm-form-scroll {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  background: var(--panel2) !important;
+  border: 1px solid var(--line2) !important;
+  border-radius: 13px !important;
+  padding: 4px 10px !important;
+  margin-top: 0 !important;
+  gap: 0 !important;
+}
+.qm-form-scroll .c-row {
+  min-height: 34px !important;
+  padding: 3px 2px !important;
+  gap: 6px !important;
+}
+.qm-form-scroll .c-row > label {
+  font-size: .74rem !important;
+  width: 28% !important;
+}
+.qm-form-scroll .c-row input,
+.qm-form-scroll .c-row select,
+.qm-form-scroll .c-row .picker-trigger,
+.qm-form-scroll .c-row .custom-sel-trigger,
+.qm-form-scroll .c-row .seg-group {
+  width: 72% !important;
+  max-width: 72% !important;
+  height: 28px !important;
+  font-size: .78rem !important;
+}
+.qm-desc-textarea {
+  width: 72% !important;
+  max-width: 72% !important;
+  min-height: 34px !important;
+  height: 34px !important;
+  padding: 4px 8px !important;
+  font-size: .74rem !important;
+}
+
+/* 1.3 Clear Divider Line between Upper Form and Lower Dock */
+.qm-divider-line {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--mint), transparent);
+  margin: 6px -12px 0;
+  flex-shrink: 0;
+  opacity: .85;
+}
+
+/* 1.2 Strictly Fixed Height for Bottom Dock (Never Resizes or Disappears) */
+#qmBottomDock.qm-bottom-dock {
+  margin-top: 0 !important;
+  margin-left: -12px !important;
+  margin-right: -12px !important;
+  height: 225px !important;
+  min-height: 225px !important;
+  max-height: 225px !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  border-top: 1.5px solid var(--line2) !important;
+}
+
+/* 2.1 Fix Search Bar Layout & Input Width */
+.mm-search-grid {
+  direction: ltr;
+  display: grid;
+  grid-template-columns: 1.65fr 1fr;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+.mm-search-input-wrap {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+.mm-search-input-wrap input#actSearch {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 40px !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--line2) !important;
+  border-radius: 10px !important;
+  padding: 0 30px 0 12px !important;
+  color: var(--text) !important;
+  font-size: .8rem !important;
+  text-align: left !important;
+}
+.mm-search-input-wrap input#actSearch:focus {
+  border-color: var(--mint) !important;
+}
+.mm-search-acc-wrap {
+  width: 100%;
+  min-width: 0;
+}
+.mm-search-acc-wrap .custom-sel-trigger {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 40px !important;
+  border-radius: 10px !important;
+}
+
+/* 3.3 Framed Section Titles with Distinct Accent Border Color */
+.sec-title-card {
+  direction: ltr;
+  background: linear-gradient(145deg, #43d6b214, var(--panel2)) !important;
+  border: 1.5px solid var(--mint) !important;
+  border-radius: 13px;
+  padding: 9px 14px;
+  margin: 14px 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  box-shadow: 0 4px 14px #0003;
+}
+.sec-title-card h2 {
+  color: var(--mint) !important;
+  font-size: .86rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* 3.2 Clickable Subcategory Rows in Category Drill-Down */
+.subcat-table tbody tr {
+  cursor: pointer;
+  transition: background .15s;
+}
+.subcat-table tbody tr.selected-sub {
+  background: #43d6b226 !important;
+  outline: 1px solid var(--mint);
+}
+
+/* 8.2 10 Theme Dots: 5 on Top Row, 5 on Bottom Row */
+.c-row .theme-dots {
+  display: grid !important;
+  grid-template-columns: repeat(5, 26px) !important;
+  gap: 8px !important;
+  justify-content: end !important;
+  width: auto !important;
+}
+.c-row .theme-dot {
+  width: 26px !important;
+  height: 26px !important;
+}
+
+/* 8.4 Biometric App Lock Screen */
+.app-lock-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-grad), var(--bg);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+}
+.app-lock-overlay.show {
+  display: flex;
+}
+.lock-card {
+  width: 100%;
+  max-width: 340px;
+  background: var(--panel);
+  border: 1px solid var(--line2);
+  border-radius: 24px;
+  padding: 26px 20px;
+  box-shadow: 0 16px 40px #0008;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.lock-logo {
+  width: 68px;
+  height: 68px;
+  border-radius: 20px;
+  background: #0b1220;
+  border: 1.5px solid var(--mint);
+  padding: 6px;
+  box-shadow: 0 8px 24px #0005;
+}
+.lock-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 14px;
+}
+
+
+/* =========================================================
+   X-Wallet V13.3 Refinements
+   ========================================================= */
+
+/* 3 & 4: Ensure #quickModal (z-index: 65) opens ABOVE #catDetailModal & #statementFullModal (z-index: 45) */
+#catDetailModal,
+#statementFullModal {
+  z-index: 45 !important;
+}
+#quickModal {
+  z-index: 65 !important;
+}
+#accountModal,
+#appDialogModal,
+#updateAvailableModal {
+  z-index: 80 !important;
+}
+#ymModal,
+#customSelectModal,
+#exitConfirmModal {
+  z-index: 110 !important;
+}
+
+/* 1: Larger, More Comfortable Bottom Dock in Quick Entry (#qmBottomDock) */
+#qmBottomDock.qm-bottom-dock {
+  height: 44dvh !important;
+  min-height: 295px !important;
+  max-height: 365px !important;
+  flex-shrink: 0 !important;
+}
+.qm-bottom-dock .mm-cat-item {
+  padding: 13px 12px !important;
+  font-size: .82rem !important;
+}
+.qm-bottom-dock .qg-item {
+  padding: 12px 6px !important;
+  font-size: .78rem !important;
+}
+
+/* 9: More Compact Registered Accounts & Registered Cards Lists */
+#accountsList,
+#cardsList {
+  padding: 4px 10px !important;
+}
+#accountsList .listitem,
+#cardsList .listitem {
+  padding: 8px 4px !important;
+  gap: 6px !important;
+}
+#accountsList .listitem b,
+#cardsList .listitem b {
+  font-size: .78rem !important;
+}
+#accountsList .listitem small,
+#cardsList .listitem small {
+  font-size: .64rem !important;
+}
+#accountsList .listitem strong,
+#cardsList .listitem strong {
+  font-size: .8rem !important;
+}
+#accountsList .listitem .tap-actions,
+#cardsList .listitem .tap-actions,
+#cardsList .listitem .card-detail-strip {
+  margin-top: 6px !important;
+  padding: 6px 6px !important;
+}
+#accountsList .listitem .tap-actions .smallbtn,
+#cardsList .listitem .tap-actions .smallbtn {
+  height: 31px !important;
+  font-size: .72rem !important;
+}
+
+/* 6: Organized Backup Sections */
+.backup-subbox {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  padding: 10px 11px;
+  margin-bottom: 10px;
+}
+.backup-subbox:last-child {
+  margin-bottom: 0;
+}
+.backup-subbox-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: .76rem;
+  font-weight: 700;
+  color: var(--mint);
+  margin-bottom: 8px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--line);
+}
+
+
+/* =========================================================
+   X-Wallet V13.4 Comprehensive UI & Ergonomic Upgrades
+   ========================================================= */
+:root {
+  --app-font: system-ui, 'Noto Sans Arabic', 'Tahoma', sans-serif;
+}
+body, button, input, select, textarea {
+  font-family: var(--app-font) !important;
+}
+
+/* 1.1 - 1.3 Data Entry Upper Section (+1.5cm Taller, Slightly Taller Rows, Frameless Expanding Description) */
+#quickModal .qm-form-scroll {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow-y: auto !important;
+  padding: 6px 10px !important;
+  gap: 1px !important;
+}
+#quickModal .qm-form-scroll .c-row {
+  min-height: 41px !important;
+  padding: 5px 4px !important;
+  flex-shrink: 0 !important;
+}
+#quickModal .qm-form-scroll .c-row input,
+#quickModal .qm-form-scroll .c-row select,
+#quickModal .qm-form-scroll .c-row .picker-trigger,
+#quickModal .qm-form-scroll .c-row .custom-sel-trigger,
+#quickModal .qm-form-scroll .c-row .seg-group {
+  height: 32px !important;
+  font-size: .81rem !important;
+}
+#quickModal .qm-form-scroll .c-row.qm-desc-expand-row {
+  flex: 1 1 auto !important;
+  min-height: 68px !important;
+  align-items: flex-start !important;
+  border-bottom: 0 !important;
+  padding-top: 8px !important;
+  padding-bottom: 4px !important;
+}
+#quickModal .qm-form-scroll .c-row.qm-desc-expand-row > label {
+  padding-top: 4px !important;
+}
+#quickModal .qm-desc-textarea.frameless-desc {
+  width: 72% !important;
+  max-width: 72% !important;
+  height: 100% !important;
+  min-height: 58px !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 2px 4px !important;
+  font-size: .8rem !important;
+  line-height: 1.55 !important;
+  color: var(--text) !important;
+  resize: none !important;
+}
+
+/* 1.1 & 1.4 Adjust Bottom Dock Height (-58px so Upper Section grows by ~1.5cm) & Hide When Typing Description */
+#qmBottomDock.qm-bottom-dock {
+  height: 34dvh !important;
+  min-height: 232px !important;
+  max-height: 275px !important;
+  flex-shrink: 0 !important;
+  transition: opacity .15s;
+}
+#quickModal.hide-bottom-dock #qmBottomDock.qm-bottom-dock,
+#quickModal.hide-bottom-dock #qmDividerLine {
+  display: none !important;
+}
+
+/* 1.7 Unified Shaded First Row Header in Lower Dock for Account, Category & Amount */
+.qm-bottom-dock .quick-grid-head.shaded-dock-head {
+  direction: ltr;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  padding: 0 14px !important;
+  margin: 0 !important;
+  background: linear-gradient(145deg, #43d6b224, var(--surface2)) !important;
+  border-bottom: 1.5px solid var(--mint) !important;
+  color: var(--mint) !important;
+  font-size: .78rem !important;
+  font-weight: 700 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-shrink: 0 !important;
+}
+
+/* 1.9 In-App Calculator Keypad Inside #qmBottomDock */
+.qm-calc-pad {
+  direction: ltr;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: 5px;
+  padding: 7px 10px;
+  background: var(--panel);
+}
+.calc-key {
+  background: var(--surface2);
+  border: 1px solid var(--line2);
+  color: var(--text);
+  border-radius: 10px;
+  font-size: .92rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  user-select: none;
+}
+.calc-key:active {
+  transform: scale(0.97);
+  border-color: var(--mint);
+}
+.calc-key.op {
+  background: #73a7ff18;
+  border-color: #73a7ff55;
+  color: var(--blue);
+  font-size: 1.02rem;
+}
+.calc-key.plus-key {
+  background: #43d6b220;
+  border-color: var(--mint);
+  color: var(--mint);
+}
+.calc-key.clr {
+  background: #ff728518;
+  border-color: #ff728555;
+  color: var(--red);
+}
+.calc-key.eq-key {
+  background: linear-gradient(145deg, var(--mint), var(--mint2));
+  border-color: var(--mint);
+  color: #06221e;
+  font-size: .8rem;
+  font-weight: 700;
+}
+
+/* 2.2 - 2.4 Full-Width Inline Search Input + Filter Icon on Far Right + Taller Nav Row + Filter Grid */
+.trans-search-nav-row {
+  min-height: 44px !important;
+  gap: 8px !important;
+  margin-bottom: 8px !important;
+}
+.mm-inline-search-bar {
+  direction: ltr;
+  flex: 1;
+  min-width: 0;
+  height: 42px;
+  background: var(--surface);
+  border: 1px solid var(--line2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  padding: 0 4px 0 10px;
+  gap: 4px;
+  transition: border-color .15s;
+}
+.mm-inline-search-bar:focus-within {
+  border-color: var(--mint);
+}
+.mm-inline-search-bar input#actSearch {
+  flex: 1;
+  min-width: 0;
+  height: 100% !important;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  color: var(--text) !important;
+  font-size: .78rem !important;
+  outline: none !important;
+  text-align: right;
+  direction: rtl;
+}
+.mm-inline-search-bar #btnClearSearch {
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  font-size: .85rem;
+  padding: 4px;
+  line-height: 1;
+}
+.mm-filter-icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  color: var(--mint);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.mm-filter-icon-btn.active {
+  background: #43d6b224;
+  border-color: var(--mint);
+}
+.trans-search-nav-row .ym-stepper {
+  height: 42px !important;
+  border-radius: 12px !important;
+  flex-shrink: 0;
+}
+.trans-search-nav-row .ym-stepper button.step-arrow {
+  height: 100%;
+  padding: 0 10px;
+}
+.trans-search-nav-row .ym-stepper button.step-label {
+  height: 100%;
+  padding: 0 10px;
+  min-width: 96px;
+}
+
+/* 2.3 Distinctive Search Filter Grid (5 Filter Cards + Reset Card) */
+.mm-filter-chips-grid {
+  direction: ltr;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 4px 0 2px;
+}
+.mm-f-card {
+  background: var(--surface);
+  border: 1px solid var(--line2);
+  border-radius: 11px;
+  padding: 6px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-align: center;
+  min-width: 0;
+}
+.mm-f-card.active {
+  border-color: var(--mint);
+  background: #43d6b21a;
+}
+.mm-f-card .mm-f-lbl {
+  font-size: .64rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.mm-f-card .mm-f-val {
+  font-size: .7rem;
+  color: var(--text);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.mm-f-card.active .mm-f-val {
+  color: var(--mint);
+}
+.mm-f-card.reset-f-card {
+  border-color: #ff728555;
+  background: #ff728512;
+}
+.mm-f-card.reset-f-card .mm-f-val {
+  color: var(--red);
+}
+
+/* 3.1, 3.2, 3.3, 3.4 Merged Total Tabs & Chart Toggle Icon in Analytics */
+.sub-tabs.rep-merged-tabs .rep-merged-btn {
+  height: 48px !important;
+  padding: 4px 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+}
+.rep-merged-btn .rep-m-lbl {
+  font-size: .8rem;
+  font-weight: 700;
+}
+.rep-merged-btn b {
+  font-size: .82rem;
+  direction: ltr;
+}
+.rep-mode-box {
+  flex: 1;
+  min-width: 0;
+}
+.rep-mode-box .custom-sel-trigger {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 42px !important;
+  border-radius: 12px !important;
+}
+.chart-toggle-btn {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 12px !important;
+  flex-shrink: 0;
+}
+.cat-selected-pill-btn {
+  direction: ltr;
+  flex: 1;
+  min-width: 0;
+  height: 42px;
+  background: var(--surface);
+  border: 1.5px solid var(--mint);
+  color: var(--mint);
+  border-radius: 12px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: .82rem;
+}
+
+/* 4.1, 4.2, 4.4 Aligned Controls & BiDi Fix in More/Settings */
+.aligned-settings-list .c-row > label,
+.aligned-settings-list .c-row > .c-lbl {
+  width: 38% !important;
+  flex-shrink: 0 !important;
+}
+.aligned-settings-list .c-row > input,
+.aligned-settings-list .c-row > select,
+.aligned-settings-list .c-row > .custom-sel-trigger,
+.aligned-settings-list .c-row > .c-row-btns,
+.aligned-settings-list .c-row > .aligned-ctrl-btn {
+  width: 62% !important;
+  max-width: 62% !important;
+  height: 36px !important;
+}
+.aligned-ctrl-btn {
+  display: inline-flex;
+  align-items: center !important;
+  justify-content: center !important;
+  border-color: var(--mint) !important;
+  color: var(--mint) !important;
+  border-radius: 10px !important;
+  font-size: .75rem !important;
+}
+.c-row-btns.equal-two-btns {
+  grid-template-columns: 1fr 1fr !important;
+  gap: 6px !important;
+}
+.c-row-btns.equal-two-btns .icon-pill {
+  width: 100% !important;
+  height: 36px !important;
+  border-radius: 10px !important;
+}
+.bidi-ar {
+  direction: rtl;
+  unicode-bidi: isolate;
+  text-align: right;
+}
+
+
+/* =========================================================
+   X-Wallet V13.5 Complete Refinements & Visual Polish
+   ========================================================= */
+
+/* 1.1 & 3.2 Zero-Shift Header & Identical Background in Full-Page Modals */
+.modal.fullpage-modal {
+  background: var(--bg-grad), var(--bg) !important;
+  padding: 0 !important;
+}
+.sheet.fullpage-sheet {
+  max-width: 540px !important;
+  margin: 0 auto !important;
+  padding: 8px 8px calc(8px + env(safe-area-inset-bottom)) !important;
+  background: var(--bg-grad), var(--bg) !important;
+}
+.sheet.fullpage-sheet > header.top {
+  height: 48px !important;
+  margin: 2px 0 10px !important;
+  padding: 0 2px !important;
+}
+.sheet.fullpage-sheet > .sub-tabs {
+  margin-bottom: 10px !important;
+  gap: 8px !important;
+}
+
+/* 1.3 Action Bar Directly Below Upper Section in #quickModal */
+.actions.qm-mid-actions {
+  margin: 6px 0 2px !important;
+  flex-shrink: 0 !important;
+}
+.actions.qm-mid-actions button {
+  padding: 9px 12px !important;
+}
+
+/* 1.5 4-Row Calculator Keypad without 00 */
+.qm-calc-pad.four-rows-pad {
+  grid-template-columns: repeat(5, 1fr) !important;
+  grid-template-rows: repeat(4, 1fr) !important;
+  gap: 6px !important;
+  padding: 8px 10px !important;
+}
+
+/* 3.1 Bring Label Closer to Number in Analytics Income/Expense Merged Tabs */
+.sub-tabs.rep-merged-tabs .rep-merged-btn {
+  justify-content: center !important;
+  gap: 10px !important;
+}
+
+/* 3.3 Icon & Spacing inside Period Mode Selector Box */
+.rep-mode-box .custom-sel-trigger {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  padding: 0 12px !important;
+}
+.rep-mode-box .custom-sel-trigger .cs-val {
+  display: inline-flex;
+  align-items: center !important;
+  gap: 7px !important;
+}
+
+/* 3.4 Inline From / To Date Boxes in Same Row when All or Custom Period is Selected */
+.rep-inline-dates {
+  direction: ltr;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  flex: 1.35;
+  min-width: 0;
+  height: 42px;
+}
+.rep-date-mini {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--line2);
+  border-radius: 11px;
+  padding: 2px 7px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  overflow: hidden;
+}
+.rep-date-mini small {
+  font-size: .56rem;
+  color: var(--mint);
+  line-height: 1.1;
+}
+.rep-date-mini b {
+  font-size: .68rem;
+  color: var(--text);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.rep-date-mini input[type="date"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+/* 4.5 Separate Type Column from Details Column in Monthly Dues (4 Columns) */
+.com-grid-head.four-cols,
+.com-grid-row.four-cols {
+  grid-template-columns: 1.25fr 0.85fr 1fr 0.85fr !important;
+  gap: 6px !important;
+  padding: 9px 10px !important;
+}
+
+/* 4.6 Hide Month Stepper in Monthly Dues Header When Collapsed */
+#monthlyDuesFold:not([open]) .dues-summary-stepper {
+  display: none !important;
+}
+
+/* 5.2 Left-Side Reorder Buttons for Main & Sub Categories in Settings */
+.cat-reorder-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+.cat-move-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid var(--line2);
+  background: var(--surface2);
+  color: var(--mint);
+  font-size: .7rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  line-height: 1;
+}
+.cat-move-btn:disabled {
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+/* 5.4 Equal Width & Aligned Boxes for Version Tag & Update Check Button */
+.upd-equal-box {
+  width: 118px !important;
+  min-width: 118px !important;
+  max-width: 118px !important;
+  height: 34px !important;
+  border-radius: 10px !important;
+  background: var(--surface2) !important;
+  border: 1px solid var(--mint) !important;
+  color: var(--mint) !important;
+  font-size: .75rem !important;
+  font-weight: 700 !important;
+  display: inline-flex;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  padding: 0 8px !important;
+  flex-shrink: 0 !important;
+}
+
+/* 5.5 Larger Icons in More/Settings Page */
+#settings .ic-txt i {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 9px !important;
+  font-size: 1.04rem !important;
+}
+#settings .ic-txt {
+  gap: 11px !important;
+}
+
+/* 6.2 Prominent, Eye-Catching Toast Banner */
+.toast {
+  top: 22px !important;
+  background: linear-gradient(145deg, var(--panel2), var(--surface)) !important;
+  border: 2px solid var(--mint) !important;
+  color: var(--text) !important;
+  padding: 12px 20px !important;
+  border-radius: 16px !important;
+  font-size: .84rem !important;
+  font-weight: 700 !important;
+  box-shadow: 0 14px 36px rgba(0,0,0,0.65), 0 0 0 4px rgba(67,214,178,0.18) !important;
+  min-width: 240px;
+  letter-spacing: 0.1px;
+  animation: toastPopIn .22s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+}
+@keyframes toastPopIn {
+  from { opacity: 0; transform: translate(-50%, -14px) scale(0.92); }
+  to   { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+/* 6.3 Accordion Arrow: Points Left & White when Collapsed, Points Down & Green when Open */
+details.fold > summary .fold-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: .85rem;
+  color: #ffffff !important;
+  transform: rotate(90deg);
+  transition: transform .2s ease, color .2s ease;
+}
+[data-bg="light"] details.fold:not([open]) > summary .fold-arrow {
+  color: var(--text) !important;
+}
+details.fold[open] > summary .fold-arrow {
+  color: var(--mint) !important;
+  transform: rotate(0deg);
+}
+
+
+/* =========================================================
+   X-Wallet V13.6 Complete UI & UX Refinements
+   ========================================================= */
+
+/* 1.1 Larger Lower Dock & Taller Rows in Data Entry */
+#qmBottomDock.qm-bottom-dock {
+  height: 41dvh !important;
+  min-height: 272px !important;
+  max-height: 335px !important;
+  flex-shrink: 0 !important;
+}
+.qm-bottom-dock .mm-cat-item {
+  padding: 13px 12px !important;
+  min-height: 44px !important;
+  font-size: .82rem !important;
+}
+.qm-bottom-dock .qg-item {
+  padding: 13px 8px !important;
+  min-height: 44px !important;
+  font-size: .8rem !important;
+}
+
+/* 1.3 5-Row × 4-Column Calculator Layout */
+.qm-calc-pad.five-rows-pad {
+  grid-template-columns: repeat(4, 1fr) !important;
+  grid-template-rows: repeat(5, 1fr) !important;
+  gap: 5px !important;
+  padding: 7px 10px !important;
+}
+
+/* 1.4 Framed [ + | رئيسي | ✎ ] and [ + | فرعي | ✎ ] Pills in Category Header */
+.cat-head-frame {
+  direction: ltr;
+  display: inline-flex;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--mint);
+  border-radius: 9px;
+  height: 28px;
+  overflow: hidden;
+}
+.cat-head-frame.sub {
+  border-color: var(--blue);
+}
+.cat-head-frame .chf-btn {
+  background: transparent;
+  border: 0;
+  color: var(--mint);
+  width: 25px;
+  height: 100%;
+  font-size: .78rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+.cat-head-frame.sub .chf-btn {
+  color: var(--blue);
+}
+.cat-head-frame .chf-lbl {
+  padding: 0 6px;
+  font-size: .7rem;
+  font-weight: 700;
+  color: var(--text);
+  border-left: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  line-height: 26px;
+}
+
+/* 2.1, 2.3, 2.4, 2.5 Detached 1-Row 4-Card Filter Bar & Cancel Filter Button */
+.cancel-filter-top-btn {
+  min-width: 138px;
+  height: 42px;
+  border-radius: 12px;
+  background: #ff72851a;
+  border: 1.5px solid var(--red);
+  color: var(--red);
+  font-size: .78rem;
+  font-weight: 700;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.filter-bar-detached {
+  background: var(--surface2);
+  border: 1.5px solid var(--mint);
+  border-radius: 13px;
+  padding: 6px;
+  margin: 2px 0 10px !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.28);
+}
+.mm-filter-chips-grid.four-in-row {
+  direction: ltr;
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 6px !important;
+  padding: 0 !important;
+}
+.mm-filter-chips-grid.four-in-row .mm-f-card {
+  min-height: 38px;
+  padding: 5px 4px;
+  border-radius: 9px;
+}
+.mm-filter-chips-grid.four-in-row .mm-f-lbl {
+  font-size: .72rem;
+  color: var(--text-sub);
+  font-weight: 600;
+}
+.mm-filter-chips-grid.four-in-row .mm-f-card.active .mm-f-lbl {
+  color: var(--mint);
+  font-size: .64rem;
+}
+.mm-filter-chips-grid.four-in-row .mm-f-val {
+  font-size: .66rem;
+}
+.mm-filter-chips-grid.four-in-row .mm-f-val:empty {
+  display: none;
+}
+
+/* 2.6 Floating Search Lens Button Above Floating + Button */
+.fab-search {
+  position: fixed;
+  bottom: 142px;
+  right: 23px;
+  left: auto;
+  z-index: 12;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 2px solid var(--mint);
+  background: var(--panel2);
+  color: var(--mint);
+  font-size: 18px;
+  box-shadow: 0 6px 20px #0006;
+  display: grid;
+  place-items: center;
+}
+.fab-search.active {
+  background: var(--mint);
+  color: #06221e;
+}
+@media(min-width:560px){
+  .fab-search { right: calc(50% - 240px); left: auto; }
+}
+
+/* 3.1 Larger & Higher "من / إلى" Labels Inside Date Boxes in Analytics */
+.rep-date-mini {
+  padding: 1px 6px 3px !important;
+}
+.rep-date-mini small {
+  font-size: .68rem !important;
+  font-weight: 700 !important;
+  color: var(--mint) !important;
+  margin-top: -2px !important;
+  margin-bottom: 1px !important;
+  line-height: 1.1 !important;
+}
+.rep-date-mini b {
+  font-size: .7rem !important;
+}
+
+/* 3.2 Green Horizontal Line Divider with Centered "التقرير التفصيلي" Badge */
+.green-line-divider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 14px 0 12px;
+}
+.green-line-divider::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, var(--mint), transparent);
+}
+.green-line-divider span {
+  position: relative;
+  z-index: 1;
+  background: var(--panel2);
+  border: 1.5px solid var(--mint);
+  color: var(--mint);
+  padding: 3px 16px;
+  border-radius: 99px;
+  font-size: .74rem;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* 5.1 Drag Handle Icon for Category Reordering */
+.cat-drag-handle {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: var(--surface2);
+  border: 1px solid var(--line2);
+  color: var(--mint);
+  display: grid;
+  place-items: center;
+  font-size: .9rem;
+  cursor: grab;
+  margin-right: 8px;
+  flex-shrink: 0;
+  touch-action: none;
+}
+.cat-drag-handle:active {
+  cursor: grabbing;
+  background: #43d6b228;
+}
+.dragging-cat-row {
+  opacity: 0.85;
+  outline: 1.5px dashed var(--mint);
+  background: var(--surface2) !important;
+}
+
+/* 6.1 Match Month Stepper Box Width Across All Pages to Top Tab Title Box Width */
+.ym-stepper {
+  min-width: 140px !important;
+  justify-content: space-between !important;
+}
+.ym-stepper button.step-label {
+  flex: 1 !important;
+  min-width: 92px !important;
+}
+
+/* 6.2 Keep Bottom Navigation Bar Visible When Account/Card Statement Modal is Open */
+#statementFullModal.with-bottom-nav {
+  z-index: 45 !important;
+}
+nav.bottom {
+  z-index: 55 !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.7 Complete UI, Layout & Usability Upgrades
+   ========================================================= */
+
+/* 1.1 Wider, More Comfortable Edit Pencil & Add Buttons for Main/Sub Categories */
+.cat-head-frame {
+  height: 32px !important;
+  border-radius: 10px !important;
+}
+.cat-head-frame .chf-btn {
+  width: 34px !important;
+  font-size: .92rem !important;
+}
+.cat-head-frame .chf-lbl {
+  padding: 0 9px !important;
+  font-size: .74rem !important;
+  line-height: 30px !important;
+}
+
+/* 1.2 Full-Page Scroll for Quick Entry Upper Section (No cramped internal scroll inside Description) */
+#quickModal .sheet.fullpage-sheet {
+  overflow-y: auto !important;
+}
+#quickModal .qm-form-scroll {
+  flex: 0 0 auto !important;
+  overflow-y: visible !important;
+}
+#quickModal .qm-desc-textarea.frameless-desc {
+  min-height: 54px !important;
+  height: auto !important;
+  overflow-y: hidden !important;
+}
+
+/* 2.1 Completely Separate Summary Stats Card (Income / Expenses / Net) from Search & Month Card */
+.mm-stats-card {
+  background: linear-gradient(150deg, var(--panel2), var(--panel));
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+}
+
+/* 2.2 Floating Filter Button Above Floating Search Lens Button */
+.fab-filter {
+  position: fixed;
+  bottom: 198px;
+  right: 23px;
+  left: auto;
+  z-index: 12;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 2px solid var(--blue);
+  background: var(--panel2);
+  color: var(--blue);
+  box-shadow: 0 6px 20px #0006;
+  display: grid;
+  place-items: center;
+}
+.fab-filter.active {
+  background: var(--blue);
+  color: #061529;
+}
+@media(min-width:560px){
+  .fab-filter { right: calc(50% - 240px); left: auto; }
+}
+
+/* 4.1 Installment Months Number Pills (3 - 6 - 9 - 12 - 15 - 18 - 24) */
+.months-pill-bar {
+  width: 64%;
+  max-width: 64%;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+.months-pill-bar .m-pill {
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--line2);
+  background: var(--surface2);
+  color: var(--text-sub);
+  font-size: .74rem;
+  font-weight: 700;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+.months-pill-bar .m-pill.active {
+  border-color: var(--mint);
+  background: #43d6b226;
+  color: var(--mint);
+}
+
+/* 4.2 Vertical Column Borders in Monthly Dues & All Commitments Tables */
+.com-all-table th,
+.com-all-table td {
+  border-right: 1px solid var(--line) !important;
+  padding: 8px 7px !important;
+}
+.com-all-table th:last-child,
+.com-all-table td:last-child {
+  border-right: 0 !important;
+}
+
+/* 5.2 Full-Page Categories Manager Trigger Card in Settings */
+.fold-link-card {
+  direction: ltr;
+  background: linear-gradient(150deg, var(--panel2), var(--panel));
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  margin: 10px 0;
+  padding: 13px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: .84rem;
+  cursor: pointer;
+}
+#catsManagerModal.with-bottom-nav {
+  z-index: 45 !important;
+}
+
+/* 6.1 Exact Equal Width Between Month Stepper (.ym-stepper) and Top Tab Title Box (.top-tab-title) */
+.top-tab-title,
+.ym-stepper {
+  width: 156px !important;
+  min-width: 156px !important;
+  max-width: 156px !important;
+  box-sizing: border-box !important;
+}
+.ym-stepper button.step-label {
+  flex: 1 !important;
+  min-width: 0 !important;
+  padding: 4px 4px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* 6.2 Fix White Search Input Background in Statement Modal (.mm-inline-search-bar input) */
+.mm-inline-search-bar input {
+  flex: 1;
+  min-width: 0;
+  height: 100% !important;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  color: var(--text) !important;
+  font-size: .78rem !important;
+  outline: none !important;
+  text-align: right;
+  direction: rtl;
+}
+
+
+/* =========================================================
+   X-Wallet V13.8 Precision Layout, Calm Controls & Mobile Bar Fixes
+   ========================================================= */
+
+/* 6.1 EXACT Width of Month Stepper (.ym-stepper) = Sub-Tab Width (calc(50% - 4px)) Across ALL Pages */
+.ym-stepper,
+.cancel-filter-top-btn {
+  width: calc(50% - 4px) !important;
+  min-width: calc(50% - 4px) !important;
+  max-width: calc(50% - 4px) !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
+}
+.ym-stepper button.step-label {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+/* 1.1 (Prev) Comfortable, Wide Edit & Add Buttons for Main/Sub Categories */
+.cat-head-dual-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.cat-head-frame {
+  height: 30px !important;
+  border-radius: 9px !important;
+}
+.cat-head-frame .chf-btn {
+  width: 36px !important;
+  font-size: .95rem !important;
+}
+.cat-head-frame .chf-lbl {
+  padding: 0 10px !important;
+  font-size: .74rem !important;
+}
+
+/* 1.1 (Current) Full-Page Scrollable Quick Entry Sheet with Auto-Growing Description */
+#quickModal .sheet.fullpage-sheet {
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  padding-bottom: calc(34px + env(safe-area-inset-bottom)) !important;
+}
+#quickModal .qm-form-scroll {
+  flex: 0 0 auto !important;
+  overflow: visible !important;
+}
+#quickModal .qm-desc-textarea.frameless-desc {
+  min-height: 54px !important;
+  overflow: hidden !important;
+}
+
+/* 1.2 Calm, Simple Muted Colors for Bottom Action Bar (Copy / Save / Delete / Cancel) */
+#qmBottomActionsBar.actions.qm-mid-actions button {
+  background: var(--surface2) !important;
+  border: 1px solid var(--line2) !important;
+  color: var(--text-sub) !important;
+  font-weight: 600 !important;
+  font-size: .78rem !important;
+  border-radius: 11px !important;
+  box-shadow: none !important;
+}
+#qmBottomActionsBar.actions.qm-mid-actions button.primary {
+  background: #43d6b218 !important;
+  border-color: #43d6b288 !important;
+  color: var(--mint) !important;
+}
+#qmBottomActionsBar.actions.qm-mid-actions button.danger {
+  background: #ff728512 !important;
+  border-color: #ff728566 !important;
+  color: #f28b99 !important;
+}
+#qmBottomActionsBar.actions.qm-mid-actions #qmBtnCopyExisting {
+  background: var(--surface) !important;
+  border-color: var(--line2) !important;
+  color: var(--text-sub) !important;
+}
+
+/* 1.3 Keep In-App Calculator Safely Above Android Home/Back/Recents Navigation Bar */
+#qmBottomDock.qm-bottom-dock {
+  height: 38dvh !important;
+  min-height: 258px !important;
+  max-height: 310px !important;
+  margin-bottom: 10px !important;
+  flex-shrink: 0 !important;
+}
+#qmDockCalc .qm-calc-pad.five-rows-pad {
+  padding: 6px 10px 10px !important;
+  gap: 5px !important;
+}
+
+/* 2. Remove Green Border Frame Around Detached Filter Bar */
+.filter-bar-detached {
+  background: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  box-shadow: none !important;
+  margin: 4px 0 0 !important;
+}
+
+/* 4.1 Concise Truncated Table Cells with Vertical Column Lines in Monthly Dues & All Commitments */
+.com-all-table td,
+.com-all-table th {
+  max-width: 118px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 4.1 (Prev) Installment Pills inside Quick Entry */
+.months-pill-bar.qm-pills {
+  width: 72% !important;
+  max-width: 72% !important;
+}
+
+/* 5.1 Smooth Transition on Category Rows During Drag Reordering */
+.cat-mgr-row,
+.cat-mgr-sub-row {
+  transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+}
+
+
+/* =========================================================
+   X-Wallet V13.9 Final Polish, Filter Separation & Scroll Fixes
+   ========================================================= */
+
+/* 1.2 Full-Page Description Scroll Support in #quickModal */
+#quickModal .c-row.qm-desc-expand-row {
+  height: auto !important;
+  flex: 0 0 auto !important;
+}
+#quickModal .qm-desc-textarea.frameless-desc {
+  overflow: hidden !important;
+}
+
+/* 2.1 & 2.2 Standalone Filter Button Outside Search Box + Comfortable Padding for "ابحث" */
+.mm-search-with-filter-wrap {
+  direction: ltr;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mm-inline-search-bar {
+  padding: 0 12px !important;
+}
+.mm-inline-search-bar input {
+  padding: 0 2px !important;
+}
+.mm-filter-icon-btn.standalone {
+  width: 42px !important;
+  height: 42px !important;
+  border-radius: 12px !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--line2) !important;
+  color: var(--mint) !important;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.mm-filter-icon-btn.standalone.active {
+  background: #43d6b224 !important;
+  border-color: var(--mint) !important;
+}
+
+/* 2.3 Normal (Non-Bold) Font Weight in Filter Grid Cards */
+.mm-filter-chips-grid.four-in-row .mm-f-lbl,
+.mm-filter-chips-grid.four-in-row .mm-f-val {
+  font-weight: 400 !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.10 Refinements, 4x4 Keypad, Transfer Swap & Scroll
+   ========================================================= */
+
+/* 1.1 (Prev) CSS Text-Security Masking so Chrome NEVER shows Password Key Bar */
+.masked-pin-input {
+  -webkit-text-security: disc;
+}
+
+/* 3.1 (Prev) Rounded Border on Dragged Category Row (Never sticks out of card!) */
+.dragging-cat-row {
+  outline: none !important;
+  border: 1.5px solid var(--mint) !important;
+  border-radius: 12px !important;
+  background: var(--surface2) !important;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.45) !important;
+}
+
+/* 3. Money Manager Style 4x4 Calculator Grid with Tall + Key */
+.qm-calc-pad.mm-four-by-four {
+  direction: ltr;
+  flex: 1;
+  min-height: 0;
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  grid-template-rows: repeat(4, 1fr) !important;
+  gap: 6px !important;
+  padding: 8px 10px 10px !important;
+}
+.qm-calc-pad.mm-four-by-four .calc-key {
+  font-size: 1.05rem;
+  border-radius: 10px;
+}
+.qm-calc-pad.mm-four-by-four .tall-plus {
+  font-size: 1.45rem !important;
+  font-weight: 700 !important;
+}
+.qm-calc-pad.mm-four-by-four .eq-key {
+  font-size: .92rem !important;
+}
+
+/* 6. Single-Line Description when empty + Natural Full-Page Expansion on Scroll */
+#quickModal .c-row.qm-desc-expand-row {
+  min-height: 41px !important;
+  padding: 6px 4px !important;
+  align-items: flex-start !important;
+}
+#quickModal .c-row.qm-desc-expand-row > label {
+  padding-top: 5px !important;
+}
+#quickModal .qm-desc-textarea.frameless-desc {
+  min-height: 30px !important;
+  height: 30px;
+  line-height: 1.5 !important;
+  padding: 4px !important;
+  overflow: hidden !important;
+}
+
+/* 6. Uniform Height for From/To Account Rows in Transfer + Centered Swap Button Breaking the Divider Line */
+#quickModal #qmAccRow,
+#quickModal #qmToAccRow {
+  min-height: 41px !important;
+  height: 41px !important;
+  padding: 5px 4px !important;
+}
+.swap-acc-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 18px !important;
+  position: relative;
+  z-index: 5;
+  overflow: visible !important;
+}
+.swap-acc-btn {
+  background: var(--panel2) !important;
+  border: 1.5px solid var(--mint) !important;
+  color: var(--mint) !important;
+  border-radius: 99px !important;
+  width: 34px !important;
+  height: 24px !important;
+  padding: 0 !important;
+  font-size: .82rem !important;
+  display: inline-flex;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 0 0 4px var(--panel2);
+}
+
+/* 6. Empty Breathing Space Row After Monthly Dues & All Commitments Tables */
+#commitmentsList .com-all-table,
+#allCommitmentsTableWrap .com-all-table {
+  margin-bottom: 18px !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.11 Scroll Area, Note Textarea & Arrow Fixes
+   ========================================================= */
+
+/* 1.1 Single-Line Textarea for Notes (Suppresses Chrome Autofill Key Bar) */
+.qm-single-note-ta {
+  width: 72% !important;
+  max-width: 72% !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1.5px solid transparent !important;
+  border-radius: 0 !important;
+  padding: 5px 4px !important;
+  font-size: .81rem !important;
+  line-height: 20px !important;
+  color: var(--text) !important;
+  resize: none !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  white-space: nowrap !important;
+  outline: none !important;
+  text-align: left !important;
+  direction: ltr !important;
+}
+.qm-single-note-ta:focus {
+  border-bottom-color: var(--mint) !important;
+}
+
+/* 1.2 & 1.3 Fixed Header + Unified Scrollable Body for Upper Form & Long Description */
+#quickModal .sheet.fullpage-sheet {
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+.qm-scroll-area {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  padding-bottom: 12px !important;
+}
+#quickModal .qm-desc-textarea.frameless-desc {
+  height: 30px;
+  min-height: 30px !important;
+  line-height: 1.5 !important;
+  overflow: hidden !important;
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+}
+
+/* 2. Rotate Categories Arrow (.fold-link-card .fold-arrow) to Point Left in White like All Other Settings Rows */
+.fold-link-card .fold-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: .85rem;
+  color: #ffffff !important;
+  transform: rotate(90deg);
+}
+[data-bg="light"] .fold-link-card .fold-arrow {
+  color: var(--text) !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.12 — Description in Lower Open Space (Money Manager Style)
+   ========================================================= */
+.qm-lower-desc-section {
+  margin-top: 10px;
+  padding: 12px 10px 24px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: text;
+}
+.qm-lower-desc-label {
+  font-size: .76rem;
+  color: var(--muted);
+  text-align: left;
+  direction: ltr;
+}
+#quickModal .qm-desc-textarea.frameless-desc.lower-open-desc {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 30px !important;
+  height: 30px;
+  padding: 2px 0 !important;
+  font-size: .84rem !important;
+  line-height: 1.6 !important;
+  color: var(--text) !important;
+  background: transparent !important;
+  border: 0 !important;
+  text-align: left !important;
+  direction: ltr !important;
+  overflow: hidden !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.13 Unified Row Heights & Full-Page Entry Scroll
+   ========================================================= */
+
+/* 2. Match Row 2 Height in Analytics (40px) to All Other Pages */
+.sub-tabs.rep-merged-tabs .rep-merged-btn {
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0 10px !important;
+}
+
+/* 4. Single Unified Scrollable Page for Data Entry (#quickModal) */
+#quickModal .sheet.fullpage-sheet {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+#quickModal .qm-scroll-area {
+  flex: 0 0 auto !important;
+  overflow: visible !important;
+  padding-bottom: 6px !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.14 Fixed Bottom Dock, Inline Card Toggle & Floating Monthly Summary
+   ========================================================= */
+
+/* 1.1 Strictly Fixed Bottom Dock + Independently Scrollable Upper Area */
+#quickModal .sheet.fullpage-sheet {
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom)) !important;
+}
+#quickModal .qm-scroll-area {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  padding-bottom: 12px !important;
+}
+#qmBottomDock.qm-bottom-dock {
+  height: 38dvh !important;
+  min-height: 255px !important;
+  max-height: 305px !important;
+  flex-shrink: 0 !important;
+}
+
+/* 1.2 Inline Card Mode (شراء | تقسيط) Inside #qmAccRow */
+.qm-acc-inline-wrap {
+  width: 72%;
+  max-width: 72%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.qm-acc-inline-wrap .picker-trigger {
+  width: auto !important;
+  max-width: none !important;
+  flex: 1;
+  min-width: 0;
+}
+.inline-card-seg {
+  width: 118px !important;
+  max-width: 118px !important;
+  height: 30px !important;
+  flex-shrink: 0 !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--line2) !important;
+  border-radius: 9px !important;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0 !important;
+  overflow: hidden;
+}
+.inline-card-seg .seg-btn {
+  font-size: .72rem !important;
+  height: 100% !important;
+}
+
+/* 2. Floating Monthly Summary Toggle Button Above Filter Button */
+.fab-monthly {
+  position: fixed;
+  bottom: 254px;
+  right: 23px;
+  left: auto;
+  z-index: 12;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 2px solid var(--orange);
+  background: var(--panel2);
+  color: var(--orange);
+  font-size: 17px;
+  box-shadow: 0 6px 20px #0006;
+  display: grid;
+  place-items: center;
+}
+.fab-monthly.active {
+  background: var(--orange);
+  color: #1f1404;
+}
+@media(min-width:560px){
+  .fab-monthly { right: calc(50% - 240px); left: auto; }
+}
+
+
+/* =========================================================
+   X-Wallet V13.15 Clean Inline Card Mode + Months Dropdown Pill
+   ========================================================= */
+.qm-acc-inline-wrap {
+  width: 72% !important;
+  max-width: 72% !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  min-width: 0 !important;
+}
+#quickModal .qm-acc-inline-wrap #qmAccTrigger {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  padding: 0 4px !important;
+}
+#quickModal .qm-acc-inline-wrap #qmAccSelectedText {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: block !important;
+}
+#quickModal .qm-acc-inline-wrap .inline-card-seg {
+  width: 102px !important;
+  min-width: 102px !important;
+  max-width: 102px !important;
+  height: 28px !important;
+  grid-template-columns: 1fr 1fr !important;
+  flex-shrink: 0 !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--line2) !important;
+  border-radius: 8px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+#quickModal .qm-acc-inline-wrap .inline-card-seg .seg-btn {
+  width: 100% !important;
+  padding: 0 2px !important;
+  font-size: .7rem !important;
+  height: 100% !important;
+  display: grid !important;
+  place-items: center !important;
+}
+.inline-months-btn {
+  width: 48px !important;
+  min-width: 48px !important;
+  max-width: 48px !important;
+  height: 28px !important;
+  border-radius: 8px !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--mint) !important;
+  color: var(--mint) !important;
+  font-size: .74rem !important;
+  font-weight: 700 !important;
+  display: inline-flex;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  padding: 0 4px !important;
+  flex-shrink: 0 !important;
+}
+.inline-months-btn small {
+  font-size: .56rem;
+  opacity: 0.85;
+}
+
+
+/* =========================================================
+   X-Wallet V13.16 Analytics Cycle Button & Forecast Monthly Card
+   ========================================================= */
+.rep-cycle-btn {
+  width: 100%;
+  height: 42px;
+  background: var(--surface);
+  border: 1px solid var(--line2);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: .8rem;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 8px;
+}
+.rep-cycle-btn:active {
+  border-color: var(--mint);
+  color: var(--mint);
+}
+.fc-year-title-box {
+  justify-content: center !important;
+  color: var(--text-sub);
+  font-size: .82rem;
+}
+
+
+/* =========================================================
+   X-Wallet V13.17 Inline Transfer Fee Box Inside Amount Row
+   ========================================================= */
+.qm-amt-inline-wrap {
+  width: 72% !important;
+  max-width: 72% !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+}
+#quickModal .qm-form-scroll .c-row input.inline-fee-box {
+  width: 92px !important;
+  min-width: 92px !important;
+  max-width: 92px !important;
+  height: 28px !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--line2) !important;
+  border-radius: 8px !important;
+  padding: 0 8px !important;
+  font-size: .76rem !important;
+  text-align: center !important;
+  color: var(--orange) !important;
+  flex-shrink: 0 !important;
+  cursor: pointer !important;
+}
+#quickModal .qm-form-scroll .c-row input.inline-fee-box:focus {
+  border-color: var(--mint) !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.19 Single "تقسيط" Toggle + Slim In-Place Months Select
+   ========================================================= */
+.inline-inst-toggle {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--line2);
+  color: var(--muted);
+  font-size: .74rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.inline-inst-toggle.active {
+  background: #43d6b21e;
+  border-color: var(--mint);
+  color: var(--mint);
+}
+#quickModal .qm-form-scroll .c-row select.inline-months-select {
+  width: 54px !important;
+  min-width: 54px !important;
+  max-width: 54px !important;
+  height: 28px !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--mint) !important;
+  border-radius: 8px !important;
+  color: var(--mint) !important;
+  font-size: .76rem !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  text-align-last: center !important;
+  padding: 0 4px !important;
+  flex-shrink: 0 !important;
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   X-Wallet V13.21 Fixed Installment + Slim In-App Months Menu + Swap Icon
+   ========================================================= */
+#quickModal #qmAccRow {
+  overflow: visible !important;
+  position: relative !important;
+  z-index: 8 !important;
+}
+.inline-inst-toggle {
+  min-width: 56px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--line2);
+  color: var(--muted);
+  font-size: .74rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  white-space: nowrap;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1;
+}
+.inline-inst-toggle.active {
+  background: #43d6b21e;
+  border-color: var(--mint);
+  color: var(--mint);
+}
+.inline-months-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.inline-months-wrap .inline-months-btn {
+  width: 50px !important;
+  min-width: 50px !important;
+  max-width: 50px !important;
+  height: 28px !important;
+  border-radius: 8px !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--mint) !important;
+  color: var(--mint) !important;
+  font-size: .76rem !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  padding: 0 4px !important;
+  cursor: pointer;
+}
+.inline-months-wrap .inline-months-btn.dimmed {
+  border-color: var(--line2) !important;
+  color: var(--muted) !important;
+  opacity: .72;
+}
+.inline-months-wrap .inline-months-btn small {
+  font-size: .56rem;
+  opacity: .85;
+}
+.inline-months-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 95;
+  background: var(--panel2);
+  border: 1px solid var(--mint);
+  border-radius: 10px;
+  max-height: 148px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  box-shadow: 0 8px 22px #000a;
+  display: none;
+  flex-direction: column;
+  padding: 3px;
+  gap: 2px;
+}
+.inline-months-menu.open {
+  display: flex;
+}
+.inline-months-menu .imm-opt {
+  border: 0;
+  background: transparent;
+  color: var(--text-sub);
+  font-size: .76rem;
+  font-weight: 600;
+  padding: 6px 4px;
+  border-radius: 7px;
+  text-align: center;
+  width: 100%;
+  flex-shrink: 0;
+}
+.inline-months-menu .imm-opt.active {
+  background: #43d6b224;
+  color: var(--mint);
+}
+.swap-acc-btn {
+  width: 26px !important;
+  height: 20px !important;
+  font-size: .7rem !important;
+  box-shadow: none !important;
+  border-width: 1px !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.22: Centered Search Placeholder, Symmetric Quick Modal Tabs & Speed Dial FAB
+   ========================================================= */
+#actSearch::placeholder {
+  text-align: center;
+}
+#actSearch:placeholder-shown {
+  text-align: center;
+}
+#actSearch:not(:placeholder-shown) {
+  text-align: right;
+}
+#quickModal .mm-type-tabs.qm-sym-tabs {
+  margin: 0 !important;
+  padding: 6px 12px 4px !important;
+  gap: 8px !important;
+  background: var(--bg) !important;
+}
+#quickModal .mm-type-tabs.qm-sym-tabs .mm-tab {
+  min-height: 36px !important;
+  border-radius: 12px !important;
+  font-size: .8rem !important;
+}
+.fab-cfg-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 7px;
+  margin-top: 6px;
+}
+.fab-cfg-chk {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--surface);
+  border: 1px solid var(--line2);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: .74rem;
+  color: var(--text);
+  cursor: pointer;
+}
+.fab-cfg-chk input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--mint);
+}
+.fab-speed-wrap {
+  position: fixed;
+  bottom: 142px;
+  right: 22px;
+  left: auto;
+  z-index: 13;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+@media(min-width:560px){
+  .fab-speed-wrap { right: calc(50% - 240px); left: auto; }
+}
+.fab-speed-toggle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--mint);
+  background: var(--panel2);
+  color: var(--mint);
+  font-size: 18px;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 6px 18px #0007;
+  cursor: pointer;
+}
+.fab-speed-wrap.open .fab-speed-toggle {
+  background: var(--mint);
+  color: #06221f;
+}
+.fab-speed-menu {
+  display: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 7px;
+}
+.fab-speed-wrap.open .fab-speed-menu {
+  display: flex;
+}
+.fab-speed-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--panel2);
+  border: 1px solid var(--mint);
+  color: var(--text);
+  border-radius: 99px;
+  padding: 7px 13px;
+  font-size: .75rem;
+  font-weight: 600;
+  box-shadow: 0 6px 16px #0008;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.fab-speed-item.active {
+  background: var(--mint);
+  color: #06221f;
+}
+
+
+/* =========================================================
+   X-Wallet V13.23: Splash Screen, Matte Logo, Home FAB, Toggle Switches,
+   Aligned Settings, Compact More Page, Swap Row Border Cut, Months Row Height,
+   Speed Dial Staggered Animation & Icons-Only Mode
+   ========================================================= */
+.app-splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #0e1726;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: opacity .42s ease, visibility .42s ease;
+}
+.app-splash-screen.hide {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.splash-logo-img {
+  width: 96px;
+  height: 96px;
+  border-radius: 24px;
+  box-shadow: 0 10px 30px #0006;
+}
+.splash-brand-name {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  letter-spacing: .5px;
+}
+.splash-brand-sub {
+  font-size: .82rem;
+  color: var(--mint);
+  font-weight: 500;
+}
+
+/* Home Floating Button (all tabs except السجل) */
+.fab-home {
+  position: fixed;
+  bottom: 78px;
+  right: 18px;
+  left: auto;
+  z-index: 12;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid var(--mint);
+  background: var(--panel2);
+  color: var(--mint);
+  box-shadow: 0 8px 25px #0006;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+@media(min-width:560px){
+  .fab-home { right: calc(50% - 245px); left: auto; }
+}
+
+/* Green Toggle Switch */
+.xw-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+.xw-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.xw-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: var(--surface2);
+  border: 1px solid var(--line2);
+  border-radius: 24px;
+  transition: .22s;
+}
+.xw-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  bottom: 2px;
+  background: var(--muted);
+  border-radius: 50%;
+  transition: .22s;
+}
+.xw-switch input:checked + .xw-slider {
+  background: #2eb89533;
+  border-color: var(--mint);
+}
+.xw-switch input:checked + .xw-slider:before {
+  transform: translateX(20px);
+  background: var(--mint);
+}
+
+/* Compact & Strictly Aligned Settings (#settings) */
+#settings .compact-dev-card {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+#settings .fold,
+#settings .fold-link-card {
+  margin-bottom: 7px !important;
+}
+#settings .fold summary,
+#settings .fold-link-card {
+  padding: 10px 12px !important;
+  min-height: 42px !important;
+}
+#settings .aligned-settings-list .c-row {
+  min-height: 40px !important;
+  padding: 4px 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+}
+#settings .aligned-settings-list .c-row > label,
+#settings .aligned-settings-list .c-row > .c-lbl {
+  flex: 1 1 auto !important;
+  font-size: .77rem !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+#settings .aligned-settings-list .c-row > select,
+#settings .aligned-settings-list .c-row > input,
+#settings .aligned-settings-list .c-row > .custom-sel-trigger,
+#settings .aligned-settings-list .c-row > .aligned-ctrl-btn,
+#settings .aligned-settings-list .c-row > .upd-equal-box,
+#settings .aligned-settings-list .c-row > .c-row-btns {
+  width: 148px !important;
+  min-width: 148px !important;
+  max-width: 148px !important;
+  height: 32px !important;
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+}
+#settings .aligned-settings-list .c-row > .c-row-btns.equal-two-btns {
+  display: flex !important;
+  gap: 5px !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+}
+#settings .aligned-settings-list .c-row > .c-row-btns.equal-two-btns .aligned-ctrl-btn {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  width: auto !important;
+  height: 30px !important;
+  padding: 0 6px !important;
+  font-size: .71rem !important;
+}
+#settings .aligned-settings-list .auto-freq-select {
+  width: 92px !important;
+  min-width: 92px !important;
+  height: 30px !important;
+  font-size: .71rem !important;
+  padding: 0 6px !important;
+  border-radius: 8px !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--line2) !important;
+  color: var(--text) !important;
+}
+#settings .aligned-settings-list .auto-freq-select:disabled {
+  opacity: .4;
+}
+
+/* Theme Grid Modal */
+.theme-open-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+}
+.theme-preview-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--mint);
+  display: inline-block;
+  border: 1px solid #fff5;
+}
+.theme-grid-modal {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+.theme-dot-card {
+  background: var(--surface);
+  border: 1px solid var(--line2);
+  border-radius: 12px;
+  padding: 8px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+.theme-dot-card.active {
+  border-color: var(--mint);
+  background: #43d6b21a;
+}
+.theme-dot-card span {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: block;
+}
+.theme-dot-card small {
+  font-size: .65rem;
+  color: var(--text-sub);
+}
+
+/* 17. Taller rows in Month Commitments Table */
+.com-table th,
+.com-table td {
+  padding: 11px 8px !important;
+  min-height: 44px !important;
+}
+
+/* 18. Active row green underline sits directly on row border (no offset!) */
+#quickModal .qm-form-scroll .c-row .picker-trigger.focused-field {
+  border-bottom-color: transparent !important;
+  box-shadow: none !important;
+}
+#quickModal .qm-form-scroll .c-row.focused-row {
+  border-bottom: 2px solid var(--mint) !important;
+}
+
+/* 19. Transfer swap button at far right + no divider line to the right of it */
+#quickModal #qmAccRow.is-transfer-from {
+  border-bottom: none !important;
+  position: relative;
+}
+#quickModal #qmAccRow.is-transfer-from::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 46px;
+  height: 1px;
+  background: var(--line);
+}
+#quickModal .swap-acc-row {
+  justify-content: flex-start !important;
+  padding: 0 8px !important;
+}
+
+/* 10. Speed Dial FAB Spring-Up Animation & Icons-Only Mode */
+.fab-speed-menu {
+  display: flex !important;
+  pointer-events: none;
+}
+.fab-speed-wrap.open .fab-speed-menu {
+  pointer-events: auto;
+}
+.fab-speed-item {
+  opacity: 0;
+  transform: translateY(18px) scale(0.65);
+  transition: transform .22s cubic-bezier(.34,1.56,.64,1), opacity .18s ease;
+}
+.fab-speed-wrap.open .fab-speed-item {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.fab-speed-wrap.open .fab-speed-item:nth-last-child(1) { transition-delay: .02s; }
+.fab-speed-wrap.open .fab-speed-item:nth-last-child(2) { transition-delay: .05s; }
+.fab-speed-wrap.open .fab-speed-item:nth-last-child(3) { transition-delay: .08s; }
+.fab-speed-wrap.open .fab-speed-item:nth-last-child(4) { transition-delay: .11s; }
+.fab-speed-wrap.open .fab-speed-item:nth-last-child(5) { transition-delay: .14s; }
+.fab-speed-wrap.open .fab-speed-item:nth-last-child(6) { transition-delay: .17s; }
+.fab-speed-item.icons-only {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  justify-content: center;
+  font-size: 16px;
+}
+
+/* 11. Smooth Drag Handle Hit Area */
+.cat-drag-handle {
+  padding: 8px 11px !important;
+  min-width: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  user-select: none;
+}
+.dragging-cat-row {
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px #0009 !important;
+  background: var(--panel2) !important;
+  border-color: var(--mint) !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.24 Fixes:
+   - Fix Settings label/control alignment + normal 44x24px Toggle Switch
+   - Compact Salary Calculator modal rows
+   - Swap arrows on RIGHT with clean border gap
+   - Taller Month Commitments rows
+   - Smooth Spring-Up/Down Speed Dial Animation
+   ========================================================= */
+#settings .aligned-settings-list .c-row {
+  justify-content: space-between !important;
+  padding: 5px 10px !important;
+  min-height: 40px !important;
+}
+#settings .aligned-settings-list .c-row > label:not(.xw-switch),
+#settings .aligned-settings-list .c-row > .c-lbl {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  flex: 1 1 auto !important;
+  text-align: right !important;
+}
+#settings .aligned-settings-list .c-row > label.xw-switch {
+  width: 44px !important;
+  min-width: 44px !important;
+  max-width: 44px !important;
+  height: 24px !important;
+  flex: 0 0 44px !important;
+  margin: 0 !important;
+}
+
+/* Compact Salary Calculator Modal */
+#salaryModal .c-list {
+  gap: 0 !important;
+}
+#salaryModal .c-row {
+  min-height: 35px !important;
+  padding: 3px 10px !important;
+}
+#salaryModal .c-row input,
+#salaryModal .c-row select {
+  height: 28px !important;
+  font-size: .76rem !important;
+}
+#salaryModal .c-row label {
+  font-size: .75rem !important;
+}
+
+/* Transfer Swap Arrows on RIGHT + No divider line to the right of it */
+#quickModal .swap-acc-row {
+  justify-content: flex-end !important;
+  padding: 0 8px !important;
+}
+#quickModal #qmAccRow.is-transfer-from::after {
+  left: 0 !important;
+  right: 42px !important;
+}
+
+/* Taller rows in Month Commitments */
+.com-table th,
+.com-table td {
+  padding: 14px 8px !important;
+  line-height: 1.55 !important;
+}
+
+/* True Spring-Up / Slide-Down Speed Dial Animation */
+.fab-speed-menu {
+  display: flex !important;
+  pointer-events: none;
+}
+.fab-speed-wrap.open .fab-speed-menu {
+  pointer-events: auto;
+}
+.fab-speed-item {
+  opacity: 0;
+  transform: translateY(calc(var(--sd-idx, 1) * 46px)) scale(0.35);
+  transform-origin: bottom center;
+  transition: transform .3s cubic-bezier(.22,1,.36,1), opacity .24s ease;
+}
+.fab-speed-wrap.open .fab-speed-item {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+
+/* =========================================================
+   X-Wallet V13.25 Polish:
+   - Fix Settings Labels Flush LEFT (matching LTR row direction)
+   - Uniform Compact Top Header (.top) across ALL screens & modals
+   - Compact Rows 1-4 in Transactions/Yearly Summary & Wallet
+   - Taller Upper Rows + Larger Bottom Dock in Data Entry (#quickModal)
+   - Highlight Line on From Account (#qmAccRow.is-transfer-from.focused-row::after) stopping before swap icon
+   - Spacer row after Annual Report Total (.yr-spacer-row)
+   - Slower graceful Speed Dial animation
+   ========================================================= */
+#settings .aligned-settings-list .c-row > label:not(.xw-switch),
+#settings .aligned-settings-list .c-row > .c-lbl {
+  text-align: left !important;
+}
+
+/* Uniform Compact Top Logo Header across entire app */
+header.top,
+.top {
+  padding: 6px 12px !important;
+  min-height: 44px !important;
+}
+.top .brand .logo {
+  width: 28px !important;
+  height: 28px !important;
+}
+.top .brand b {
+  font-size: .92rem !important;
+}
+.top-tab-title {
+  padding: 4px 12px !important;
+  font-size: .78rem !important;
+}
+
+/* Compact Rows 2, 3, 4 in Transactions / Monthly Summary & Wallet */
+.sub-tabs {
+  padding: 5px 12px 2px !important;
+  gap: 6px !important;
+}
+.sub-tab-btn {
+  min-height: 32px !important;
+  padding: 4px 8px !important;
+  font-size: .75rem !important;
+}
+#trans .mm-header-card {
+  padding: 5px 8px !important;
+  margin-bottom: 5px !important;
+}
+#trans .mm-stats-card {
+  padding: 5px 8px !important;
+  margin-bottom: 6px !important;
+}
+#trans .mm-stat-box {
+  padding: 3px 6px !important;
+}
+#trans .mm-stat-box b {
+  font-size: .82rem !important;
+}
+#trans .mm-inline-search-bar,
+#trans .mm-filter-icon-btn.standalone,
+#trans .ym-stepper {
+  height: 34px !important;
+}
+
+/* Data Entry (#quickModal): Taller upper rows + Larger bottom dock */
+#quickModal .qm-form-scroll .c-row {
+  min-height: 46px !important;
+  padding: 7px 4px !important;
+}
+#qmBottomDock.qm-bottom-dock {
+  height: 43dvh !important;
+  min-height: 285px !important;
+  max-height: 350px !important;
+}
+
+/* Data Entry Transfer: Green active line on From Account without touching swap arrow */
+#quickModal #qmAccRow.is-transfer-from.focused-row {
+  border-bottom: none !important;
+}
+#quickModal #qmAccRow.is-transfer-from.focused-row::after {
+  height: 2px !important;
+  background: var(--mint) !important;
+  left: 0 !important;
+  right: 42px !important;
+}
+
+/* Spacer row after Annual Report Total */
+.excel-table tr.yr-spacer-row td {
+  height: 22px !important;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+}
+
+/* Slower graceful Speed Dial opening/closing */
+.fab-speed-item {
+  transition: transform .48s cubic-bezier(.22,1,.36,1), opacity .38s ease !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.26: Noticeably Compact Rows 1-3 + Larger Row 4 (Stats)
+   ========================================================= */
+header.top,
+.top,
+.sheet.fullpage-sheet > header.top {
+  padding: 4px 12px !important;
+  min-height: 38px !important;
+}
+.top .brand .logo,
+.sheet.fullpage-sheet > header.top .brand .logo {
+  width: 24px !important;
+  height: 24px !important;
+}
+.top .brand b,
+.sheet.fullpage-sheet > header.top .brand b {
+  font-size: .88rem !important;
+}
+.top-tab-title,
+.sheet.fullpage-sheet > header.top .top-tab-title {
+  padding: 3px 10px !important;
+  font-size: .73rem !important;
+}
+
+.sub-tabs,
+.sheet.fullpage-sheet > .sub-tabs {
+  padding: 4px 12px 2px !important;
+  margin-bottom: 6px !important;
+  gap: 6px !important;
+}
+.sub-tab-btn,
+.sheet.fullpage-sheet > .sub-tabs .sub-tab-btn {
+  min-height: 28px !important;
+  padding: 3px 8px !important;
+  font-size: .72rem !important;
+  border-radius: 10px !important;
+}
+#quickModal .mm-type-tabs.qm-sym-tabs {
+  padding: 4px 12px 2px !important;
+}
+#quickModal .mm-type-tabs.qm-sym-tabs .mm-tab {
+  min-height: 28px !important;
+  border-radius: 10px !important;
+  font-size: .74rem !important;
+}
+
+/* Row 3 in Transactions / Summary: noticeably more compact */
+#trans .mm-header-card {
+  padding: 4px 7px !important;
+  margin-bottom: 6px !important;
+  border-radius: 14px !important;
+}
+#trans .mm-nav-row.trans-search-nav-row {
+  margin-bottom: 0 !important;
+  min-height: 30px !important;
+}
+#trans .mm-inline-search-bar,
+#trans .mm-filter-icon-btn.standalone,
+#trans .ym-stepper {
+  height: 30px !important;
+  min-height: 30px !important;
+  border-radius: 9px !important;
+}
+#trans .mm-inline-search-bar input {
+  height: 28px !important;
+  font-size: .74rem !important;
+}
+#trans .ym-stepper .step-arrow,
+#trans .ym-stepper .step-label {
+  height: 28px !important;
+  font-size: .72rem !important;
+}
+
+/* Row 4 in Transactions / Summary (Income / Expense / Net): slightly larger & clearer */
+#trans .mm-stats-card {
+  padding: 9px 10px !important;
+  margin-bottom: 8px !important;
+  border-radius: 16px !important;
+}
+#trans .mm-stat-box {
+  padding: 7px 6px !important;
+}
+#trans .mm-stat-box small {
+  font-size: .72rem !important;
+  margin-bottom: 3px !important;
+}
+#trans .mm-stat-box b {
+  font-size: .95rem !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.27: Global Uniform Row 2 (.sub-tabs) & Row 3 (.mm-header-card / .sec-title-card)
+   Across ALL Main Tabs, Sub-Tabs (السجل | الدخل | المصروفات | الحسابات | البطاقات | الالتزامات), and Modals
+   ========================================================= */
+.screen .sub-tabs,
+.sheet.fullpage-sheet .sub-tabs,
+#quickModal .mm-type-tabs.qm-sym-tabs {
+  padding: 3px 12px 2px !important;
+  margin-bottom: 6px !important;
+  gap: 6px !important;
+}
+.screen .sub-tabs .sub-tab-btn,
+.sheet.fullpage-sheet .sub-tabs .sub-tab-btn,
+#quickModal .mm-type-tabs.qm-sym-tabs .mm-tab {
+  min-height: 28px !important;
+  height: 28px !important;
+  padding: 2px 8px !important;
+  font-size: .72rem !important;
+  border-radius: 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Row 3 across ALL tabs & modals */
+.mm-header-card,
+.sec-title-card {
+  padding: 4px 7px !important;
+  margin-bottom: 6px !important;
+  border-radius: 14px !important;
+  min-height: 38px !important;
+}
+.mm-header-card .mm-nav-row {
+  margin-bottom: 0 !important;
+  min-height: 30px !important;
+  align-items: center !important;
+}
+.mm-header-card .mm-inline-search-bar,
+.mm-header-card .mm-filter-icon-btn.standalone,
+.mm-header-card .ym-stepper,
+.sec-title-card .ym-stepper,
+.mm-header-card .rep-mode-box,
+.mm-header-card .rep-cycle-btn,
+.mm-header-card .mm-tool-btn,
+.mm-header-card .cat-selected-pill-btn {
+  height: 30px !important;
+  min-height: 30px !important;
+  border-radius: 9px !important;
+  font-size: .73rem !important;
+}
+.mm-header-card .mm-inline-search-bar input {
+  height: 28px !important;
+  font-size: .73rem !important;
+}
+.mm-header-card .ym-stepper .step-arrow,
+.mm-header-card .ym-stepper .step-label,
+.sec-title-card .ym-stepper .step-arrow,
+.sec-title-card .ym-stepper .step-label {
+  height: 28px !important;
+  font-size: .72rem !important;
+  line-height: 28px !important;
+}
+.sec-title-card h2 {
+  font-size: .84rem !important;
+  margin: 0 !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.28:
+   - .fab (+) same outline style as .fab-home (no solid fill!)
+   - Compact arrowless #settings link cards
+   - #settingsSubModal aligned-settings-list rules
+   - Installment dropdown positioned cleanly under تقسيط button at far right
+   ========================================================= */
+.fab {
+  width: 52px !important;
+  height: 52px !important;
+  border: 2px solid var(--mint) !important;
+  background: var(--panel2) !important;
+  color: var(--mint) !important;
+  font-size: 28px !important;
+}
+#settings .compact-dev-card {
+  padding: 8px 11px !important;
+  margin-bottom: 6px !important;
+}
+#settings .fold-link-card.compact-more-card {
+  padding: 8px 12px !important;
+  min-height: 36px !important;
+  margin-bottom: 5px !important;
+  border-radius: 13px !important;
+}
+#settingsSubModal .aligned-settings-list .c-row {
+  min-height: 40px !important;
+  padding: 5px 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+}
+#settingsSubModal .aligned-settings-list .c-row > label:not(.xw-switch),
+#settingsSubModal .aligned-settings-list .c-row > .c-lbl {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  flex: 1 1 auto !important;
+  font-size: .77rem !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+#settingsSubModal .aligned-settings-list .c-row > label.xw-switch {
+  width: 44px !important;
+  min-width: 44px !important;
+  max-width: 44px !important;
+  height: 24px !important;
+  flex: 0 0 44px !important;
+  margin: 0 !important;
+}
+#settingsSubModal .aligned-settings-list .c-row > select,
+#settingsSubModal .aligned-settings-list .c-row > input,
+#settingsSubModal .aligned-settings-list .c-row > .custom-sel-trigger,
+#settingsSubModal .aligned-settings-list .c-row > .aligned-ctrl-btn,
+#settingsSubModal .aligned-settings-list .c-row > .upd-equal-box,
+#settingsSubModal .aligned-settings-list .c-row > .c-row-btns {
+  width: 148px !important;
+  min-width: 148px !important;
+  max-width: 148px !important;
+  height: 32px !important;
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+}
+#settingsSubModal .aligned-settings-list .c-row > .c-row-btns.equal-two-btns {
+  display: flex !important;
+  gap: 5px !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+}
+#settingsSubModal .aligned-settings-list .c-row > .c-row-btns.equal-two-btns .aligned-ctrl-btn {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  width: auto !important;
+  height: 30px !important;
+  padding: 0 6px !important;
+  font-size: .71rem !important;
+}
+#qmCardModeWrap .inline-months-menu {
+  min-width: 58px !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.29 Polish:
+   - Smaller #qmBottomDock so الوصف (installment text) is visible above dock
+   - Narrower inputs/selects in #salaryModal
+   - Slightly narrower category cards in #catsManagerModal
+   ========================================================= */
+#qmBottomDock.qm-bottom-dock {
+  height: 36dvh !important;
+  min-height: 240px !important;
+  max-height: 286px !important;
+}
+#salaryModal .c-row {
+  justify-content: space-between !important;
+}
+#salaryModal .c-row > label {
+  width: auto !important;
+  flex: 1 1 auto !important;
+  text-align: left !important;
+}
+#salaryModal .c-row > input,
+#salaryModal .c-row > select,
+#salaryModal .c-row > .custom-sel-trigger {
+  width: 136px !important;
+  min-width: 136px !important;
+  max-width: 136px !important;
+  flex-shrink: 0 !important;
+}
+#catsManagerModal .cat-mgr-row {
+  max-width: 92% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.30 Fixes:
+   - Identical compact .dev-profile-card size in both #settings and #settingsSubModal
+   - Restore #qmBottomDock to V13.28 size
+   ========================================================= */
+.dev-profile-card.compact-dev-card,
+#settings .dev-profile-card.compact-dev-card,
+#settingsSubModal .dev-profile-card.pinned-sub-dev-card {
+  padding: 8px 11px !important;
+  min-height: 0 !important;
+  border-radius: 16px !important;
+}
+#settings .dev-profile-card.compact-dev-card {
+  margin: 0 0 6px 0 !important;
+}
+#settingsSubModal .dev-profile-card.pinned-sub-dev-card {
+  margin: 6px 15px 4px !important;
+}
+.dev-profile-card.compact-dev-card .dev-card-logo {
+  width: 42px !important;
+  height: 42px !important;
+}
+#qmBottomDock.qm-bottom-dock {
+  height: 43dvh !important;
+  min-height: 285px !important;
+  max-height: 350px !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.31:
+   - Larger Top-Left App Logo Icon (32px) across all pages & modals
+   - Pixel-identical .dev-profile-card alignment in #settings & #settingsSubModal
+   - Slightly taller Row 2 (.sub-tabs 34px) & Row 3 (.mm-header-card / .ym-stepper 36px)
+   - #accountModal above #quickModal for long-press account/card editing
+   ========================================================= */
+header.top,
+.top,
+.sheet.fullpage-sheet > header.top {
+  padding: 5px 12px !important;
+  min-height: 44px !important;
+}
+.top .brand .logo,
+.sheet.fullpage-sheet > header.top .brand .logo {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 9px !important;
+}
+.top .brand b,
+.sheet.fullpage-sheet > header.top .brand b {
+  font-size: .94rem !important;
+}
+
+/* Exact 1:1 matching .dev-profile-card geometry between #settings and #settingsSubModal */
+#settings .dev-profile-card.compact-dev-card,
+#settingsSubModal .dev-profile-card.pinned-sub-dev-card {
+  padding: 8px 11px !important;
+  margin: 0 0 8px 0 !important;
+  border-radius: 16px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+#settingsSubModal .sheet.fullpage-sheet {
+  padding: 14px 15px 30px !important;
+}
+#settingsSubModal .sheet.fullpage-sheet > header.top {
+  margin: -14px -15px 10px -15px !important;
+  padding: 5px 12px !important;
+}
+#settingsSubModal .sheet.fullpage-sheet > div[style*="overflow-y:auto"] {
+  padding: 0 0 24px 0 !important;
+}
+
+/* Slightly taller Row 2 (.sub-tabs) across all main & sub-pages */
+.screen .sub-tabs,
+.sheet.fullpage-sheet .sub-tabs,
+#quickModal .mm-type-tabs.qm-sym-tabs {
+  padding: 4px 12px 3px !important;
+  margin-bottom: 7px !important;
+}
+.screen .sub-tabs .sub-tab-btn,
+.sheet.fullpage-sheet .sub-tabs .sub-tab-btn,
+#quickModal .mm-type-tabs.qm-sym-tabs .mm-tab {
+  min-height: 34px !important;
+  height: 34px !important;
+  padding: 4px 10px !important;
+  font-size: .76rem !important;
+  border-radius: 11px !important;
+}
+
+/* Slightly taller Row 3 (.mm-header-card, .sec-title-card, and any row with .ym-stepper) */
+.mm-header-card,
+.sec-title-card {
+  padding: 6px 8px !important;
+  margin-bottom: 7px !important;
+  min-height: 46px !important;
+}
+.mm-header-card .mm-nav-row {
+  min-height: 36px !important;
+}
+.mm-header-card .mm-inline-search-bar,
+.mm-header-card .mm-filter-icon-btn.standalone,
+.mm-header-card .ym-stepper,
+.sec-title-card .ym-stepper,
+.ym-stepper,
+.mm-header-card .rep-mode-box,
+.mm-header-card .rep-cycle-btn,
+.mm-header-card .mm-tool-btn,
+.mm-header-card .cat-selected-pill-btn {
+  height: 36px !important;
+  min-height: 36px !important;
+  border-radius: 10px !important;
+  font-size: .77rem !important;
+}
+.mm-header-card .mm-inline-search-bar input {
+  height: 34px !important;
+  font-size: .77rem !important;
+}
+.ym-stepper .step-arrow,
+.ym-stepper .step-label {
+  height: 34px !important;
+  line-height: 34px !important;
+  font-size: .76rem !important;
+}
+
+/* Ensure account/card edit modal opens above #quickModal */
+#accountModal {
+  z-index: 80 !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.32 Fixes:
+   - #themeGridModal z-index: 95 (above #settingsSubModal)
+   - #accountModal z-index: 90 (above #quickModal)
+   - Noticeably larger top-left logo icon (38px, padding: 0)
+   - Exact 1:1 header & card position between #settings and #settingsSubModal
+   - Noticeably taller Row 3 (.mm-header-card, .sec-title-card, .ym-stepper: 40px controls)
+   ========================================================= */
+#themeGridModal {
+  z-index: 95 !important;
+}
+#accountModal {
+  z-index: 90 !important;
+}
+#appDialogModal {
+  z-index: 98 !important;
+}
+#customSelectModal {
+  z-index: 102 !important;
+}
+
+/* Larger Top-Left Logo Icon (38px, zero inner padding) */
+.top .brand .logo,
+.sheet.fullpage-sheet > header.top .brand .logo {
+  width: 38px !important;
+  height: 38px !important;
+  padding: 0 !important;
+  border-radius: 10px !important;
+}
+.top .brand .logo img,
+.sheet.fullpage-sheet > header.top .brand .logo img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+/* Exact 1:1 Header + Profile Card Position in #settings and #settingsSubModal */
+#settingsSubModal .sheet.fullpage-sheet {
+  padding: 14px 15px 84px !important;
+}
+#settingsSubModal .sheet.fullpage-sheet > header.top {
+  margin: 4px 0 14px 0 !important;
+  padding: 5px 12px !important;
+}
+#settingsSubModal .dev-profile-card.pinned-sub-dev-card,
+#settings .dev-profile-card.compact-dev-card {
+  margin: 0 0 8px 0 !important;
+  padding: 8px 11px !important;
+}
+
+/* Noticeably Taller Row 3 (.mm-header-card, .sec-title-card, .ym-stepper) */
+.mm-header-card,
+.sec-title-card {
+  padding: 8px 10px !important;
+  margin-bottom: 8px !important;
+  min-height: 56px !important;
+}
+.mm-header-card .mm-nav-row {
+  min-height: 40px !important;
+}
+.mm-header-card .mm-inline-search-bar,
+.mm-header-card .mm-filter-icon-btn.standalone,
+.mm-header-card .ym-stepper,
+.sec-title-card .ym-stepper,
+.ym-stepper,
+.mm-header-card .rep-mode-box,
+.mm-header-card .rep-cycle-btn,
+.mm-header-card .mm-tool-btn,
+.mm-header-card .cat-selected-pill-btn {
+  height: 40px !important;
+  min-height: 40px !important;
+  border-radius: 11px !important;
+  font-size: .8rem !important;
+}
+.mm-header-card .mm-inline-search-bar input {
+  height: 38px !important;
+  font-size: .8rem !important;
+}
+.ym-stepper .step-arrow,
+.ym-stepper .step-label {
+  height: 38px !important;
+  line-height: 38px !important;
+  font-size: .79rem !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.33 Fixes:
+   - Force --app-font across body & all form controls
+   - Full الوصف line visible above dock (compact #qmNote + 39dvh dock)
+   - Vertically centered Row 3 controls inside .mm-header-card
+   - Exact 1:1 full-height match between #settings and #settingsSubModal
+   - Narrower settings control boxes (114px instead of 148px)
+   ========================================================= */
+body, button, input, select, textarea {
+  font-family: var(--app-font, system-ui, 'Noto Sans Arabic', sans-serif) !important;
+}
+
+/* 3. Make full الوصف line visible in #quickModal */
+#quickModal .qm-form-scroll .c-row:has(#qmNote) {
+  min-height: 36px !important;
+  padding: 3px 4px !important;
+}
+#quickModal #qmDescRow {
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}
+#qmBottomDock.qm-bottom-dock {
+  height: 39dvh !important;
+  min-height: 258px !important;
+  max-height: 310px !important;
+}
+
+/* 4. Center Row 3 controls vertically inside .mm-header-card */
+.mm-header-card {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  padding: 6px 8px !important;
+  min-height: 52px !important;
+}
+.mm-header-card .mm-nav-row {
+  width: 100% !important;
+  margin: 0 !important;
+  align-items: center !important;
+}
+
+/* 5. Exact 1:1 full-height match between #settings and #settingsSubModal */
+#settingsSubModal {
+  align-items: stretch !important;
+}
+#settingsSubModal .sheet.fullpage-sheet {
+  height: 100% !important;
+  max-height: 100% !important;
+  border-radius: 0 !important;
+  border-top: 0 !important;
+  padding: 14px 15px 84px !important;
+}
+
+/* 6. Narrower settings control boxes (114px) */
+#settingsSubModal .aligned-settings-list .c-row > select,
+#settingsSubModal .aligned-settings-list .c-row > input,
+#settingsSubModal .aligned-settings-list .c-row > .custom-sel-trigger,
+#settingsSubModal .aligned-settings-list .c-row > .aligned-ctrl-btn,
+#settingsSubModal .aligned-settings-list .c-row > .upd-equal-box,
+#settingsSubModal .aligned-settings-list .c-row > .c-row-btns {
+  width: 114px !important;
+  min-width: 114px !important;
+  max-width: 114px !important;
+  height: 31px !important;
+  font-size: .72rem !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.34 Polish:
+   1. Centered, larger Month label (.ym-stepper .step-label)
+   2. Tighter .mm-header-card so search/calendar/month fill the box like شهري
+   3. Slightly taller #qmBottomDock (43dvh) while keeping الوصف visible
+   4. Globally narrower .c-row controls (50% max-width, clean edge spacing)
+   5. Narrower #settings & #settingsSubModal cards (94% width) + identical 1:1 header & profile card
+   6. Clean single-frame #settingsSubModal rows (no double border on inner controls)
+   ========================================================= */
+.mm-header-card {
+  padding: 4px 5px !important;
+  min-height: 46px !important;
+}
+.ym-stepper .step-label {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: .84rem !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  padding: 0 6px !important;
+}
+.ym-stepper .step-arrow {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1rem !important;
+  line-height: 1 !important;
+}
+
+/* 3. Raise bottom dock slightly without touching الوصف */
+#qmBottomDock.qm-bottom-dock {
+  height: 43dvh !important;
+  min-height: 282px !important;
+  max-height: 340px !important;
+}
+
+/* 4. Globally narrower controls in .c-row (excluding #quickModal) with clean margin from edge */
+.screen .c-row,
+.modal:not(#quickModal) .c-row {
+  padding: 6px 12px !important;
+  min-height: 42px !important;
+}
+.screen .c-row > input,
+.screen .c-row > select,
+.screen .c-row > .custom-sel-trigger,
+.screen .c-row > .picker-trigger,
+.screen .c-row > .seg-group,
+.modal:not(#quickModal) .c-row > input,
+.modal:not(#quickModal) .c-row > select,
+.modal:not(#quickModal) .c-row > .custom-sel-trigger,
+.modal:not(#quickModal) .c-row > .picker-trigger,
+.modal:not(#quickModal) .c-row > .seg-group {
+  width: 50% !important;
+  max-width: 50% !important;
+  min-width: 112px !important;
+  height: 32px !important;
+}
+
+/* 5. Narrower #settings & #settingsSubModal cards (94% width) + exact 1:1 header & card position */
+#settings .dev-profile-card.compact-dev-card,
+#settings .fold-link-card.compact-more-card,
+#settingsSubModal .dev-profile-card.pinned-sub-dev-card,
+#settingsSubModal .set-sub-pane {
+  width: 94% !important;
+  max-width: 94% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+#settings .dev-profile-card.compact-dev-card,
+#settingsSubModal .dev-profile-card.pinned-sub-dev-card {
+  margin-top: 0 !important;
+  margin-bottom: 8px !important;
+  padding: 8px 11px !important;
+}
+#settingsSubModal .sheet.fullpage-sheet > header.top {
+  margin: 4px 0 14px 0 !important;
+  padding: 5px 12px !important;
+  min-height: 44px !important;
+}
+
+/* 6. Eliminate ugly double-frame on #settingsSubModal controls */
+#settingsSubModal .aligned-settings-list .c-row {
+  padding: 5px 12px !important;
+}
+#settingsSubModal .aligned-settings-list .c-row > select,
+#settingsSubModal .aligned-settings-list .c-row > input,
+#settingsSubModal .aligned-settings-list .c-row > .custom-sel-trigger {
+  background: var(--panel2) !important;
+  border: 0 !important;
+  border-radius: 9px !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.35 Surgical Fixes:
+   1. Dead-center "ابحث" in search box (remove webkit cancel-button offset)
+   2. Exact same Row 3 height (50px card / 38px controls) in السجل & الدخل/المصروفات
+   3. Inset .c-row controls away from right edge (padding: 6px 20px) + uniform 124px width
+      including #secPinInput & #bioRegisterBtn alignment in Privacy & Security
+   4. Exact 1:1 header (.top) position across .app AND ALL .fullpage-sheet modals
+   ========================================================= */
+
+/* 1. Dead-center "ابحث" placeholder */
+.mm-inline-search-bar {
+  padding: 0 8px !important;
+  justify-content: center !important;
+}
+.mm-inline-search-bar input#actSearch {
+  text-align: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+}
+.mm-inline-search-bar input#actSearch::-webkit-search-cancel-button {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  display: none !important;
+}
+
+/* 2. Exact identical Row 3 height in السجل and الدخل/المصروفات */
+#trans .mm-header-card {
+  height: 50px !important;
+  min-height: 50px !important;
+  max-height: 50px !important;
+  padding: 5px 6px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+#trans .mm-header-card .mm-nav-row {
+  height: 38px !important;
+  min-height: 38px !important;
+  max-height: 38px !important;
+  margin: 0 !important;
+  align-items: center !important;
+}
+#trans .mm-header-card .mm-inline-search-bar,
+#trans .mm-header-card .mm-filter-icon-btn.standalone,
+#trans .mm-header-card .ym-stepper,
+#trans .mm-header-card .rep-mode-box,
+#trans .mm-header-card .rep-cycle-btn,
+#trans .mm-header-card .mm-tool-btn,
+#trans .mm-header-card .cat-selected-pill-btn {
+  height: 38px !important;
+  min-height: 38px !important;
+  max-height: 38px !important;
+  box-sizing: border-box !important;
+}
+#trans .mm-header-card .ym-stepper .step-arrow,
+#trans .mm-header-card .ym-stepper .step-label {
+  height: 36px !important;
+  line-height: 36px !important;
+}
+
+/* 3. Inset controls away from right edge across ALL .c-row + uniform width + Privacy alignment */
+.screen .c-row,
+.modal:not(#quickModal) .c-row {
+  padding: 6px 20px !important;
+  min-height: 42px !important;
+  justify-content: space-between !important;
+}
+.screen .c-row > input,
+.screen .c-row > select,
+.screen .c-row > .custom-sel-trigger,
+.screen .c-row > .picker-trigger,
+.screen .c-row > .seg-group,
+.screen .c-row > .aligned-ctrl-btn,
+.screen .c-row > .upd-equal-box,
+.screen .c-row > .c-row-btns,
+.modal:not(#quickModal) .c-row > input,
+.modal:not(#quickModal) .c-row > select,
+.modal:not(#quickModal) .c-row > .custom-sel-trigger,
+.modal:not(#quickModal) .c-row > .picker-trigger,
+.modal:not(#quickModal) .c-row > .seg-group,
+.modal:not(#quickModal) .c-row > .aligned-ctrl-btn,
+.modal:not(#quickModal) .c-row > .upd-equal-box,
+.modal:not(#quickModal) .c-row > .c-row-btns {
+  width: 128px !important;
+  min-width: 128px !important;
+  max-width: 128px !important;
+  height: 32px !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+}
+#settingsSubModal .aligned-settings-list .c-row > input,
+#settingsSubModal .aligned-settings-list .c-row > select,
+#settingsSubModal .aligned-settings-list .c-row > .custom-sel-trigger,
+#settingsSubModal .aligned-settings-list .c-row > .aligned-ctrl-btn,
+#settingsSubModal .aligned-settings-list .c-row > .upd-equal-box,
+#settingsSubModal .aligned-settings-list .c-row > .c-row-btns {
+  width: 122px !important;
+  min-width: 122px !important;
+  max-width: 122px !important;
+  height: 32px !important;
+  box-sizing: border-box !important;
+}
+#secPinInput {
+  text-align: center !important;
+  padding: 0 8px !important;
+}
+
+/* 4. Exact 1:1 header (.top) position & size across .app AND ALL .fullpage-sheet modals */
+.app > header.top,
+.sheet.fullpage-sheet > header.top {
+  margin: 4px 0 14px 0 !important;
+  padding: 5px 12px !important;
+  min-height: 44px !important;
+  height: auto !important;
+  box-sizing: border-box !important;
+}
+.modal.fullpage-modal {
+  align-items: stretch !important;
+}
+.modal.fullpage-modal .sheet.fullpage-sheet {
+  padding: 14px 15px 84px !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  border-radius: 0 !important;
+  border-top: 0 !important;
+  box-sizing: border-box !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.36 Fixes:
+   1. Exact 1:1 padding (14px 18px) and 100% card width across .app (#settings) & #settingsSubModal
+   2. Compact سجل الحسابات والبطاقات والالتزامات in #wallet
+   ========================================================= */
+.app,
+.modal.fullpage-modal .sheet.fullpage-sheet {
+  padding: 14px 18px 84px !important;
+  max-width: 520px !important;
+  margin: 0 auto !important;
+  box-sizing: border-box !important;
+}
+#settings .dev-profile-card.compact-dev-card,
+#settings .fold-link-card.compact-more-card,
+#settingsSubModal .dev-profile-card.pinned-sub-dev-card,
+#settingsSubModal .set-sub-pane {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Compact Wallet Logs (سجل الحسابات / سجل البطاقات / سجل الالتزامات) */
+#wallet details.fold {
+  margin-bottom: 6px !important;
+}
+#wallet details.fold > summary {
+  padding: 8px 12px !important;
+  min-height: 38px !important;
+}
+#accountsList .listitem,
+#cardsList .listitem,
+#allCommitmentsList .listitem {
+  padding: 7px 4px !important;
+}
+#accountsList .listitem b,
+#cardsList .listitem b,
+#allCommitmentsList .listitem b {
+  font-size: .78rem !important;
+}
+#accountsList .listitem small,
+#cardsList .listitem small,
+#allCommitmentsList .listitem small {
+  font-size: .67rem !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.37 Final Alignment & Selectable Field Styles:
+   1. 100% Pixel-Identical Header, Profile Card & Padding between #settings and #settingsSubModal
+   2. Aligned 5-pill bar for Installment Duration (3, 6, 9, 12, 18)
+   3. 4 Field Styles selectable in Appearance: frameless | framed | soft | underline
+   ========================================================= */
+
+/* 1. DEFINITIVE 1:1 GEOMETRY: .app (#settings) == #settingsSubModal .sheet.fullpage-sheet */
+.app,
+.modal.fullpage-modal .sheet.fullpage-sheet,
+#settingsSubModal .sheet.fullpage-sheet {
+  padding: 14px 18px 84px !important;
+  width: 100% !important;
+  max-width: 520px !important;
+  margin: 0 auto !important;
+  box-sizing: border-box !important;
+}
+.app > header.top,
+.modal.fullpage-modal .sheet.fullpage-sheet > header.top,
+#settingsSubModal .sheet.fullpage-sheet > header.top {
+  margin: 4px 0 14px 0 !important;
+  padding: 5px 12px !important;
+  min-height: 44px !important;
+  height: 44px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
+}
+#settings .dev-profile-card.compact-dev-card,
+#settingsSubModal .dev-profile-card.pinned-sub-dev-card {
+  margin: 0 0 8px 0 !important;
+  padding: 8px 11px !important;
+  border-radius: 14px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
+}
+#settings .fold-link-card.compact-more-card,
+#settingsSubModal .set-sub-pane,
+#settingsSubModal .set-sub-pane .c-list {
+  border-radius: 14px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
+}
+#settingsSubModal .set-sub-scroll {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  padding: 0 0 24px 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* 2. Aligned 5-pill bar for Installment Duration (3, 6, 9, 12, 18) */
+#opMonthsPills.months-pill-bar {
+  grid-template-columns: repeat(5, 1fr) !important;
+  gap: 4px !important;
+  width: 152px !important;
+  min-width: 152px !important;
+  max-width: 152px !important;
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+}
+#opMonthsPills .m-pill {
+  height: 30px !important;
+  border-radius: 7px !important;
+  font-size: .74rem !important;
+}
+
+/* 3. Common Row Spacing & Narrower Controls */
+.screen .c-row,
+.modal:not(#quickModal) .c-row,
+#settingsSubModal .aligned-settings-list .c-row {
+  padding: 7px 18px 7px 14px !important;
+  min-height: 44px !important;
+  justify-content: space-between !important;
+  box-sizing: border-box !important;
+}
+.screen .c-row > input,
+.screen .c-row > select,
+.screen .c-row > .custom-sel-trigger,
+.screen .c-row > .picker-trigger,
+.screen .c-row > .aligned-ctrl-btn,
+.screen .c-row > .upd-equal-box,
+.modal:not(#quickModal) .c-row > input,
+.modal:not(#quickModal) .c-row > select,
+.modal:not(#quickModal) .c-row > .custom-sel-trigger,
+.modal:not(#quickModal) .c-row > .picker-trigger,
+.modal:not(#quickModal) .c-row > .aligned-ctrl-btn,
+.modal:not(#quickModal) .c-row > .upd-equal-box,
+#settingsSubModal .aligned-settings-list .c-row > input,
+#settingsSubModal .aligned-settings-list .c-row > select,
+#settingsSubModal .aligned-settings-list .c-row > .custom-sel-trigger,
+#settingsSubModal .aligned-settings-list .c-row > .aligned-ctrl-btn,
+#settingsSubModal .aligned-settings-list .c-row > .upd-equal-box {
+  width: 112px !important;
+  min-width: 112px !important;
+  max-width: 112px !important;
+  height: 32px !important;
+  box-sizing: border-box !important;
+}
+.screen .c-row > .seg-group,
+.modal:not(#quickModal) .c-row > .seg-group {
+  width: 126px !important;
+  min-width: 126px !important;
+  max-width: 126px !important;
+  height: 30px !important;
+}
+#settingsSubModal .aligned-settings-list .c-row > .c-row-btns.equal-two-btns {
+  width: 126px !important;
+  min-width: 126px !important;
+  max-width: 126px !important;
+  gap: 6px !important;
+}
+
+/* === STYLE 1: سادة (بدون فريم) - DEFAULT === */
+[data-field-style="frameless"] .screen .c-list,
+[data-field-style="frameless"] .modal:not(#quickModal) .c-list {
+  background: var(--panel2) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 14px !important;
+  gap: 0 !important;
+  overflow: hidden !important;
+}
+[data-field-style="frameless"] .screen .c-row,
+[data-field-style="frameless"] .modal:not(#quickModal) .c-row {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+}
+[data-field-style="frameless"] .screen .c-list > .c-row:last-child,
+[data-field-style="frameless"] .modal:not(#quickModal) .c-list > .c-row:last-child {
+  border-bottom: 0 !important;
+}
+[data-field-style="frameless"] .screen .c-row > input,
+[data-field-style="frameless"] .screen .c-row > select,
+[data-field-style="frameless"] .screen .c-row > .custom-sel-trigger,
+[data-field-style="frameless"] .screen .c-row > .picker-trigger,
+[data-field-style="frameless"] .screen .c-row > .aligned-ctrl-btn,
+[data-field-style="frameless"] .screen .c-row > .upd-equal-box,
+[data-field-style="frameless"] .modal:not(#quickModal) .c-row > input,
+[data-field-style="frameless"] .modal:not(#quickModal) .c-row > select,
+[data-field-style="frameless"] .modal:not(#quickModal) .c-row > .custom-sel-trigger,
+[data-field-style="frameless"] .modal:not(#quickModal) .c-row > .picker-trigger,
+[data-field-style="frameless"] .modal:not(#quickModal) .c-row > .aligned-ctrl-btn,
+[data-field-style="frameless"] .modal:not(#quickModal) .c-row > .upd-equal-box {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  padding: 0 4px !important;
+  box-shadow: none !important;
+  color: var(--mint) !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
+  text-align: right !important;
+}
+[data-field-style="frameless"] .screen .c-row > input,
+[data-field-style="frameless"] .modal:not(#quickModal) .c-row > input {
+  color: var(--text) !important;
+  border-bottom: 1px solid transparent !important;
+  border-radius: 0 !important;
+}
+[data-field-style="frameless"] .screen .c-row > input:focus,
+[data-field-style="frameless"] .modal:not(#quickModal) .c-row > input:focus {
+  border-bottom-color: var(--mint) !important;
+}
+[data-field-style="frameless"] .screen .c-row > .seg-group,
+[data-field-style="frameless"] .modal:not(#quickModal) .c-row > .seg-group,
+[data-field-style="frameless"] #settingsSubModal .aligned-settings-list .c-row > .c-row-btns.equal-two-btns .aligned-ctrl-btn {
+  background: var(--surface) !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  padding: 2px !important;
+}
+
+/* === STYLE 2: فريم (مربعات) === */
+[data-field-style="framed"] .screen .c-list,
+[data-field-style="framed"] .modal:not(#quickModal) .c-list {
+  background: transparent !important;
+  border: 0 !important;
+  gap: 7px !important;
+}
+[data-field-style="framed"] .screen .c-row,
+[data-field-style="framed"] .modal:not(#quickModal) .c-row {
+  background: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 13px !important;
+}
+[data-field-style="framed"] .screen .c-row > input,
+[data-field-style="framed"] .screen .c-row > select,
+[data-field-style="framed"] .screen .c-row > .custom-sel-trigger,
+[data-field-style="framed"] .screen .c-row > .picker-trigger,
+[data-field-style="framed"] .screen .c-row > .aligned-ctrl-btn,
+[data-field-style="framed"] .screen .c-row > .upd-equal-box,
+[data-field-style="framed"] .modal:not(#quickModal) .c-row > input,
+[data-field-style="framed"] .modal:not(#quickModal) .c-row > select,
+[data-field-style="framed"] .modal:not(#quickModal) .c-row > .custom-sel-trigger,
+[data-field-style="framed"] .modal:not(#quickModal) .c-row > .picker-trigger,
+[data-field-style="framed"] .modal:not(#quickModal) .c-row > .aligned-ctrl-btn,
+[data-field-style="framed"] .modal:not(#quickModal) .c-row > .upd-equal-box {
+  background: var(--surface2) !important;
+  border: 1px solid var(--line2) !important;
+  border-radius: 10px !important;
+  padding: 0 10px !important;
+  color: var(--text) !important;
+}
+
+/* === STYLE 3: ناعم (كبسولات) === */
+[data-field-style="soft"] .screen .c-list,
+[data-field-style="soft"] .modal:not(#quickModal) .c-list {
+  background: var(--panel2) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 14px !important;
+  gap: 0 !important;
+  overflow: hidden !important;
+}
+[data-field-style="soft"] .screen .c-row,
+[data-field-style="soft"] .modal:not(#quickModal) .c-row {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+}
+[data-field-style="soft"] .screen .c-list > .c-row:last-child,
+[data-field-style="soft"] .modal:not(#quickModal) .c-list > .c-row:last-child {
+  border-bottom: 0 !important;
+}
+[data-field-style="soft"] .screen .c-row > input,
+[data-field-style="soft"] .screen .c-row > select,
+[data-field-style="soft"] .screen .c-row > .custom-sel-trigger,
+[data-field-style="soft"] .screen .c-row > .picker-trigger,
+[data-field-style="soft"] .screen .c-row > .aligned-ctrl-btn,
+[data-field-style="soft"] .screen .c-row > .upd-equal-box,
+[data-field-style="soft"] .modal:not(#quickModal) .c-row > input,
+[data-field-style="soft"] .modal:not(#quickModal) .c-row > select,
+[data-field-style="soft"] .modal:not(#quickModal) .c-row > .custom-sel-trigger,
+[data-field-style="soft"] .modal:not(#quickModal) .c-row > .picker-trigger,
+[data-field-style="soft"] .modal:not(#quickModal) .c-row > .aligned-ctrl-btn,
+[data-field-style="soft"] .modal:not(#quickModal) .c-row > .upd-equal-box {
+  background: var(--surface) !important;
+  border: 0 !important;
+  border-radius: 99px !important;
+  padding: 0 12px !important;
+  color: var(--text) !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+/* === STYLE 4: خط سفلي === */
+[data-field-style="underline"] .screen .c-list,
+[data-field-style="underline"] .modal:not(#quickModal) .c-list {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  gap: 2px !important;
+}
+[data-field-style="underline"] .screen .c-row,
+[data-field-style="underline"] .modal:not(#quickModal) .c-row {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1.5px solid var(--line2) !important;
+  border-radius: 0 !important;
+  padding: 7px 10px !important;
+}
+[data-field-style="underline"] .screen .c-row > input,
+[data-field-style="underline"] .screen .c-row > select,
+[data-field-style="underline"] .screen .c-row > .custom-sel-trigger,
+[data-field-style="underline"] .screen .c-row > .picker-trigger,
+[data-field-style="underline"] .screen .c-row > .aligned-ctrl-btn,
+[data-field-style="underline"] .screen .c-row > .upd-equal-box,
+[data-field-style="underline"] .modal:not(#quickModal) .c-row > input,
+[data-field-style="underline"] .modal:not(#quickModal) .c-row > select,
+[data-field-style="underline"] .modal:not(#quickModal) .c-row > .custom-sel-trigger,
+[data-field-style="underline"] .modal:not(#quickModal) .c-row > .picker-trigger,
+[data-field-style="underline"] .modal:not(#quickModal) .c-row > .aligned-ctrl-btn,
+[data-field-style="underline"] .modal:not(#quickModal) .c-row > .upd-equal-box {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 0 4px !important;
+  color: var(--mint) !important;
+  justify-content: flex-end !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.39 Additions:
+   1. Slightly smaller numbers in Income / Expenses / Net (.mm-stat-box)
+   2. Field Style #5: divider ("خط فاصل" vertical hairline between label & value)
+   3. Header Style ("شكل الهيدر"): framed | frameless | soft | underline
+   4. Item Style ("شكل البنود"): framed | frameless | soft | underline
+   ========================================================= */
+
+/* 1. Smaller numbers in Income - Expenses - Net */
+#trans .mm-stat-box small,
+.mm-stat-box small {
+  font-size: .64rem !important;
+  margin-bottom: 2px !important;
+}
+#trans .mm-stat-box b,
+.mm-stat-box b {
+  font-size: .8rem !important;
+}
+
+/* 2. Field Style: خط فاصل (divider) */
+[data-field-style="divider"] .screen .c-list,
+[data-field-style="divider"] .modal:not(#quickModal) .c-list {
+  background: var(--panel2) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 14px !important;
+  gap: 0 !important;
+  overflow: hidden !important;
+}
+[data-field-style="divider"] .screen .c-row,
+[data-field-style="divider"] .modal:not(#quickModal) .c-row {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+}
+[data-field-style="divider"] .screen .c-list > .c-row:last-child,
+[data-field-style="divider"] .modal:not(#quickModal) .c-list > .c-row:last-child {
+  border-bottom: 0 !important;
+}
+[data-field-style="divider"] .screen .c-row > input,
+[data-field-style="divider"] .screen .c-row > select,
+[data-field-style="divider"] .screen .c-row > .custom-sel-trigger,
+[data-field-style="divider"] .screen .c-row > .picker-trigger,
+[data-field-style="divider"] .screen .c-row > .aligned-ctrl-btn,
+[data-field-style="divider"] .screen .c-row > .upd-equal-box,
+[data-field-style="divider"] .modal:not(#quickModal) .c-row > input,
+[data-field-style="divider"] .modal:not(#quickModal) .c-row > select,
+[data-field-style="divider"] .modal:not(#quickModal) .c-row > .custom-sel-trigger,
+[data-field-style="divider"] .modal:not(#quickModal) .c-row > .picker-trigger,
+[data-field-style="divider"] .modal:not(#quickModal) .c-row > .aligned-ctrl-btn,
+[data-field-style="divider"] .modal:not(#quickModal) .c-row > .upd-equal-box,
+[data-field-style="divider"] #settingsSubModal .aligned-settings-list .c-row > input,
+[data-field-style="divider"] #settingsSubModal .aligned-settings-list .c-row > select,
+[data-field-style="divider"] #settingsSubModal .aligned-settings-list .c-row > .custom-sel-trigger,
+[data-field-style="divider"] #settingsSubModal .aligned-settings-list .c-row > .aligned-ctrl-btn,
+[data-field-style="divider"] #settingsSubModal .aligned-settings-list .c-row > .upd-equal-box {
+  width: 122px !important;
+  min-width: 122px !important;
+  max-width: 122px !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-left: 1px solid var(--line2) !important;
+  border-radius: 0 !important;
+  padding: 0 4px 0 12px !important;
+  box-shadow: none !important;
+  color: var(--mint) !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
+  text-align: right !important;
+}
+[data-field-style="divider"] .screen .c-row > input,
+[data-field-style="divider"] .modal:not(#quickModal) .c-row > input {
+  color: var(--text) !important;
+}
+[data-field-style="divider"] .screen .c-row > .seg-group,
+[data-field-style="divider"] .modal:not(#quickModal) .c-row > .seg-group,
+[data-field-style="divider"] #settingsSubModal .aligned-settings-list .c-row > .c-row-btns.equal-two-btns {
+  border-left: 1px solid var(--line2) !important;
+  padding-left: 10px !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+/* 3. Header Style ("شكل الهيدر"): Rows 2, 3, 4 in Transactions + Row 2 in Wallet */
+[data-header-style="frameless"] #trans .sub-tabs .sub-tab-btn,
+[data-header-style="frameless"] #wallet .sub-tabs .sub-tab-btn,
+[data-header-style="frameless"] #statementFullModal .sub-tabs .sub-tab-btn {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1.5px solid transparent !important;
+  border-radius: 0 !important;
+}
+[data-header-style="frameless"] #trans .sub-tabs .sub-tab-btn.active,
+[data-header-style="frameless"] #wallet .sub-tabs .sub-tab-btn.active,
+[data-header-style="frameless"] #statementFullModal .sub-tabs .sub-tab-btn.active {
+  border-bottom-color: var(--mint) !important;
+  color: var(--mint) !important;
+}
+[data-header-style="frameless"] #trans .mm-header-card,
+[data-header-style="frameless"] #trans .mm-stats-card {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+[data-header-style="frameless"] #trans .mm-stat-box,
+[data-header-style="frameless"] #trans .mm-inline-search-bar,
+[data-header-style="frameless"] #trans .mm-filter-icon-btn.standalone,
+[data-header-style="frameless"] #trans .ym-stepper,
+[data-header-style="frameless"] #trans .rep-cycle-btn,
+[data-header-style="frameless"] #trans .mm-tool-btn {
+  background: transparent !important;
+  border: 0 !important;
+}
+
+[data-header-style="soft"] #trans .sub-tabs .sub-tab-btn,
+[data-header-style="soft"] #wallet .sub-tabs .sub-tab-btn,
+[data-header-style="soft"] #statementFullModal .sub-tabs .sub-tab-btn {
+  background: var(--surface) !important;
+  border: 0 !important;
+  border-radius: 99px !important;
+}
+[data-header-style="soft"] #trans .sub-tabs .sub-tab-btn.active,
+[data-header-style="soft"] #wallet .sub-tabs .sub-tab-btn.active,
+[data-header-style="soft"] #statementFullModal .sub-tabs .sub-tab-btn.active {
+  background: #43d6b222 !important;
+  color: var(--mint) !important;
+}
+[data-header-style="soft"] #trans .mm-header-card,
+[data-header-style="soft"] #trans .mm-stats-card {
+  background: var(--panel2) !important;
+  border: 0 !important;
+  border-radius: 16px !important;
+}
+[data-header-style="soft"] #trans .mm-stat-box {
+  background: var(--surface) !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+}
+
+[data-header-style="underline"] #trans .sub-tabs,
+[data-header-style="underline"] #wallet .sub-tabs,
+[data-header-style="underline"] #statementFullModal .sub-tabs {
+  border-bottom: 1px solid var(--line) !important;
+  padding-bottom: 4px !important;
+}
+[data-header-style="underline"] #trans .sub-tabs .sub-tab-btn,
+[data-header-style="underline"] #wallet .sub-tabs .sub-tab-btn,
+[data-header-style="underline"] #statementFullModal .sub-tabs .sub-tab-btn {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important;
+}
+[data-header-style="underline"] #trans .sub-tabs .sub-tab-btn.active,
+[data-header-style="underline"] #wallet .sub-tabs .sub-tab-btn.active,
+[data-header-style="underline"] #statementFullModal .sub-tabs .sub-tab-btn.active {
+  border-bottom-color: var(--mint) !important;
+  color: var(--mint) !important;
+}
+[data-header-style="underline"] #trans .mm-header-card,
+[data-header-style="underline"] #trans .mm-stats-card {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1.5px solid var(--line2) !important;
+  border-radius: 0 !important;
+}
+[data-header-style="underline"] #trans .mm-stat-box {
+  background: transparent !important;
+  border: 0 !important;
+  border-right: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+}
+[data-header-style="underline"] #trans .mm-stat-box:last-child {
+  border-right: 0 !important;
+}
+
+/* 4. Item Style ("شكل البنود"): Wallet & More sections */
+[data-item-style="frameless"] #wallet details.fold,
+[data-item-style="frameless"] #settings .fold-link-card.compact-more-card {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+[data-item-style="frameless"] #settings .dev-profile-card.compact-dev-card,
+[data-item-style="frameless"] #settingsSubModal .dev-profile-card.pinned-sub-dev-card {
+  background: var(--panel2) !important;
+  border: 0 !important;
+}
+
+[data-item-style="soft"] #wallet details.fold,
+[data-item-style="soft"] #settings .fold-link-card.compact-more-card,
+[data-item-style="soft"] #settings .dev-profile-card.compact-dev-card,
+[data-item-style="soft"] #settingsSubModal .dev-profile-card.pinned-sub-dev-card {
+  background: var(--panel2) !important;
+  border: 0 !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+}
+
+[data-item-style="underline"] #wallet details.fold,
+[data-item-style="underline"] #settings .fold-link-card.compact-more-card {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1.5px solid var(--line2) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+
+/* =========================================================
+   X-Wallet V13.40 Additions:
+   1. More Menu (#settings) Compact Layout
+   2. Divider ("خط فاصل") for Header & Items
+   3. Record Style ("شكل السجل"): framed | frameless | divider | soft | underline
+   ========================================================= */
+
+/* 1. Compact More Menu (#settings) */
+#settings .dev-profile-card.compact-dev-card {
+  padding: 6px 10px !important;
+  margin-bottom: 5px !important;
+}
+#settings .dev-profile-card.compact-dev-card .dev-card-logo {
+  width: 36px !important;
+  height: 36px !important;
+}
+#settings .dev-profile-card.compact-dev-card .dev-card-info b {
+  font-size: .92rem !important;
+}
+#settings .fold-link-card.compact-more-card {
+  padding: 6px 11px !important;
+  min-height: 33px !important;
+  margin-bottom: 4px !important;
+  font-size: .79rem !important;
+}
+#settings .ic-txt i {
+  width: 26px !important;
+  height: 26px !important;
+  font-size: .88rem !important;
+  border-radius: 7px !important;
+}
+
+/* 2. Divider ("خط فاصل") for Header Style */
+[data-header-style="divider"] #trans .sub-tabs,
+[data-header-style="divider"] #wallet .sub-tabs,
+[data-header-style="divider"] #statementFullModal .sub-tabs {
+  background: var(--panel2) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 12px !important;
+  gap: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+[data-header-style="divider"] #trans .sub-tabs .sub-tab-btn,
+[data-header-style="divider"] #wallet .sub-tabs .sub-tab-btn,
+[data-header-style="divider"] #statementFullModal .sub-tabs .sub-tab-btn {
+  background: transparent !important;
+  border: 0 !important;
+  border-right: 1px solid var(--line2) !important;
+  border-radius: 0 !important;
+}
+[data-header-style="divider"] #trans .sub-tabs .sub-tab-btn:last-child,
+[data-header-style="divider"] #wallet .sub-tabs .sub-tab-btn:last-child,
+[data-header-style="divider"] #statementFullModal .sub-tabs .sub-tab-btn:last-child {
+  border-right: 0 !important;
+}
+[data-header-style="divider"] #trans .sub-tabs .sub-tab-btn.active,
+[data-header-style="divider"] #wallet .sub-tabs .sub-tab-btn.active,
+[data-header-style="divider"] #statementFullModal .sub-tabs .sub-tab-btn.active {
+  background: #43d6b214 !important;
+  color: var(--mint) !important;
+}
+[data-header-style="divider"] #trans .mm-stats-card {
+  background: var(--panel2) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 14px !important;
+  padding: 6px 0 !important;
+}
+[data-header-style="divider"] #trans .mm-stats {
+  gap: 0 !important;
+}
+[data-header-style="divider"] #trans .mm-stat-box {
+  background: transparent !important;
+  border: 0 !important;
+  border-right: 1px solid var(--line2) !important;
+  border-radius: 0 !important;
+}
+[data-header-style="divider"] #trans .mm-stat-box:last-child {
+  border-right: 0 !important;
+}
+[data-header-style="divider"] #trans .mm-header-card {
+  background: var(--panel2) !important;
+  border: 1px solid var(--line) !important;
+}
+[data-header-style="divider"] #trans .mm-inline-search-bar,
+[data-header-style="divider"] #trans .mm-filter-icon-btn.standalone,
+[data-header-style="divider"] #trans .ym-stepper {
+  background: transparent !important;
+  border: 0 !important;
+  border-right: 1px solid var(--line2) !important;
+  border-radius: 0 !important;
+}
+[data-header-style="divider"] #trans .ym-stepper {
+  border-right: 0 !important;
+}
+
+/* 2b. Divider ("خط فاصل") for Item Style */
+[data-item-style="divider"] #wallet details.fold,
+[data-item-style="divider"] #settings .fold-link-card.compact-more-card {
+  background: var(--panel2) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 13px !important;
+}
+[data-item-style="divider"] #settings .ic-txt i,
+[data-item-style="divider"] #wallet details.fold summary .ic-txt i {
+  background: transparent !important;
+  border: 0 !important;
+  border-right: 1px solid var(--line2) !important;
+  border-radius: 0 !important;
+  padding-right: 8px !important;
+  width: auto !important;
+}
+
+/* 3. Record Style ("شكل السجل"): Daily Transactions & Monthly Summary (.day-group / .day-head / .tx-row) */
+[data-record-style="frameless"] .day-group {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  margin-bottom: 12px !important;
+}
+[data-record-style="frameless"] .day-head {
+  background: transparent !important;
+  border-bottom: 1px solid var(--line) !important;
+  padding: 6px 4px !important;
+}
+[data-record-style="frameless"] .tx-row {
+  padding: 10px 4px !important;
+  border-bottom: 1px solid var(--line) !important;
+}
+
+[data-record-style="divider"] .day-group {
+  background: var(--panel2) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 14px !important;
+}
+[data-record-style="divider"] .tx-row {
+  gap: 0 !important;
+  padding: 10px 10px !important;
+}
+[data-record-style="divider"] .tx-cat-col {
+  border-right: 1px solid var(--line2) !important;
+  padding-right: 10px !important;
+}
+[data-record-style="divider"] .tx-acc-col {
+  border-right: 1px solid var(--line2) !important;
+  padding: 0 10px !important;
+}
+[data-record-style="divider"] .tx-amt-col {
+  padding-left: 10px !important;
+}
+
+[data-record-style="soft"] .day-group {
+  background: var(--panel2) !important;
+  border: 0 !important;
+  border-radius: 16px !important;
+  padding: 4px !important;
+}
+[data-record-style="soft"] .day-head {
+  background: var(--surface) !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  margin-bottom: 4px !important;
+}
+[data-record-style="soft"] .tx-row {
+  border-bottom: 0 !important;
+  border-radius: 11px !important;
+  margin-bottom: 2px !important;
+}
+
+[data-record-style="underline"] .day-group {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+[data-record-style="underline"] .day-head {
+  background: transparent !important;
+  border-bottom: 1.5px solid var(--mint) !important;
+  padding: 6px 4px !important;
+}
+[data-record-style="underline"] .tx-row {
+  border-bottom: 1px solid var(--line2) !important;
+  padding: 10px 4px !important;
+}
+
+
+/* V14.1: keep the detached transaction filter in normal document flow on narrow screens */
+#mmSearchBox.filter-bar-detached{position:relative!important;inset:auto!important;width:100%;max-width:100%;box-sizing:border-box;z-index:1;overflow:visible;margin:8px 0 10px!important;padding:10px!important;border-radius:16px}
+#mmSearchBox .mm-filter-chips-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important}
+#mmSearchBox .mm-filter-chips-grid .mm-f-card{min-width:0;max-width:100%;box-sizing:border-box}
+#btnCancelFilterTop{position:relative!important;inset:auto!important;max-width:100%;margin:6px 0!important}
+
+/* V14.3: toast notifications stay near the bottom and clear of the status bar. */
+.toast {
+  top: auto !important;
+  bottom: calc(82px + env(safe-area-inset-bottom, 0px)) !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  max-width: min(92vw, 520px) !important;
+  z-index: 1200 !important;
+}
+
+/* Prevent interaction until the latest local IndexedDB snapshot has been checked. */
+html.xwallet-boot-loading body{pointer-events:none;cursor:wait}
+
+/* V15.0 — mandatory master-password gate for encrypted local database */
+.live-db-gate{
+  position:fixed;inset:0;z-index:100000;background:var(--bg-grad),var(--bg);
+  display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto;
+}
+.live-db-gate-card{
+  width:100%;max-width:390px;background:var(--panel);border:1px solid var(--line2);
+  border-radius:22px;padding:24px 20px;box-shadow:0 18px 50px #0009;display:flex;
+  flex-direction:column;align-items:stretch;gap:10px;text-align:right;
+}
+.live-db-gate-logo{width:60px;height:60px;padding:5px;border-radius:17px;border:1px solid var(--mint);background:#0b1220;align-self:center}
+.live-db-gate-logo img{width:100%;height:100%;object-fit:contain}
+.live-db-gate-card h2{margin:2px 0;text-align:center;font-size:1.1rem}
+.live-db-gate-card p{margin:0 0 5px;color:var(--muted);font-size:.78rem;line-height:1.8}
+.live-db-gate-card label{font-size:.75rem;color:var(--muted)}
+.live-db-gate-card input{width:100%;height:44px;border:1px solid var(--line2);border-radius:10px;background:var(--surface);color:var(--text);padding:0 12px;font:inherit;direction:ltr;text-align:left;box-sizing:border-box}
+.live-db-gate-card button{width:100%;min-height:44px;margin-top:5px}
+.live-db-gate-card small{display:block;color:var(--muted);font-size:.68rem;line-height:1.8;text-align:center;margin-top:4px}
+.live-db-gate-error{min-height:18px;color:var(--red);font-size:.72rem;line-height:1.6}
+html.xwallet-boot-loading body{pointer-events:none;cursor:wait}
+html.xwallet-boot-loading .app{visibility:hidden !important}
+
+.live-db-gate,.live-db-gate *{pointer-events:auto;cursor:auto}
+
+
+/* V15.1.4 — EGP-only wallet and compact account/card headers */
+.mg-section{border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden;margin:8px 0}
+.mg-section>summary{list-style:none;cursor:pointer;padding:13px 14px;font-weight:700;font-size:.88rem;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.mg-section>summary::-webkit-details-marker{display:none}
+.mg-section>summary:after{content:'＋';color:var(--mint);font-size:1rem}
+.mg-section[open]>summary:after{content:'−'}
+.mg-section-body{padding:4px 10px 12px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.mg-section-body .c-row{width:100%}
+
+/* V15.1.4 wallet headers, sorting handles and moved-item labels */
+.wallet-total-log-head{display:flex;flex-direction:row-reverse;align-items:stretch;gap:8px;margin:8px 0 12px}
+.wallet-total-log-head>.fold{flex:1;min-width:0;margin:0}
+.wallet-total-log-head>.fold>summary{display:flex;align-items:center;justify-content:space-between;min-height:54px;padding:12px 14px}
+.wallet-total-value{font-weight:700;font-size:1.02rem;color:var(--mint);direction:ltr;font-variant-numeric:tabular-nums}
+.wallet-add-plus{flex:0 0 54px;border:1px solid var(--mint);border-radius:13px;background:var(--surface);color:var(--mint);font-size:1.7rem;line-height:1;display:grid;place-items:center}
+.wallet-add-panel{margin:0 0 10px}
+.wallet-add-panel>summary{display:none!important}
+.wallet-add-panel[open]{display:block!important}
+.wallet-order-handle{cursor:grab;touch-action:none;min-width:30px;padding:4px 7px;color:var(--mint);border-color:var(--line2)}
+.wallet-order-row{position:relative}
+.wallet-moved-group{border-top:1px dashed var(--line2);margin-top:10px;padding-top:8px}
+.wallet-moved-group>small{display:block;color:var(--muted);padding:0 8px 6px}
+.subcat-move-select{max-width:112px;height:28px;background:var(--surface);color:var(--text);border:1px solid var(--line2);border-radius:7px;font-size:.63rem;padding:2px}
+
+
+/* =========================================================
+   X-Wallet V15.2.0 Styles:
+   - Update Progress Bar (Modal + Global Top Bar)
+   - Quick Entry: Recurring toggle, Grid/List toggle, Separated Accounts/Cards, Category Pencil, +/-/= Keypad
+   - Merged Wallet: Accounts & Cards Horizontal Separation, Header + Button, Left Drag Handle
+   - Unified 1:1 More & Sub-page Headers
+   - Categories Manager above Quick Entry
+   ========================================================= */
+
+/* Update Progress Bars */
+.global-update-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 99999;
+  background: var(--panel2);
+  border-bottom: 1.5px solid var(--mint);
+  padding: 6px 14px 8px;
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  box-shadow: 0 8px 24px #000a;
+}
+.global-update-bar.show {
+  display: flex;
+}
+.global-update-bar .gub-top {
+  font-size: .74rem;
+  color: var(--mint);
+  font-weight: 700;
+  text-align: center;
+}
+.global-update-bar .gub-track,
+.upd-prog-track {
+  width: 100%;
+  height: 7px;
+  border-radius: 99px;
+  background: var(--surface);
+  border: 1px solid var(--line2);
+  overflow: hidden;
+}
+.global-update-bar .gub-fill,
+.upd-prog-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--mint2), var(--mint));
+  border-radius: 99px;
+  transition: width .18s ease;
+}
+
+/* 1.1 Quick Entry Date Row + Recurring Toggle */
+.qm-date-inline-wrap {
+  width: 72%;
+  max-width: 72%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.qm-date-inline-wrap .picker-trigger {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  max-width: none !important;
+}
+.qm-recur-btn {
+  width: 32px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--line2);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: .85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+}
+.qm-recur-btn.active {
+  border-color: var(--mint);
+  background: #43d6b224;
+  color: var(--mint);
+}
+
+/* 1.2 Quick Entry Account Picker: Grid/List Toggle & Separated Groups */
+.qm-view-toggle-btn {
+  height: 26px;
+  padding: 0 9px;
+  border-radius: 8px;
+  border: 1px solid var(--mint);
+  background: var(--surface);
+  color: var(--mint);
+  font-size: .7rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.qm-acc-grid-grouped {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 6px 10px 10px;
+}
+.qm-acc-group-lbl {
+  font-size: .68rem;
+  font-weight: 700;
+  color: var(--mint);
+  padding: 4px 2px 5px;
+  border-bottom: 1px solid var(--line);
+  margin: 2px 0 6px;
+  text-align: left;
+}
+.qm-acc-group-lbl.cards {
+  color: var(--orange);
+  margin-top: 10px;
+}
+.qm-acc-grid-grouped .quick-grid.qm-sub-grid {
+  padding: 0 !important;
+  overflow: visible !important;
+  flex: none !important;
+}
+
+/* 1.3 Quick Entry Category Pencil Button */
+.qm-cat-pencil-btn {
+  width: 30px;
+  height: 26px;
+  border-radius: 8px;
+  border: 1px solid var(--mint);
+  background: var(--surface);
+  color: var(--mint);
+  font-size: .88rem;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+}
+#catsManagerModal {
+  z-index: 88 !important;
+}
+
+/* 1.4 Minus Key Styling */
+.calc-key.minus-key {
+  background: #ffbd691a;
+  border-color: #ffbd6966;
+  color: var(--orange);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+/* 4. Merged Wallet Sections (Horizontal Separation + Header + Button + Left Drag Handle) */
+.wallet-section-card {
+  background: linear-gradient(150deg, var(--panel2), var(--panel));
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.wallet-section-head {
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.wallet-section-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.wallet-sec-name {
+  font-size: .84rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.wallet-section-head .wallet-total-value {
+  font-size: .82rem;
+  color: var(--mint);
+  direction: ltr;
+}
+.wallet-add-plus.inline-head-plus {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  border: 1px solid var(--mint);
+  background: #43d6b218;
+  color: var(--mint);
+  font-size: 1.1rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+.wallet-section-body {
+  padding: 4px 10px;
+}
+.wallet-horiz-sep {
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, var(--line2), transparent);
+  margin: 10px 4px;
+}
+.wallet-order-row .wallet-left-drag {
+  margin-right: 6px;
+  margin-left: 0;
+  width: 28px !important;
+  min-width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  font-size: .84rem;
+}
+
+/* 5. Exact 1:1 Header Alignment across #settings and ALL sub-pages (#settingsSubModal, #salaryModal, #annualReportModal, #catsManagerModal) */
+.app,
+.modal.fullpage-modal .sheet.fullpage-sheet,
+#settingsSubModal .sheet.fullpage-sheet,
+#salaryModal .sheet.fullpage-sheet,
+#annualReportModal .sheet.fullpage-sheet,
+#catsManagerModal .sheet.fullpage-sheet {
+  padding: 14px 18px 84px !important;
+  width: 100% !important;
+  max-width: 520px !important;
+  margin: 0 auto !important;
+  box-sizing: border-box !important;
+}
+.app > header.top,
+.modal.fullpage-modal .sheet.fullpage-sheet > header.top,
+#settingsSubModal .sheet.fullpage-sheet > header.top,
+#salaryModal .sheet.fullpage-sheet > header.top,
+#annualReportModal .sheet.fullpage-sheet > header.top,
+#catsManagerModal .sheet.fullpage-sheet > header.top {
+  margin: 4px 0 14px 0 !important;
+  padding: 5px 12px !important;
+  min-height: 44px !important;
+  height: 44px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
+}
+
+
+/* =========================================================
+   X-Wallet V15.2.1 Polish:
+   - Exact 1:1 .dev-profile-card across #settings and #settingsSubModal
+   - Wallet reorder toggle button & hidden-by-default left drag handles
+   - Wallet 2-column Cards view (المتاح | المستحق) like Money Manager
+   - Monochrome Quick Entry recurring toggle & icon-only view toggle
+   ========================================================= */
+
+/* 5.0 Exact 1:1 .dev-profile-card size & typography in BOTH #settings & #settingsSubModal */
+#settings .dev-profile-card.compact-dev-card,
+#settingsSubModal .dev-profile-card.pinned-sub-dev-card {
+  padding: 6px 10px !important;
+  margin: 0 0 6px 0 !important;
+  border-radius: 14px !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+#settings .dev-profile-card.compact-dev-card .dev-card-logo,
+#settingsSubModal .dev-profile-card.pinned-sub-dev-card .dev-card-logo {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 11px !important;
+  padding: 3px !important;
+}
+#settings .dev-profile-card.compact-dev-card .dev-card-info b,
+#settingsSubModal .dev-profile-card.pinned-sub-dev-card .dev-card-info b {
+  font-size: .92rem !important;
+}
+#settings .dev-profile-card.compact-dev-card .dev-card-info span,
+#settingsSubModal .dev-profile-card.pinned-sub-dev-card .dev-card-info span {
+  font-size: .7rem !important;
+}
+#settings .dev-profile-card.compact-dev-card .dev-card-info small,
+#settingsSubModal .dev-profile-card.pinned-sub-dev-card .dev-card-info small {
+  font-size: .62rem !important;
+}
+
+/* 3.1 Wallet Header Buttons (+ & Reorder) & Toggleable Left Drag Handles */
+.wallet-head-btns {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.wallet-reorder-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  border: 1px solid var(--line2);
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: .9rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+.wallet-reorder-btn.active {
+  border-color: var(--mint);
+  background: #43d6b21e;
+  color: var(--mint);
+}
+.wallet-section-card .wallet-left-drag {
+  display: none !important;
+}
+.wallet-section-card.show-reorder .wallet-left-drag {
+  display: inline-flex !important;
+}
+
+/* 3.2 Wallet Cards 2-Column Layout (المتاح | المستحق) */
+.wallet-top-summary {
+  margin-bottom: 10px !important;
+}
+.wallet-cards-col-head {
+  direction: ltr;
+  display: grid;
+  grid-template-columns: 1fr 86px 86px;
+  align-items: center;
+  padding: 5px 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  font-size: .66rem;
+  color: var(--muted);
+}
+.wallet-cards-col-head .num {
+  text-align: right;
+}
+.wallet-card-two-col .wallet-card-cols {
+  display: grid;
+  grid-template-columns: 86px 86px;
+  align-items: center;
+  text-align: right;
+  font-size: .8rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+.wallet-card-two-col .wallet-card-cols span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 4.1 Monochrome Recurring Toggle (matching .swap-acc-btn style) */
+.qm-recur-btn {
+  width: 30px !important;
+  height: 24px !important;
+  border-radius: 99px !important;
+  border: 1px solid var(--line2) !important;
+  background: var(--surface) !important;
+  color: var(--muted) !important;
+  opacity: .68;
+  transition: all .16s ease;
+}
+.qm-recur-btn.active {
+  border-color: var(--mint) !important;
+  background: #43d6b222 !important;
+  color: var(--mint) !important;
+  opacity: 1;
+  box-shadow: 0 0 8px #43d6b244;
+}
+
+/* 4.2 Icon-only Grid/List Toggle Button */
+.qm-view-toggle-btn.icon-only {
+  width: 30px !important;
+  padding: 0 !important;
+  justify-content: center !important;
+}
+
+/* 5.2 Categories Manager right-side drag handle & subcat move icon */
+.cat-mgr-icons .cat-drag-handle.main-drag-handle {
+  margin: 0 !important;
+  width: 28px !important;
+  min-width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  font-size: .85rem !important;
+}
+.subcat-move-icon-btn {
+  color: var(--mint) !important;
+  border-color: var(--mint) !important;
+  font-size: .85rem !important;
+}
+
+
+/* =========================================================
+   X-Wallet V15.2.2 Styles:
+   - Wallet Toolbar (＋ | ⇅ | 👁 | 🗑) + Table-Style Headers + Collapse
+   - Statement Header (Name Left | Edit & Delete Right)
+   - Full-Page Account/Card Add & Edit Screen (57546.jpg style)
+   - Categories Manager: count on right, no external subcats preview
+   ========================================================= */
+
+/* Wallet Toolbar */
+.wallet-toolbar {
+  direction: ltr;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.wallet-toolbar .wt-btn {
+  height: 36px;
+  border-radius: 11px;
+  border: 1px solid var(--line2);
+  background: var(--panel2);
+  color: var(--text-sub);
+  font-size: 1rem;
+  display: grid;
+  place-items: center;
+  transition: all .15s ease;
+}
+.wallet-toolbar .wt-btn.active {
+  border-color: var(--mint);
+  background: #43d6b21f;
+  color: var(--mint);
+}
+.wallet-toolbar .wt-btn.danger-ico.active {
+  border-color: var(--red);
+  background: #ff72851f;
+  color: var(--red);
+}
+
+/* Wallet Table-Style Section Headers (Clickable Collapse) */
+.wallet-table-head {
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  user-select: none;
+}
+.wallet-section-card.collapsed .wallet-table-head {
+  border-bottom: 0;
+}
+.wallet-section-card.collapsed .wallet-section-body {
+  display: none !important;
+}
+.wth-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.wth-ico {
+  font-size: 1rem;
+  line-height: 1;
+}
+.wth-title {
+  font-size: .86rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.wth-right-total {
+  font-size: .86rem;
+  font-weight: 700;
+  text-align: right;
+}
+.wth-cards-cols {
+  display: grid;
+  grid-template-columns: 86px 86px;
+  text-align: right;
+}
+.wth-col-box small {
+  display: block;
+  font-size: .62rem;
+  color: var(--muted);
+  line-height: 1.2;
+}
+.wth-col-box b {
+  display: block;
+  font-size: .78rem;
+  margin-top: 2px;
+}
+
+/* Wallet Toolbar Modes (Hide & Delete inline icons) */
+.wallet-row-mode-btn {
+  display: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--line2);
+  background: var(--surface2);
+  color: var(--text-sub);
+  font-size: .82rem;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  margin-left: 6px;
+}
+.wallet-mode-hide .wallet-row-hide-btn {
+  display: inline-flex !important;
+}
+.wallet-mode-delete .wallet-row-del-btn {
+  display: inline-flex !important;
+  border-color: var(--red) !important;
+  color: var(--red) !important;
+}
+.wallet-mode-reorder .wallet-left-drag {
+  display: inline-flex !important;
+}
+.wallet-order-row.is-hidden-item {
+  opacity: .48;
+}
+
+/* Statement Action Header Row (Left: Name Back | Right: Edit & Delete) */
+.stmt-action-header-row {
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.stmt-name-back-btn {
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-start !important;
+  padding: 0 12px !important;
+  height: 36px !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.stmt-hdr-right-btns {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.stmt-hdr-edit,
+.stmt-hdr-del {
+  height: 36px !important;
+  padding: 0 14px !important;
+  min-width: 66px;
+}
+.stmt-hdr-edit {
+  border-color: var(--blue) !important;
+  color: var(--blue) !important;
+}
+.stmt-hdr-del {
+  border-color: var(--red) !important;
+  color: var(--red) !important;
+}
+
+/* Full-Page Account/Card Add & Edit Modal (57546.jpg style) */
+.acc-fp-topbar {
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 46px;
+  padding: 0 4px 8px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+.acc-fp-back,
+.acc-fp-del {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--line2);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1.05rem;
+  display: grid;
+  place-items: center;
+}
+.acc-fp-del {
+  color: var(--red);
+  border-color: #ff728555;
+}
+.acc-fp-topbar b {
+  font-size: .96rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.acc-fp-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 30px;
+}
+.acc-fp-save-btn {
+  margin-top: 8px;
+  height: 44px;
+  font-size: .88rem;
+  font-weight: 700;
+  border-radius: 13px;
+}
+
+/* 4. Categories Manager: count on right of category name */
+.cat-mgr-main-title.cat-clean-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 8px;
+}
+.cat-mgr-count-badge {
+  font-size: .72rem;
+  color: var(--muted);
+  background: var(--surface2);
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  padding: 1px 8px;
+  min-width: 24px;
+  text-align: center;
+}
+
+
+/* =========================================================
+   X-Wallet V15.2.3 Styles:
+   - Outlined green Import button (.mm-import-outline-btn)
+   - Categories Manager toolbar modes (reorder & delete)
+   ========================================================= */
+.mm-import-outline-btn {
+  width: 100%;
+  height: 40px;
+  margin-top: 8px;
+  border-radius: 12px;
+  background: transparent;
+  border: 1.5px solid var(--mint);
+  color: var(--mint);
+  font-size: .84rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.mm-import-outline-btn:active {
+  background: #43d6b218;
+}
+
+#settingsCatsTreeContainer .cat-mode-reorder-el,
+#settingsCatsTreeContainer .cat-mode-del-el {
+  display: none !important;
+}
+#settingsCatsTreeContainer.cats-mode-reorder .cat-mode-reorder-el {
+  display: inline-flex !important;
+}
+#settingsCatsTreeContainer.cats-mode-delete .cat-mode-del-el {
+  display: inline-grid !important;
+  border-color: var(--red) !important;
+  color: var(--red) !important;
+}
