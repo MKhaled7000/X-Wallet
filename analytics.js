@@ -115,8 +115,15 @@ function shiftReportPeriod(delta){
 }
 
 function openReportPeriodPicker(){
-  if(reportPeriodMode === 'yearly') return;
-  openHomePeriodPicker();
+  const html = `
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-bottom:8px">
+      <button type="button" class="smallbtn ${reportPeriodMode==='monthly'?'active':''}" style="height:36px;border-color:var(--mint);color:var(--mint)" onclick="closeAppDialog();onReportPeriodModeChange('monthly');openHomePeriodPicker()">📅 شهر محدد</button>
+      <button type="button" class="smallbtn ${reportPeriodMode==='yearly'?'active':''}" style="height:36px;border-color:var(--blue);color:var(--blue)" onclick="closeAppDialog();onReportPeriodModeChange('yearly')">📆 سنوي (${reportYear})</button>
+      <button type="button" class="smallbtn ${reportPeriodMode==='all'?'active':''}" style="height:36px" onclick="closeAppDialog();onReportPeriodModeChange('all')">∞ كل الفترات</button>
+      <button type="button" class="smallbtn ${reportPeriodMode==='custom'?'active':''}" style="height:36px" onclick="closeAppDialog();onReportPeriodModeChange('custom')">🗓 فترة محددة</button>
+    </div>
+  `;
+  showAppCustomForm('اختيار فترة التحليل', html, null, true);
 }
 
 function getReportFilteredTransactions(isInc){
@@ -361,8 +368,8 @@ function buildSvgLineChartWithYAxis(monthTotals, isInc){
 function openCategoryDrillDown(catName, txType){
   activeCatDrillState = { catName, txType, subFilter: '' };
   catDrillChartOpen = false;
-  document.getElementById('repModeSelectWrap').style.display = 'none';
-  document.getElementById('repSelectedCatBtn').style.display = 'flex';
+  const rmw = document.getElementById('repModeSelectWrap'); if(rmw) rmw.style.display = 'none';
+  const rsc = document.getElementById('repSelectedCatBtn'); if(rsc) rsc.style.display = 'inline-flex';
   document.getElementById('repMainContentWrap').style.display = 'none';
   document.getElementById('catDetailInlineWrap').style.display = 'block';
   document.getElementById('btnToggleMainRepChart')?.classList.toggle('active', false);

@@ -1,3 +1,63 @@
+
+function syncUnifiedHeaderForPage(pageId){
+  const curId = pageId || document.querySelector('.screen.active')?.id || 'trans';
+  const hTrans = document.getElementById('hdrTransControls');
+  const hAna = document.getElementById('hdrAnaControls');
+  const hWal = document.getElementById('hdrWalletControls');
+  if(hTrans) hTrans.style.display = (curId === 'trans') ? 'inline-flex' : 'none';
+  if(hAna) hAna.style.display = (curId === 'analytics') ? 'inline-flex' : 'none';
+  if(hWal) hWal.style.display = (curId === 'wallet') ? 'inline-flex' : 'none';
+}
+
+function cycleCurrentTopSubTab(){
+  const curId = document.querySelector('.screen.active')?.id || 'trans';
+  if(curId === 'trans'){
+    const next = (activeTransSubTab === 'commitments') ? 'daily' : 'commitments';
+    switchTransSubTab(next);
+    return;
+  }
+  if(curId === 'analytics'){
+    const order = ['exp', 'inc', 'trn'];
+    const idx = order.indexOf(activeReportTab || 'exp');
+    switchReportTab(order[(idx + 1) % order.length]);
+    return;
+  }
+}
+
+function shiftHeaderTransOrCom(delta){
+  if(activeTransSubTab === 'commitments') shiftActiveMonth(delta);
+  else shiftTransPeriod(delta);
+}
+
+function toggleTransSearchDrawer(){
+  const drw = document.getElementById('transSearchDrawer');
+  const btn = document.getElementById('btnToggleTransSearchHdr');
+  if(!drw) return;
+  const opening = drw.style.display === 'none';
+  drw.style.display = opening ? 'flex' : 'none';
+  btn?.classList.toggle('active', opening);
+  if(opening){
+    setTimeout(()=>document.getElementById('actSearch')?.focus(), 50);
+  } else {
+    const box = document.getElementById('mmSearchBox');
+    if(box) box.style.display = 'none';
+    clearTransactionsSearch();
+  }
+}
+
+function onUnifiedSearchInput(){
+  const v = document.getElementById('actSearch')?.value || '';
+  const comInp = document.getElementById('comSearch');
+  if(comInp) comInp.value = v;
+  if(activeTransSubTab === 'commitments'){
+    const clr = document.getElementById('btnClearSearch');
+    if(clr) clr.style.display = v.trim() ? 'block' : 'none';
+    renderPlanScreen();
+  } else {
+    onTransactionsSearchInput();
+  }
+}
+
 /* X-Wallet V14.0 module: dashboard.js | Extracted from V13.40 app.js */
 
 /* ---- Original app.js lines 836-1099 ---- */
@@ -12,21 +72,21 @@ function updateTopTabTitle(pageId){
   if(!el) return;
   const curId = pageId || document.querySelector('.screen.active')?.id || 'trans';
   const lang = state.prefs?.lang || 'ar';
+  syncUnifiedHeaderForPage(curId);
   if(curId === 'trans'){
-    if(activeTransSubTab === 'inc') el.textContent = lang==='en' ? 'Income Analysis' : 'تحليل الدخل';
-    else if(activeTransSubTab === 'exp') el.textContent = lang==='en' ? 'Expenses Analysis' : 'تحليل المصروفات';
-    else if(activeTransSubTab === 'commitments') el.textContent = lang==='en' ? 'Commitments' : 'التزامات';
-    else el.textContent = lang==='en' ? 'Transactions' : 'المعاملات';
+    if(activeTransSubTab === 'commitments') el.textContent = lang==='en' ? 'Commitments' : 'التزامات';
+    else if(activeTransSubTab === 'monthly') el.textContent = lang==='en' ? 'Summary' : 'الملخص';
+    else el.textContent = lang==='en' ? 'Records' : 'السجل';
     return;
   }
   if(curId === 'analytics'){
-    if(activeReportTab === 'inc') el.textContent = lang==='en' ? 'Income Analysis' : 'تحليل الدخل';
+    if(activeReportTab === 'inc') el.textContent = lang==='en' ? 'Income' : 'الدخل';
     else if(activeReportTab === 'trn') el.textContent = lang==='en' ? 'Transfers' : 'التحويلات';
-    else el.textContent = lang==='en' ? 'Expenses Analysis' : 'تحليل المصروفات';
+    else el.textContent = lang==='en' ? 'Expenses' : 'المصروفات';
     return;
   }
   if(curId === 'wallet'){
-    el.textContent = lang==='en' ? 'Accounts & Cards' : 'الحسابات والبطاقات';
+    el.textContent = lang==='en' ? 'Wallet' : 'المحفظة';
     return;
   }
   if(curId === 'forecast'){

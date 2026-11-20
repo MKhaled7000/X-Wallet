@@ -687,6 +687,17 @@ if(typeof navigator !== 'undefined' && 'serviceWorker' in navigator && !window._
     if(d.stage === 'activating') lbl = 'جاري تفعيل النسخة الجديدة… 98%';
     else if(d.stage === 'reloading') lbl = 'اكتمل التحديث — جاري إعادة الفتح… 100%';
     setAppUpdateProgressUI(d.stage === 'activating' ? 98 : d.pct, lbl);
+    if((d.stage === 'activating' || d.stage === 'reloading') && !window.__xwAutoReloadScheduled){
+      window.__xwAutoReloadScheduled = true;
+      setTimeout(() => {
+        if(window.__xwSwReloading) return;
+        window.__xwSwReloading = true;
+        setAppUpdateProgressUI(100, 'اكتمل التحديث — جاري إعادة الفتح… 100%');
+        const u = new URL(location.href);
+        u.searchParams.set('_xw_sw_done', String(Date.now()));
+        location.replace(u.toString());
+      }, 950);
+    }
   });
 }
 

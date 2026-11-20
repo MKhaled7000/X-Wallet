@@ -6624,3 +6624,151 @@ html.xwallet-boot-loading .app{visibility:hidden !important}
 #analytics .mm-stat-box {
   padding: 4px 4px !important;
 }
+
+
+/* =========================================================
+   X-Wallet V15.2.5 Unified Single-Row Header & Zero-Overlap Filter Drawer
+   ========================================================= */
+header.top.unified-top-bar {
+  direction: ltr !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 6px !important;
+  padding: 4px 2px !important;
+  margin: 2px 0 8px 0 !important;
+  height: 44px !important;
+  min-height: 44px !important;
+}
+.utb-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-shrink: 0;
+}
+.utb-left .logo {
+  width: 34px !important;
+  height: 34px !important;
+  padding: 0 !important;
+  border-radius: 9px !important;
+  flex-shrink: 0;
+}
+.utb-tab-btn {
+  background: transparent;
+  border: 0;
+  color: var(--mint);
+  font-size: .92rem;
+  font-weight: 700;
+  padding: 4px 6px;
+  border-radius: 9px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.utb-tab-btn:active {
+  background: #43d6b21a;
+}
+.utb-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  flex-shrink: 0;
+}
+.utb-ico-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--line2);
+  background: var(--surface);
+  color: var(--text-sub);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .9rem;
+  padding: 0;
+  flex-shrink: 0;
+}
+.utb-ico-btn.active {
+  border-color: var(--mint);
+  background: #43d6b21f;
+  color: var(--mint);
+}
+.utb-ico-btn.danger-ico.active {
+  border-color: var(--red);
+  background: #ff72851f;
+  color: var(--red);
+}
+.ym-stepper.utb-stepper,
+.cancel-filter-top-btn.utb-cancel-flt {
+  width: 142px !important;
+  min-width: 142px !important;
+  max-width: 142px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  border-radius: 10px !important;
+}
+.ym-stepper.utb-stepper .step-arrow,
+.ym-stepper.utb-stepper .step-label {
+  height: 32px !important;
+  line-height: 32px !important;
+  font-size: .76rem !important;
+}
+.utb-inline-dates {
+  width: 162px !important;
+  height: 34px !important;
+}
+.utb-wallet-tools {
+  gap: 5px !important;
+}
+
+/* Detached Search & Filter Drawer (Zero Overlap!) */
+.trans-search-drawer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 7px 8px;
+  margin-bottom: 7px;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+.trans-search-drawer .tsd-row {
+  direction: ltr;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.trans-search-drawer .mm-inline-search-bar,
+.trans-search-drawer .mm-filter-icon-btn.standalone {
+  height: 36px !important;
+  min-height: 36px !important;
+}
+.trans-search-drawer .filter-bar-detached {
+  margin: 2px 0 0 !important;
+  padding: 5px !important;
+  position: static !important;
+}
+
+/* Compact Stats Strip (Row 4 in Transactions, Analytics & Wallet) */
+.mm-stats-card.compact-stats-strip {
+  padding: 4px 6px !important;
+  margin-bottom: 7px !important;
+  border-radius: 13px !important;
+}
+.mm-stats-card.compact-stats-strip .mm-stat-box {
+  padding: 3px 4px !important;
+  border-radius: 9px !important;
+}
+.mm-stats-card.compact-stats-strip .mm-stat-box small {
+  font-size: .62rem !important;
+  margin-bottom: 1px !important;
+}
+.mm-stats-card.compact-stats-strip .mm-stat-box b {
+  font-size: .78rem !important;
+}
