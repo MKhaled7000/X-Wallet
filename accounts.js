@@ -688,3 +688,26 @@ function openStatementEntitySwitcher(){
   const html = `<div class="cs-opt-list">${accBtns}${cardBtns}</div>`;
   showAppCustomForm('اختر الحساب أو البطاقة', html, null, true);
 }
+
+
+/* V15.2.9: Auto-clear numeric fields on focus in Add/Edit Account & Card modal */
+(function initAccountModalAutoClearNumbers(){
+  const modal = document.getElementById('accountModal');
+  if(!modal || modal.dataset.autoClearBound) return;
+  modal.dataset.autoClearBound = '1';
+  modal.addEventListener('focusin', (e) => {
+    const el = e.target;
+    if(el && el.tagName === 'INPUT' && el.type === 'number'){
+      el.dataset.prevVal = el.value;
+      el.value = '';
+    }
+  });
+  modal.addEventListener('focusout', (e) => {
+    const el = e.target;
+    if(el && el.tagName === 'INPUT' && el.type === 'number'){
+      if(el.value.trim() === '' && el.dataset.prevVal !== undefined){
+        el.value = el.dataset.prevVal;
+      }
+    }
+  });
+})();

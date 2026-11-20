@@ -7173,3 +7173,87 @@ html[data-group-frames="off"] .wallet-section-card {
   border-bottom: 1px solid var(--line) !important;
   padding-bottom: 6px !important;
 }
+
+
+/* =========================================================
+   X-WALLET V15.2.9 FIXES (Calendar Z-Index, Group Frames Bg, Quick Entry Cat Align, Unified Header Font)
+   ========================================================= */
+
+/* 1. Calendar Date Picker MUST appear above ALL modals (Filter, Quick Entry, Statement, Account) */
+#appDatePickerModal {
+  z-index: 99999 !important;
+}
+#appDatePickerModal .sheet {
+  position: relative;
+  z-index: 100000 !important;
+}
+
+/* 2. Group Frames OFF: keep the nice card surface color (var(--panel)) — only remove outer border/radius */
+html[data-group-frames="off"] .day-group,
+html[data-group-frames="off"] .wallet-section-card,
+html[data-group-frames="off"] #repCatBreakdownList,
+html[data-group-frames="off"] #repChartPanel,
+html[data-group-frames="off"] #settings .c-list,
+html[data-group-frames="off"] #settings .fold-link-card {
+  background: var(--panel) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* 3. Quick Entry Category Row: force exact left alignment identical to Date / Account / Amount */
+html #quickModal .c-row > .picker-trigger,
+html[data-field-style] #quickModal .c-row > .picker-trigger {
+  width: 72% !important;
+  max-width: 72% !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  text-align: left !important;
+  direction: ltr !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  margin: 0 !important;
+  padding: 0 4px !important;
+}
+html #quickModal .c-row > .picker-trigger > b,
+html[data-field-style] #quickModal .c-row > .picker-trigger > b {
+  display: block !important;
+  width: 100% !important;
+  text-align: left !important;
+  direction: ltr !important;
+  unicode-bidi: plaintext !important;
+}
+
+/* 6. Exact Unified Header Font Size across Records, Analytics, Wallet, Commitments, More */
+#mainUnifiedHeader .utb-tab-btn,
+#statementFullModal .utb-tab-btn {
+  font-size: .82rem !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+}
+#mainUnifiedHeader .utb-stepper .step-label,
+#statementFullModal .utb-stepper .step-label {
+  font-size: .8rem !important;
+  font-weight: 600 !important;
+}
+#trans .mm-stats-card .mm-stat-box small,
+#analytics .mm-stats-card .mm-stat-box small,
+#wallet .mm-stats-card .mm-stat-box small,
+#statementFullModal .mm-stats-card .mm-stat-box small {
+  font-size: .72rem !important;
+}
+#trans .mm-stats-card .mm-stat-box b,
+#analytics .mm-stats-card .mm-stat-box b,
+#wallet .mm-stats-card .mm-stat-box b,
+#statementFullModal .mm-stats-card .mm-stat-box b {
+  font-size: .82rem !important;
+  font-weight: 700 !important;
+}
+#wallet .wth-title,
+#wallet .wth-col-box b,
+#wallet .wth-col-box small {
+  font-size: .8rem !important;
+}
+#wallet .wth-col-box small {
+  font-size: .7rem !important;
+}
