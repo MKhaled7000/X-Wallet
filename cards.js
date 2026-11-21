@@ -303,48 +303,40 @@ function applyCardTermsScope(cardId, scope){
   else toast('تم حفظ النظام للمعاملات الجديدة فقط ✓');
 }
 
+function cardDeletionReferences(cardId){
+  const id=String(cardId);
+  const opIds=new Set((state.cardOps||[]).filter(o=>String(o.cardId)===id).map(o=>String(o.id)));
+  const payments=(state.cardPayments||[]).filter(x=>String(x.cardId)===id||opIds.has(String(x.cardOpId||x.opId||'')));
+  const payIds=new Set(payments.map(x=>String(x.id)));
+  const commitmentIds=new Set((state.commitments||[]).filter(x=>opIds.has(String(x.cardOpId||''))).map(x=>String(x.id)));
+  const commitmentPayIds=new Set((state.commitmentPayments||[]).filter(x=>commitmentIds.has(String(x.commitmentId||''))).map(x=>String(x.id)));
+  const matches=t=>String(t.cardId||'')===id||opIds.has(String(t.linkedCardOpId||''))||payIds.has(String(t.linkedCardPaymentRecordId||''))||commitmentPayIds.has(String(t.linkedCommitmentPaymentId||''))||(String(t.source||'').startsWith('card-purchase:')&&opIds.has(String(t.source).slice('card-purchase:'.length)));
+  return {opIds,payIds,commitmentIds,commitmentPayIds,matches};
+}
 function deleteCard(cardId){
-  const card=(state.cards||[]).find(c=>String(c.id)===String(cardId));
-  if(!card)return;
-  showAppConfirm('حذف البطاقة', 'يمكن حذف البطاقة فقط إذا لم تكن لها عمليات أو أرصدة أو سجلات سداد. هل تريد المتابعة؟', ()=>{
-    const hasOps=(state.cardOps||[]).some(o=>String(o.cardId)===String(cardId));
-    const hasPayments=(state.cardPayments||[]).some(p=>String(p.cardId)===String(cardId));
-    const hasLinkedTransactions=(state.transactions||[]).some(t=>String(t.linkedCardOpId||'')!=='' && (state.cardOps||[]).some(o=>String(o.id)===String(t.linkedCardOpId)&&String(o.cardId)===String(cardId))) || (state.transactions||[]).some(t=>String(t.source||'').startsWith('card-purchase:')&&(state.cardOps||[]).some(o=>String(o.id)===String(t.source).slice('card-purchase:'.length)&&String(o.cardId)===String(cardId)));
-    const hasArchivedReferences=(state.cancelledTransactions||[]).some(x=>String(x.related?.cardPurchaseOp?.cardId||x.related?.cardOp?.cardId||'')===String(cardId)) || (state.auditLog||[]).some(e=>e.action==='حذف'&&e.before&&['عملية بطاقة','سداد بطاقة'].includes(e.entity)&&String(e.before.cardId||'')===String(cardId));
-    if(hasOps||hasPayments||hasLinkedTransactions||hasArchivedReferences||Math.abs(Number(card.balance)||0)>0.000001){
-      setTimeout(() => {
-        showAppConfirm(
-          'تأكيد الحذف النهائي للبطاقة',
-          `البطاقة «${card.name}» مرتبطة بعمليات أو سجلات سداد.\n\nهل تريد حذف البطاقة نهائياً مع جميع عملياتها وسداداتها؟`,
-          () => {
-            const opIds = new Set((state.cardOps||[]).filter(o=>String(o.cardId)===String(cardId)).map(o=>String(o.id)));
-            const payIds = new Set((state.cardPayments||[]).filter(p=>String(p.cardId)===String(cardId)).map(p=>String(p.id)));
-            const cNameLow = String(card.name||'').trim().toLowerCase();
-            state.cardOps = (state.cardOps||[]).filter(o=>String(o.cardId)!==String(cardId));
-            state.cardPayments = (state.cardPayments||[]).filter(p=>String(p.cardId)!==String(cardId));
-            state.transactions = (state.transactions||[]).filter(t=>{
-              if(t.linkedCardOpId && opIds.has(String(t.linkedCardOpId))) return false;
-              if(t.linkedCardPaymentRecordId && payIds.has(String(t.linkedCardPaymentRecordId))) return false;
-              if(t.source && String(t.source).startsWith('card-purchase:') && opIds.has(String(t.source).slice('card-purchase:'.length))) return false;
-              if(t.source === 'card-payment' && cNameLow && String(t.title||'').toLowerCase().includes(cNameLow)) return false;
-              return true;
-            });
-            state.cards = (state.cards||[]).filter(c=>String(c.id)!==String(cardId));
-            if(typeof syncCardInstallmentsToCommitments === 'function') syncCardInstallmentsToCommitments();
-            persist();
-            if(typeof renderActiveScreenOnly === 'function') renderActiveScreenOnly();
-            toast('تم حذف البطاقة وجميع عملياتها ✓');
-          },
-          true
-        );
-      }, 60);
-      return;
-    }
-    if(typeof auditRecord==='function')auditRecord('حذف','بطاقة',card.id,card,null);
-    state.cards = state.cards.filter(c=>String(c.id)!==String(cardId));
-    persist();
-    toast('تم حذف البطاقة الفارغة ✓');
-  }, true);
+  const card=(state.cards||[]).find(c=>String(c.id)===String(cardId));if(!card)return;
+  showAppConfirm('حذف البطاقة','هل تريد متابعة حذف البطاقة؟ سيتم حفظ نسخة استعادة قبل أي حذف.',()=>{
+    const refs=cardDeletionReferences(cardId);
+    const hasData=refs.opIds.size||refs.payIds.size||(state.transactions||[]).some(refs.matches)||Math.abs(Number(card.balance)||0)>0.000001;
+    const perform=async()=>{
+      const success=await runCriticalWalletAction('قبل حذف البطاقة وسجلاتها',()=>{
+        const current=cardDeletionReferences(cardId);
+        const exists=state.cards.some(c=>String(c.id)===String(cardId));if(!exists)throw new Error('البطاقة غير موجودة');
+        // Retain ambiguous old records rather than guessing their owner from a title.
+        state.cardPayments=(state.cardPayments||[]).filter(x=>!current.payIds.has(String(x.id)));
+        state.transactions=(state.transactions||[]).filter(t=>!current.matches(t));
+        state.commitmentPayments=(state.commitmentPayments||[]).filter(x=>!current.commitmentPayIds.has(String(x.id)));
+        state.commitments=(state.commitments||[]).filter(x=>!current.commitmentIds.has(String(x.id)));
+        state.cardOps=(state.cardOps||[]).filter(o=>!current.opIds.has(String(o.id)));
+        state.cards=state.cards.filter(c=>String(c.id)!==String(cardId));
+        if(typeof auditRecord==='function')auditRecord('حذف','بطاقة',cardId,card,null);
+        if(typeof syncCardInstallmentsToCommitments==='function')syncCardInstallmentsToCommitments();
+      });
+      if(success)toast('تم حذف البطاقة وسجلاتها المحددة بالمعرفات مع نسخة استعادة ✓');
+    };
+    if(hasData)setTimeout(()=>showAppConfirm('تأكيد حذف البطاقة وسجلاتها',`حذف «${card.name}» سيحذف عملياتها وسداداتها المرتبطة بالمعرفات ويغيّر الأرصدة التاريخية للحسابات. لن تُحذف سجلات اعتماداً على تشابه الاسم. يمكن استعادة النسخة الكاملة من النسخ المحلية. هل تريد المتابعة؟`,perform,true),60);
+    else perform();
+  },true);
 }
 
 function openEditCardOpModal(opId){
@@ -429,22 +421,19 @@ function openEditCardOpModal(opId){
 }
 
 function deleteCardOp(opId){
-  showAppConfirm('حذف عملية البطاقة', 'سيتم حذف العملية وأقساطها المرتبطة مع الاحتفاظ بنسخة قابلة للاستعادة. هل تريد المتابعة؟', ()=>{
-    const op=(state.cardOps||[]).find(o=>String(o.id)===String(opId));
-    if(!op)return;
-    if(cardOperationHasPayments(op)){
-      toast('لا يمكن حذف عملية البطاقة قبل إلغاء سجلات السداد المرتبطة بها. ألغِ السداد أولاً حتى لا تبقى دفعات بلا عملية أصلية.');
-      return;
-    }
-    const tx=(state.transactions||[]).find(t=>t.source==='card-purchase:'+opId);
-    if(tx && typeof archiveCardPurchaseDeletion==='function')archiveCardPurchaseDeletion(tx,op);
-    state.cardOps = state.cardOps.filter(o=>String(o.id)!==String(opId));
-    state.transactions = state.transactions.filter(t=>t.source!=='card-purchase:'+opId);
-    syncCardInstallmentsToCommitments();
-    persist();
-    refreshSecondaryFeeds();
-    toast(tx?'تم حذف العملية والاحتفاظ بنسخة للاستعادة ✓':'تم حذف العملية ✓');
-  }, true);
+  showAppConfirm('حذف عملية البطاقة','سيتم حفظ نسخة استعادة قبل حذف العملية وأقساطها. هل تريد المتابعة؟',async()=>{
+    const success=await runCriticalWalletAction('قبل حذف عملية بطاقة',()=>{
+      const op=(state.cardOps||[]).find(o=>String(o.id)===String(opId));
+      if(!op)throw new Error('عملية البطاقة غير موجودة');
+      if(cardOperationHasPayments(op))throw new Error('ألغِ سجلات السداد المرتبطة أولاً');
+      const tx=(state.transactions||[]).find(t=>t.source==='card-purchase:'+opId);
+      if(tx&&typeof archiveCardPurchaseDeletion==='function')archiveCardPurchaseDeletion(tx,op);
+      state.cardOps=state.cardOps.filter(o=>String(o.id)!==String(opId));
+      state.transactions=state.transactions.filter(t=>t.source!=='card-purchase:'+opId);
+      syncCardInstallmentsToCommitments();
+    });
+    if(success){refreshSecondaryFeeds();toast('تم حذف العملية مع نسخة استعادة ✓');}
+  },true);
 }
 
 function dueDateFor(card,date){

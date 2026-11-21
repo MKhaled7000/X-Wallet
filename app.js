@@ -1,3 +1,11 @@
+function showWalletBootBlock(message){
+  document.documentElement.classList.remove('xwallet-boot-loading');
+  const panel=document.createElement('main');panel.dir='rtl';panel.style.cssText='max-width:36rem;margin:12vh auto;padding:24px;line-height:1.9';
+  const heading=document.createElement('h2');heading.textContent='حماية بيانات المحفظة';
+  const text=document.createElement('p');text.textContent=message;
+  const retry=document.createElement('button');retry.textContent='إعادة المحاولة';retry.onclick=()=>location.reload();
+  panel.append(heading,text,retry);document.body.replaceChildren(panel);
+}
 /* X-Wallet V14.0 module: app.js | Extracted from V13.40 app.js */
 
 /* ---- Original app.js lines 4749-4853 ---- */
@@ -5,14 +13,18 @@
 document.documentElement.classList.add('xwallet-boot-loading');
 (async()=>{
   let restoredFromIndexedDB=false;
-  let retiredEncryptionRemoved=false;
+
   try{
-    retiredEncryptionRemoved=await removeLegacyLiveEncryptionData();
+    if(await detectLegacyLiveEncryptionData()){
+      const explain=window.confirm('توجد بيانات قديمة مشفرة من V15.0/V15.1. لن يتم حذفها أو تعديلها. تم إيقاف فتح المحفظة لحمايتها. هل تريد عرض إرشادات الاستعادة؟');
+      if(explain)window.alert('احتفظ ببيانات هذا المتصفح. افتح النسخة القديمة المتوافقة وصدّر نسخة احتياطية، أو اطلب ترحيلاً منفصلاً. لا تمسح بيانات الموقع. هذه النسخة لا تفك تشفير قاعدة البيانات القديمة.');
+      showWalletBootBlock('تم الاحتفاظ بالبيانات القديمة المشفرة دون تغيير. يلزم قرار وترحيل منفصل قبل استخدام هذه النسخة.');return;
+    }
     restoredFromIndexedDB=!!(await recoverFromIndexedDBIfNeeded());
   }catch(err){
     console.error('X-Wallet local database initialization failed:',err);
     toast('تعذر تهيئة التخزين المحلي. أعد تحميل التطبيق وتحقق من مساحة التخزين.');
-    document.documentElement.classList.remove('xwallet-boot-loading');
+    showWalletBootBlock('تعذر فتح بيانات المحفظة بأمان. لم يتم حذف النسخ القديمة. أغلق التبويبات الأخرى وتحقق من التخزين ثم أعد التحميل.');
     return;
   }
   try{
@@ -21,7 +33,7 @@ document.documentElement.classList.add('xwallet-boot-loading');
   }catch(err){
     console.error('X-Wallet EGP normalization blocked safely:',err);
     toast(err?.message||'تعذر توحيد العملات إلى الجنيه المصري. لم يتم تغيير البيانات.');
-    document.documentElement.classList.remove('xwallet-boot-loading');
+    showWalletBootBlock('تعذر إكمال ترحيل العملات بأمان. احتفظ ببيانات الموقع وراجع النسخة الاحتياطية قبل المتابعة.');
     return;
   }
   applyPreferences();
@@ -45,8 +57,7 @@ document.documentElement.classList.add('xwallet-boot-loading');
   updateBackupStatusUI();
   renderAll();
   document.documentElement.classList.remove('xwallet-boot-loading');
-  if(retiredEncryptionRemoved)toast('تم إلغاء تشفير قاعدة البيانات الحية والعودة للتخزين المحلي. ملفات النسخ الاحتياطية المشفرة مستقلة ولم تتأثر.');
-  else if(restoredFromIndexedDB)toast('تمت استعادة أحدث بياناتك تلقائياً من IndexedDB ✓');
+  if(restoredFromIndexedDB)toast('تمت استعادة أحدث بياناتك تلقائياً من IndexedDB ✓');
   try{await migrateLegacyPlainPin();}catch(err){console.warn('Legacy PIN migration deferred:',err);}
   try{const created=runRecurringTransactions(today());if(created)toast(`تم إنشاء ${created} معاملة متكررة مستحقة ✓`);}catch(err){console.error('Recurring transaction processing failed:',err);}
   checkAppLockOnBoot();
@@ -169,6 +180,9 @@ function openCloudSyncModal(){
         </div>
         <button type="button" class="smallbtn" style="width:100%;margin-bottom:6px;border-color:var(--blue);color:var(--blue)" onclick="copyGoogleDriveScriptCode()">📋 نسخ كود الحفظ لجوجل درايف</button>
         <input id="cfgDrvWebhook" type="url" value="${drvUrl}" placeholder="الصق رابط سكريبت جوجل هنا" style="width:100%;height:34px;background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:0 10px;color:var(--text);font-size:.74rem">
+        <label for="cfgDrvSecret" class="hint">السر المشترك، ضعه أيضاً في خاصية السكريبت XW_SHARED_SECRET. يُحفظ على هذا الجهاز دون تشفير مثل مفتاح GitHub.</label>
+        <input id="cfgDrvSecret" type="password" autocomplete="off" value="${esc(p.driveSharedSecret||'')}" placeholder="سر عشوائي لا يقل عن 32 حرفاً" style="width:100%">
+        <small class="hint">يجب استبدال الكود القديم وإعادة نشر السكريبت. تحديث التطبيق وحده لا يغلق الرابط القديم. لا تشارك الرابط المضاف إليه السر.</small>
       </div>
       <div class="c-row" style="padding:4px 0">
         <label style="font-size:.75rem">الخدمة المستخدمة عند المزامنة:</label>
@@ -180,10 +194,14 @@ function openCloudSyncModal(){
     </div>
   `;
   showAppCustomForm('إعداد المزامنة السحابية', html, ()=>{
-    state.prefs = state.prefs || {};
-    state.prefs.ghToken = (document.getElementById('cfgGhToken')?.value || '').trim();
-    state.prefs.ghGistId = (document.getElementById('cfgGhGistId')?.value || '').trim();
-    state.prefs.driveWebhookUrl = (document.getElementById('cfgDrvWebhook')?.value || '').trim();
+    const secret=(document.getElementById('cfgDrvSecret')?.value||'').trim();
+    const webhook=(document.getElementById('cfgDrvWebhook')?.value||'').trim();
+    if(webhook&&secret.length<32){toast('استخدم سراً مشتركاً عشوائياً لا يقل عن 32 حرفاً');return false;}
+    state.prefs=state.prefs||{};
+    state.prefs.ghToken=(document.getElementById('cfgGhToken')?.value||'').trim();
+    state.prefs.ghGistId=(document.getElementById('cfgGhGistId')?.value||'').trim();
+    state.prefs.driveSharedSecret=secret;
+    state.prefs.driveWebhookUrl=webhook;
     state.prefs.syncProvider = document.getElementById('cfgSyncProvider')?.value || 'github';
     persist();
     toast('تم حفظ إعدادات المزامنة ✓');
@@ -200,29 +218,42 @@ function openCloudSyncModal(){
 
 
 function copyGoogleDriveScriptCode(){
-  const code = `function doPost(e) {
-  var folderName = 'X-Wallet Backups';
-  var dateStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
-  var content = (e && e.postData && e.postData.contents) ? e.postData.contents : '{}';
-  var encrypted = false;
-  try { encrypted = JSON.parse(content).format === 'x-wallet-encrypted-backup'; } catch (_) {}
-  var fileName = (encrypted ? 'x-wallet-encrypted-backup-' : 'x-wallet-backup-') + dateStr + '.json';
-  var folders = DriveApp.getFoldersByName(folderName);
-  var folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
-  var files = folder.getFilesByName(fileName);
-  if (files.hasNext()) { files.next().setContent(content); }
-  else { folder.createFile(fileName, content, MimeType.PLAIN_TEXT); }
-  return ContentService.createTextOutput('OK');
+  const code = `// Set XW_SHARED_SECRET in Project Settings > Script Properties, then deploy a NEW version.
+function authorized_(secret) {
+  var expected = PropertiesService.getScriptProperties().getProperty('XW_SHARED_SECRET');
+  return !!expected && expected.length >= 32 && typeof secret === 'string' && secret === expected;
 }
-function doGet() {
-  var folderName = 'X-Wallet Backups';
-  var folders = DriveApp.getFoldersByName(folderName);
+function deny_() { return ContentService.createTextOutput('Unauthorized'); }
+function doPost(e) {
+  var request;
+  try { request = JSON.parse(e.postData.contents); } catch (_) { return deny_(); }
+  if (!request || typeof request !== 'object' || !authorized_(request.secret)) return deny_();
+  var content = request.backup;
+  var document;
+  try { document = JSON.parse(content); } catch (_) { return ContentService.createTextOutput('Invalid backup'); }
+  if (!document || document.format !== 'x-wallet-encrypted-backup' || document.schemaVersion !== 1 || typeof document.data !== 'string' || !document.data || !document.salt || !document.iv) return ContentService.createTextOutput('Encrypted backups only');
+  var lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    var folderName = 'X-Wallet Backups';
+    var folders = DriveApp.getFoldersByName(folderName);
+    var folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
+    var stamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd-HHmmss');
+    folder.createFile('x-wallet-encrypted-backup-' + stamp + '-' + Utilities.getUuid() + '.json', content, MimeType.PLAIN_TEXT);
+    return ContentService.createTextOutput('OK');
+  } finally { lock.releaseLock(); }
+}
+function doGet(e) {
+  if (!authorized_(e && e.parameter && e.parameter.secret)) return deny_();
+  if (e.parameter.action === 'status') return ContentService.createTextOutput(JSON.stringify({protocol:'x-wallet-secure-drive-v2',authenticated:true})).setMimeType(ContentService.MimeType.JSON);
+  var folders = DriveApp.getFoldersByName('X-Wallet Backups');
   if (!folders.hasNext()) return ContentService.createTextOutput('{}');
   var files = folders.next().getFiles();
   var latest = null;
   while (files.hasNext()) {
-    var f = files.next();
-    if (!latest || f.getLastUpdated() > latest.getLastUpdated()) latest = f;
+    var file = files.next();
+    if (file.getName().indexOf('x-wallet-encrypted-backup-') !== 0) continue;
+    if (!latest || file.getLastUpdated() > latest.getLastUpdated()) latest = file;
   }
   if (!latest) return ContentService.createTextOutput('{}');
   return ContentService.createTextOutput(latest.getBlob().getDataAsString()).setMimeType(ContentService.MimeType.JSON);

@@ -131,185 +131,220 @@ function addMonthsYM(ym, add){
   return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0');
 }
 
-/* IndexedDB Dual-Storage Engine */
-const IDB_NAME = 'XWalletSafeDB';
-const IDB_STORE = 'state_store';
-
+/* V15.3.5: verified IndexedDB primary, immutable legacy copies, retired attachment cleanup. */
+const IDB_NAME='XWalletSafeDB_v1535';
+const LEGACY_IDB_NAME='XWalletSafeDB';
+const IDB_STORE='state_store'; // Kept intact for older builds and migration recovery.
+const WALLET_STORE='wallet_v2';
+const CACHE_KEY=KEY+'_v2_cache';
+let _primaryStorageReady=false;
+let _lastCommittedRevision=null;
+let _writeQueue=Promise.resolve();
 function openSafeIDB(){
-  return new Promise((resolve, reject)=>{
-    if(!('indexedDB' in window)) return reject(new Error('No IDB'));
-    const req = indexedDB.open(IDB_NAME, 1);
-    req.onupgradeneeded = e => {
-      const db = e.target.result;
-      if(!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE);
+  return new Promise((resolve,reject)=>{
+    if(!('indexedDB' in window))return reject(new Error('IndexedDB غير متاح'));
+    const req=indexedDB.open(IDB_NAME,1);
+    req.onupgradeneeded=()=>{
+      const db=req.result;
+      for(const name of [WALLET_STORE])if(!db.objectStoreNames.contains(name))db.createObjectStore(name);
     };
-    req.onsuccess = e => resolve(e.target.result);
-    req.onerror = e => reject(req.error);
+    req.onsuccess=()=>{const db=req.result;db.onversionchange=()=>db.close();resolve(db);};
+    req.onerror=()=>reject(req.error);
+    req.onblocked=()=>reject(new Error('أغلق تبويبات X-Wallet الأخرى ثم أعد المحاولة'));
   });
 }
-
 function parseStoredValue(raw){
-  if(raw===null || raw===undefined || raw==='') return null;
+  if(raw===null||raw===undefined||raw==='')return null;
   try{return typeof raw==='string'?JSON.parse(raw):raw;}catch(_){return null;}
 }
 function isRetiredLiveEncryptionRecord(value){
-  return !!value && typeof value==='object' && (
-    value.format==='x-wallet-live-database' ||
-    value.format==='x-wallet-live-config' ||
-    value.format==='x-wallet-live-migration-journal'
-  );
+  return !!value&&typeof value==='object'&&['x-wallet-live-database','x-wallet-live-config','x-wallet-live-migration-journal'].includes(value.format);
 }
-
-/* V15.1.2 retires live-database encryption. Encrypted V15.0/V15.1 DEV records
-   are intentionally discarded on this test-data build; portable encrypted backups remain supported. */
-async function removeLegacyLiveEncryptionData(){
-  const localRecords={
-    state:parseStoredValue(localStorage.getItem(KEY)),
-    snapshots:parseStoredValue(localStorage.getItem(SNAP_KEY)),
-    config:parseStoredValue(localStorage.getItem('xw_live_database_config_v1')),
-    journal:parseStoredValue(localStorage.getItem('xw_live_migration_journal_v1'))
-  };
-  let idbRecords={};
-  let db=null;
+async function readIDBValue(storeName,key){
+  const db=await openSafeIDB();
+  try{return await new Promise((resolve,reject)=>{
+    const tx=db.transaction(storeName,'readonly');const req=tx.objectStore(storeName).get(key);
+    let value;req.onsuccess=()=>{value=req.result;};
+    tx.oncomplete=()=>resolve(value);tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('ألغيت قراءة التخزين'));
+  });}finally{db.close();}
+}
+/* Never upgrade the old database just to inspect it: old encrypted builds must
+   remain able to open their own schema for a separately authorized recovery. */
+function openLegacyIDB(){
+  return new Promise((resolve,reject)=>{
+    if(!('indexedDB' in window))return reject(new Error('IndexedDB غير متاح'));
+    const req=indexedDB.open(LEGACY_IDB_NAME);let absent=false;
+    req.onupgradeneeded=()=>{absent=true;req.transaction.abort();};
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>absent?resolve(null):reject(req.error);
+    req.onblocked=()=>reject(new Error('أغلق التبويبات الأخرى قبل قراءة البيانات القديمة'));
+  });
+}
+async function readLegacyIDBValue(key){
+  const db=await openLegacyIDB();if(!db)return null;
   try{
-    db=await openSafeIDB();
-    idbRecords=await new Promise((resolve,reject)=>{
-      const result={};
-      let tx;
-      try{
-        tx=db.transaction(IDB_STORE,'readonly');
-        for(const key of [KEY,SNAP_KEY,'xw_live_database_config_v1','xw_live_migration_journal_v1']){
-          const req=tx.objectStore(IDB_STORE).get(key);
-          req.onsuccess=()=>{result[key]=req.result??null;};
-        }
-        tx.oncomplete=()=>resolve(result);
-        tx.onerror=()=>reject(tx.error||new Error('تعذر فحص التخزين المحلي القديم'));
-        tx.onabort=()=>reject(tx.error||new Error('تم إلغاء فحص التخزين المحلي القديم'));
-      }catch(err){reject(err);}
+    if(!db.objectStoreNames.contains(IDB_STORE))return null;
+    return await new Promise((resolve,reject)=>{
+      const tx=db.transaction(IDB_STORE,'readonly');const req=tx.objectStore(IDB_STORE).get(key);let value;
+      req.onsuccess=()=>{value=req.result;};tx.oncomplete=()=>resolve(value);tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);
     });
-  }catch(err){
-    console.warn('X-Wallet legacy encrypted IndexedDB inspection skipped:',err);
-  }finally{try{db?.close();}catch(_){}}
-  const hasRetiredEncryption=[
-    ...Object.values(localRecords),
-    ...Object.values(idbRecords)
-  ].some(isRetiredLiveEncryptionRecord);
-  if(!hasRetiredEncryption) return false;
-
-  // The user confirmed this DEV database contains disposable test data.
-  // Remove only the live DB state/snapshot keys and encryption metadata.
-  for(const key of [KEY,SNAP_KEY,'xw_live_database_config_v1','xw_live_migration_journal_v1','xw_last_auto_snap']){
-    try{localStorage.removeItem(key);}catch(_){}
+  }finally{db.close();}
+}
+/* Detection only. Nothing is removed, decrypted or rewritten. */
+async function detectLegacyLiveEncryptionData(){
+  const keys=[KEY,SNAP_KEY,'xw_live_database_config_v1','xw_live_migration_journal_v1'];
+  for(const key of keys){
+    let local=null;try{local=parseStoredValue(localStorage.getItem(key));}catch(_){}
+    if(isRetiredLiveEncryptionRecord(local))return true;
+    if(isRetiredLiveEncryptionRecord(await readLegacyIDBValue(key)))return true;
   }
-  try{
-    db=await openSafeIDB();
-    await new Promise((resolve,reject)=>{
-      let tx;
-      try{
-        tx=db.transaction(IDB_STORE,'readwrite');
-        const store=tx.objectStore(IDB_STORE);
-        for(const key of [KEY,SNAP_KEY,'xw_live_database_config_v1','xw_live_migration_journal_v1']) store.delete(key);
-        tx.oncomplete=resolve;
-        tx.onerror=()=>reject(tx.error||new Error('تعذر تنظيف قاعدة البيانات المحلية القديمة'));
-        tx.onabort=()=>reject(tx.error||new Error('تم إلغاء تنظيف قاعدة البيانات المحلية القديمة'));
-      }catch(err){reject(err);}
-    });
-  }finally{try{db?.close();}catch(_){}}
-  state=normalizePersistedState(null);
-  _autoSnapshotsMemory=[];
+  return false;
+}
+/* The attachment feature is retired. Only this compatibility cleanup remains. */
+function stripRetiredAttachments(value){
+  if(!value||typeof value!=='object')return value;
+  if(Array.isArray(value)){value.forEach(stripRetiredAttachments);return value;}
+  delete value.receipts;delete value.receipt;delete value.receiptIds;delete value.receiptRefs;delete value.blobRef;
+  for(const child of Object.values(value))stripRetiredAttachments(child);
+  return value;
+}
+function cleanWalletCopy(value){return stripRetiredAttachments(JSON.parse(JSON.stringify(value)));}
+async function cleanStoredSnapshots(snapshots){
+  const cleaned=[];
+  for(const original of Array.isArray(snapshots)?snapshots:[]){
+    const entry=cleanWalletCopy(original);
+    if(typeof entry.payload==='string'){
+      // Local snapshots are plain backup documents. Rebuild their integrity field
+      // after dropping retired fields; never retain a checksum for altered content.
+      const doc=await parseBackupDocument(entry.payload);
+      entry.payload=await createBackupDocument(cleanWalletCopy(doc.state));
+    }
+    cleaned.push(entry);
+  }
+  return cleaned;
+}
+function canonicalWalletJSON(value){
+  return JSON.stringify(value,(_key,item)=>{
+    if(item&&typeof item==='object'&&!Array.isArray(item))return Object.fromEntries(Object.keys(item).sort().map(k=>[k,item[k]]));
+    return item;
+  });
+}
+async function verifyStoredWallet(expected){
+  // Each read opens a new connection, not the connection that performed the write.
+  const stored=await readIDBValue(WALLET_STORE,KEY);
+  if(!stored)throw new Error('لم يتم العثور على الحالة بعد الحفظ');
+  if(canonicalWalletJSON(stored)!==canonicalWalletJSON(cleanWalletCopy(expected)))throw new Error('لم تتطابق الحالة بعد إعادة فتح التخزين');
+  return stored;
+}
+async function writeWalletPrimary(input,legacyCopy){
+  const compact=cleanWalletCopy(input);
+  const previous=await readIDBValue(WALLET_STORE,KEY);
+  const db=await openSafeIDB();
+  try{await new Promise((resolve,reject)=>{
+    const tx=db.transaction([WALLET_STORE],'readwrite');const store=tx.objectStore(WALLET_STORE);
+    let conflict=null;
+    const current=store.get(KEY);
+    current.onsuccess=()=>{
+      const actual=Number(current.result?.storageRevision)||0;
+      if(_lastCommittedRevision!==null&&actual!==_lastCommittedRevision){
+        conflict=new Error('تغيرت المحفظة في تبويب آخر. لم يتم استبدال بياناته. أعد تحميل التطبيق قبل المتابعة.');tx.abort();return;
+      }
+      if(previous)store.put(previous,'previous_state');
+      if(legacyCopy){store.put(legacyCopy,'migration_original');store.put(_autoSnapshotsMemory,SNAP_KEY);}
+      store.put(compact,KEY);
+    };
+    tx.oncomplete=resolve;tx.onerror=()=>reject(conflict||tx.error);tx.onabort=()=>reject(conflict||tx.error||new Error('ألغيت كتابة المحفظة'));
+  });}finally{db.close();}
+  try{await verifyStoredWallet(input);}catch(err){
+    // Keep the last verified read path if read-back verification fails.
+    const rollbackDB=await openSafeIDB();
+    try{await new Promise((resolve,reject)=>{
+      const tx=rollbackDB.transaction(WALLET_STORE,'readwrite');const store=tx.objectStore(WALLET_STORE);
+      const current=store.get(KEY);let conflict=null;
+      current.onsuccess=()=>{
+        if(JSON.stringify(current.result)!==JSON.stringify(compact)){conflict=new Error('تغير التخزين أثناء التحقق؛ أعد فتح التطبيق لمراجعة أحدث حالة');tx.abort();return;}
+        if(previous)store.put(previous,KEY);else store.delete(KEY);
+      };
+      tx.oncomplete=resolve;tx.onerror=()=>reject(conflict||tx.error);tx.onabort=()=>reject(conflict||tx.error);
+    });}finally{rollbackDB.close();}
+    throw err;
+  }
+  _lastCommittedRevision=Number(compact.storageRevision)||0;
+  if(legacyCopy){
+    const activationDB=await openSafeIDB();
+    try{await new Promise((resolve,reject)=>{
+      const tx=activationDB.transaction(WALLET_STORE,'readwrite');tx.objectStore(WALLET_STORE).put(true,'primary_verified');
+      tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);
+    });}finally{activationDB.close();}
+  }
+  try{localStorage.setItem(CACHE_KEY,JSON.stringify(compact));}catch(err){console.warn('Optional local cache unavailable:',err);}
   return true;
 }
-
-async function saveAutoSnapshotsStore(){
-  const snapshots=Array.isArray(_autoSnapshotsMemory)?JSON.parse(JSON.stringify(_autoSnapshotsMemory)):[];
-  const db=await openSafeIDB();
-  try{
-    await new Promise((resolve,reject)=>{
-      let tx;
-      try{
-        tx=db.transaction(IDB_STORE,'readwrite');
-        tx.objectStore(IDB_STORE).put(snapshots,SNAP_KEY);
-        tx.oncomplete=resolve;
-        tx.onerror=()=>reject(tx.error||new Error('تعذر حفظ النسخ المحلية في IndexedDB'));
-        tx.onabort=()=>reject(tx.error||new Error('تم إلغاء حفظ النسخ المحلية'));
-      }catch(err){reject(err);}
-    });
-  }finally{try{db.close();}catch(_){}}
-  try{localStorage.setItem(SNAP_KEY,JSON.stringify(snapshots));}catch(err){
-    console.warn('X-Wallet local snapshot LocalStorage mirror skipped:',err);
-  }
-  return true;
-}
-
-async function resetLocalWalletStorage(){
-  for(const key of [KEY,SNAP_KEY,'xw_last_auto_snap','xw_live_database_config_v1','xw_live_migration_journal_v1']){
-    try{localStorage.removeItem(key);}catch(_){}
-  }
-  const db=await openSafeIDB();
-  try{
-    await new Promise((resolve,reject)=>{
-      const tx=db.transaction(IDB_STORE,'readwrite');
-      const store=tx.objectStore(IDB_STORE);
-      for(const key of [KEY,SNAP_KEY,'xw_live_database_config_v1','xw_live_migration_journal_v1']) store.delete(key);
-      tx.oncomplete=resolve;
-      tx.onerror=()=>reject(tx.error||new Error('تعذر حذف البيانات المحلية'));
-      tx.onabort=()=>reject(tx.error||new Error('تم إلغاء حذف البيانات المحلية'));
-    });
-  }finally{try{db.close();}catch(_){}}
-}
-
 function saveToIndexedDB(dataObj){
-  return openSafeIDB().then(db=>new Promise((resolve,reject)=>{
-    let tx;
-    try{
-      tx=db.transaction(IDB_STORE,'readwrite');
-      tx.objectStore(IDB_STORE).put(JSON.parse(JSON.stringify(dataObj)),KEY);
-      tx.oncomplete=()=>{try{db.close();}catch(_){}resolve(true);};
-      tx.onerror=()=>{const err=tx.error||new Error('IndexedDB write failed');try{db.close();}catch(_){}reject(err);};
-      tx.onabort=()=>{const err=tx.error||new Error('IndexedDB write aborted');try{db.close();}catch(_){}reject(err);};
-    }catch(err){try{db.close();}catch(_){}reject(err);}
-  }));
+  const copy=cleanWalletCopy(dataObj);
+  const pending=_writeQueue.catch(()=>{}).then(()=>writeWalletPrimary(copy));_writeQueue=pending;return pending;
 }
-
+async function saveAutoSnapshotsStore(){
+  const copy=await cleanStoredSnapshots(_autoSnapshotsMemory||[]);const db=await openSafeIDB();
+  try{await new Promise((resolve,reject)=>{
+    const tx=db.transaction(WALLET_STORE,'readwrite');tx.objectStore(WALLET_STORE).put(copy,SNAP_KEY);
+    tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);
+  });}finally{db.close();}
+  const reopened=await readIDBValue(WALLET_STORE,SNAP_KEY);
+  if(canonicalWalletJSON(reopened)!==canonicalWalletJSON(copy))throw new Error('لم يتم التحقق من حفظ نقطة الاستعادة؛ تم إيقاف التغيير');
+  _autoSnapshotsMemory=copy;return true;
+}
 function shouldRecoverFromIndexedDB(localState,idbState){
-  if(!idbState || !Array.isArray(idbState.transactions)) return false;
-  const localRevision=Number(localState?.storageRevision)||0;
-  const idbRevision=Number(idbState.storageRevision)||0;
-  if(idbRevision>localRevision) return true;
-  const localEmpty=(!localState?.transactions||!localState.transactions.length)&&(!localState?.accounts||!localState.accounts.length);
-  const idbHasData=idbState.transactions.length>0||(Array.isArray(idbState.accounts)&&idbState.accounts.length>0);
-  return idbRevision===localRevision&&localEmpty&&idbHasData;
+  if(!idbState||!Array.isArray(idbState.transactions))return false;
+  const lr=Number(localState?.storageRevision)||0,ir=Number(idbState.storageRevision)||0;
+  const empty=!(localState?.transactions?.length||localState?.accounts?.length);
+  return ir>lr||(ir===lr&&empty&&!!(idbState.transactions.length||idbState.accounts?.length));
 }
-
-function recoverFromIndexedDBIfNeeded(){
-  const recovery=openSafeIDB().then(db=>new Promise(resolve=>{
-    let recovered=false;
-    let tx;
-    try{
-      tx=db.transaction(IDB_STORE,'readonly');
-      const getReq=tx.objectStore(IDB_STORE).get(KEY);
-      getReq.onsuccess=()=>{
-        const idbState=getReq.result;
-        if(shouldRecoverFromIndexedDB(state,idbState)){
-          state=idbState;
-          const recoveredRevision=Number(state.storageRevision);
-          state.storageRevision=Number.isSafeInteger(recoveredRevision)&&recoveredRevision>=0?recoveredRevision:0;
-          syncCategoryTrees();
-          try{localStorage.setItem(KEY,JSON.stringify(state));}catch(err){console.error('X-Wallet localStorage recovery write failed:',err);}
-          recovered=true;
-        }
-      };
-      tx.oncomplete=()=>{
-        try{db.close();}catch(_){}
-        if(recovered){resolve(true);return;}
-        saveToIndexedDB(state).then(()=>resolve(false)).catch(err=>{console.error('X-Wallet initial IndexedDB save failed:',err);resolve(false);});
-      };
-      tx.onerror=()=>{const err=tx.error||new Error('IndexedDB recovery read failed');try{db.close();}catch(_){}console.error('X-Wallet IndexedDB recovery check failed:',err);resolve(false);};
-      tx.onabort=()=>{const err=tx.error||new Error('IndexedDB recovery read aborted');try{db.close();}catch(_){}console.error('X-Wallet IndexedDB recovery check failed:',err);resolve(false);};
-    }catch(err){try{db.close();}catch(_){}console.error('X-Wallet IndexedDB recovery check failed:',err);resolve(false);}
-  })).catch(err=>{console.error('X-Wallet IndexedDB recovery check failed:',err);return false;});
-  if(navigator.storage&&navigator.storage.persist){navigator.storage.persist().catch(()=>{});}
-  return recovery;
+async function recoverFromIndexedDBIfNeeded(){
+  let stored=await readIDBValue(WALLET_STORE,KEY);
+  let recovered=false;
+  if(stored&&await readIDBValue(WALLET_STORE,'primary_verified')){
+    state=normalizePersistedState(cleanWalletCopy(stored));recovered=true;
+    const snaps=await readIDBValue(WALLET_STORE,SNAP_KEY);if(Array.isArray(snaps))_autoSnapshotsMemory=snaps;
+  }else{
+    const localOriginal=parseStoredValue(_initialLocalStateRaw);
+    if(_initialLocalStateRaw&&(!localOriginal||!Array.isArray(localOriginal.transactions)))throw new Error('نسخة التخزين القديمة غير مقروءة؛ لن يتم استبدالها بمحفظة فارغة');
+    const oldIDB=await readLegacyIDBValue(KEY);
+    if(oldIDB&&!Array.isArray(oldIDB.transactions))throw new Error('قاعدة البيانات القديمة غير مقروءة؛ يلزم مراجعتها قبل الترحيل');
+    const oldSnaps=await readLegacyIDBValue(SNAP_KEY);
+    if(shouldRecoverFromIndexedDB(state,oldIDB)){state=normalizePersistedState(oldIDB);recovered=true;}
+    if(Array.isArray(oldSnaps)&&oldSnaps.length)_autoSnapshotsMemory=oldSnaps;
+    state=normalizePersistedState(cleanWalletCopy(state));
+    _autoSnapshotsMemory=await cleanStoredSnapshots(_autoSnapshotsMemory);
+    const original={localStateRaw:_initialLocalStateRaw,localSnapshotsRaw:_initialLocalSnapshotsRaw,indexedDBState:oldIDB||null,indexedDBSnapshots:oldSnaps||null,copiedAt:new Date().toISOString()};
+    await writeWalletPrimary(state,original);
+    stored=await verifyStoredWallet(state);
+    state=normalizePersistedState(cleanWalletCopy(stored));
+  }
+  _lastCommittedRevision=Number(state.storageRevision)||0;
+  _primaryStorageReady=true;syncCategoryTrees();
+  if(navigator.storage?.persist)navigator.storage.persist().catch(()=>{});
+  return recovered;
+}
+async function resetLocalWalletStorage(){
+  // Explicit full reset only. Boot and migrations never call this function.
+  const db=await openSafeIDB();
+  try{await new Promise((resolve,reject)=>{
+    const tx=db.transaction([WALLET_STORE],'readwrite');
+    for(const name of [WALLET_STORE])tx.objectStore(name).clear();
+    tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);
+  });}finally{db.close();}
+  const legacy=await openLegacyIDB();
+  if(legacy){try{if(legacy.objectStoreNames.contains(IDB_STORE))await new Promise((resolve,reject)=>{
+    const tx=legacy.transaction(IDB_STORE,'readwrite');const store=tx.objectStore(IDB_STORE);
+    for(const key of [KEY,SNAP_KEY,'xw_live_database_config_v1','xw_live_migration_journal_v1'])store.delete(key);
+    tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);
+  });}finally{legacy.close();}}
+  for(const key of [KEY,CACHE_KEY,SNAP_KEY,'xw_last_auto_snap','xw_live_database_config_v1','xw_live_migration_journal_v1'])localStorage.removeItem(key);
+}
+async function flushLiveDatabaseWrites(){
+  if(_idbSaveTimer){clearTimeout(_idbSaveTimer);_idbSaveTimer=null;await persistStorageOnly(false);}
+  await _writeQueue;
 }
 
 function updateBackupStatusUI(){
@@ -331,7 +366,8 @@ async function persistStorageOnly(bumpRevision=true){
     const current=Number(state.storageRevision)||0;
     state.storageRevision=Number.isSafeInteger(current)&&current>=0?current+1:1;
   }
-  try{localStorage.setItem(KEY,JSON.stringify(state));}catch(err){throw err;}
+  if(!_primaryStorageReady)throw new Error('لم يكتمل التحقق من التخزين؛ لم يتم الحفظ');
+  stripRetiredAttachments(state);
   return saveToIndexedDB(state);
 }
 function persist(onlyActiveScreen){

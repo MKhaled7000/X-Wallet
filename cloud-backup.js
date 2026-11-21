@@ -1,3 +1,15 @@
+async function verifyGoogleScriptEndpoint(p){
+  if(!p.driveSharedSecret||p.driveSharedSecret.length<32)throw new Error('أضف سراً مشتركاً عشوائياً لا يقل عن 32 حرفاً');
+  const endpoint=new URL(p.driveWebhookUrl);
+  if(endpoint.protocol!=='https:'||endpoint.hostname!=='script.google.com'||!/^\/macros\/s\/[^/]+\/exec$/.test(endpoint.pathname))throw new Error('استخدم رابط نشر Apps Script الرسمي المنتهي بـ /exec');
+  endpoint.searchParams.set('secret',p.driveSharedSecret);endpoint.searchParams.set('action','status');
+  const response=await fetch(endpoint.toString(),{cache:'no-store',referrerPolicy:'no-referrer'});
+  if(!response.ok)throw new Error('تعذر التحقق من السكريبت الآمن');
+  let status;try{status=await response.json();}catch(_){throw new Error('السكريبت قديم أو السر غير صحيح. استبدل الكود وأعد النشر قبل الرفع.');}
+  if(status?.protocol!=='x-wallet-secure-drive-v2'||status?.authenticated!==true)throw new Error('لم يؤكد الخادم دعم الحماية الجديدة؛ لم يتم إرسال النسخة');
+  return true;
+}
+
 /* X-Wallet V14.2 — Cloud backup upload and restore workflows */
 
 /* Split large Gist payloads into API-readable files (< 1 MB each), avoiding raw-host CORS on restore. */
@@ -39,8 +51,9 @@ async function restoreGitHubGistContent(manifestText,files){
 
 async function uploadCloudBackupContent(contentStr, options={}){
   const p = state.prefs || {};
-  const encrypted = !!options.encrypted;
-  const provider = p.syncProvider || 'github';
+  const encrypted=isEncryptedBackupDocument(contentStr);
+  if(!encrypted)throw new Error('الرفع السحابي يتطلب نسخة مشفرة؛ لم يتم إرسال البيانات');
+  const provider = options.provider || p.syncProvider || 'github';
 
   if(provider === 'google'){
     if(!p.driveWebhookUrl && !p.driveAccessToken && !p.driveEmail){
@@ -114,25 +127,23 @@ async function uploadCloudBackupContent(contentStr, options={}){
   }
 }
 
-async function syncCloudNow(){
-  const p = state.prefs || {};
-  if((p.syncProvider || 'github') === 'google' && !p.driveWebhookUrl && !p.driveAccessToken && !p.driveEmail){
-    openCloudSyncModal();
-    return;
-  }
-  if((p.syncProvider || 'github') !== 'google' && !p.ghToken){
-    openCloudSyncModal();
-    return;
-  }
-  try{
-    const content = await createBackupDocument(state);
-    await uploadCloudBackupContent(content, {encrypted:false});
-  }catch(err){
-    toast(err?.message || 'تعذر تجهيز النسخة الاحتياطية');
-  }
+function requestEncryptedCloudBackup(provider){
+  showAppPrompt('تشفير النسخة السحابية','كلمة مرور لا تقل عن 10 أحرف. لن تُحفظ؛ احتفظ بها للاستعادة.','',password=>{
+    if(String(password).length<10){toast('كلمة المرور يجب ألا تقل عن 10 أحرف');return;}
+    showAppPrompt('تأكيد كلمة مرور النسخة','أعد كتابة كلمة المرور','',async confirmation=>{
+      if(password!==confirmation){toast('كلمتا المرور غير متطابقتين؛ لم يتم الرفع');return;}
+      try{
+        const content=await createEncryptedBackupDocument(state,password);
+        await uploadCloudBackupContent(content,{encrypted:true,provider});
+      }catch(err){toast(err?.message||'تعذر تجهيز النسخة المشفرة');}
+    },false,'password');
+  },false,'password');
 }
-
-
+async function syncCloudNow(){
+  const p=state.prefs||{};const provider=p.syncProvider||'github';
+  if((provider==='google'&&!p.driveWebhookUrl&&!p.driveAccessToken&&!p.driveEmail)||(provider!=='google'&&!p.ghToken)){openCloudSyncModal();return;}
+  requestEncryptedCloudBackup(provider);
+}
 
 async function applyCloudBackupState(parsedDoc, source, encrypted){
   await applyImportedBackupState(parsedDoc, source, encrypted);
@@ -174,7 +185,12 @@ async function restoreFromCloudSync(){
     try{
       let rawCloud = '';
       if(p.driveWebhookUrl){
-        const res = await fetch(p.driveWebhookUrl, {cache:'no-store'});
+        if(!p.driveSharedSecret)throw new Error('أضف السر المشترك وأعد نشر كود Apps Script الآمن أولاً');
+        await verifyGoogleScriptEndpoint(p);
+        const endpoint=new URL(p.driveWebhookUrl);
+        if(endpoint.protocol!=='https:')throw new Error('رابط المزامنة يجب أن يستخدم HTTPS');
+        endpoint.searchParams.set('secret',p.driveSharedSecret);
+        const res = await fetch(endpoint.toString(), {cache:'no-store',referrerPolicy:'no-referrer'});
         if(!res.ok) throw new Error(`Google Drive HTTP ${res.status}`);
         rawCloud = await res.text();
       }else{

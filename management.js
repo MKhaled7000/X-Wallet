@@ -1,4 +1,4 @@
-/* X-Wallet V14.3 management: audit, duplicates, recurring, budgets, goals, currencies, alerts and receipts. */
+/* X-Wallet V14.3 management: audit, duplicates, recurring, budgets, goals, currencies, and alerts. */
 function managementCurrencyOptions(selected='EGP'){
   ensureManagementState();
   const code=String(selected||'EGP').toUpperCase();
@@ -42,8 +42,7 @@ function auditCompact(value){
       const key=String(k);
       const sensitive=/password|passphrase|secret|token|authorization|credential|private.?key|pin|refresh.?token/i.test(key);
       if(key==='data'||key==='base64'||sensitive||['driveWebhookUrl','driveEmail','ghGistId','driveClientId'].includes(key)){
-        if(key==='data' && typeof o[k]==='string' && o[k].startsWith('data:')) o[k]='[مرفق محفوظ]';
-        else delete o[k];
+        delete o[k];
       } else stripSecrets(o[k]);
     }
   };
@@ -151,9 +150,6 @@ function validateTransferCurrencies(fromId,toId,date=today(),lockedFromRate,lock
   return {currency:fromCode,fromCurrency:fromCode,toCurrency:toCode,fromRate,toRate,from,to};
 }
 
-/* Receipt upload/attachment module removed in V15.3.2 cleanup */
-
-
 /* Operational helpers for the management screen. Forecasts are explicitly indicative. */
 function buildTransactionsCsv(){
   const accountNames=new Map((state.accounts||[]).map(a=>[String(a.id),a.name]));
@@ -173,7 +169,7 @@ function renderManagementHub(){
 }
 
 
-/* Audit snapshots cover financial data and non-secret configuration, without retaining receipt payloads or credentials. */
+/* Audit snapshots cover financial data and non-secret configuration, without credentials. */
 let _auditSnapshot=null;
 function _auditFingerprint(){
   const keys=['transactions','accounts','cards','cardOps','cardPayments','commitments','commitmentPayments','ledger','budgets','goals','goalMovements','recurringRules','currencies','currencyRates','annualPlanItems','salaryConfig','salaryMonths','categories','incomeCategories','alertRules','savedTransactionFilters','restoreLog','duplicateReviews','importBatches','reportDefaults','categoryTree'];

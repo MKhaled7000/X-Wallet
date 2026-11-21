@@ -56,7 +56,7 @@ function getQmAccViewMode(){
 function toggleQmAccViewMode(){
   state.prefs = state.prefs || {};
   state.prefs.qmAccViewMode = getQmAccViewMode() === 'list' ? 'grid' : 'list';
-  try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(_){}
+  persist();
   renderQuickPickers();
 }
 function selectQmAccListGroup(grp){
@@ -982,38 +982,51 @@ function cancelQuickAccLongPress(){
 
 document.addEventListener('click', e => { const rw = document.getElementById('qmRecurWrap'); if(rw && !rw.contains(e.target)) closeQmRecurMenu(); });
 
-function cancelAndDeleteLinkedPaymentTx(txId){
-  const tx = (state.transactions || []).find(x => String(x.id) === String(txId));
-  if(!tx) return;
-  const payAmt = Math.abs(Number(tx.amount) || 0);
-  // Reverse linked cardPayment record & cardOp paid amount
-  if(tx.linkedCardPaymentRecordId){
-    const cp = (state.cardPayments || []).find(p => String(p.id) === String(tx.linkedCardPaymentRecordId));
-    if(cp){
-      const op = (state.cardOps || []).find(o => String(o.id) === String(cp.opId || tx.linkedCardOpId));
-      if(op){
-        op.paid = Math.max(0, round2((Number(op.paid) || 0) - (Number(cp.amount) || payAmt)));
-        if(Array.isArray(op.schedules) && cp.month){
-          const sc = op.schedules.find(s => s.month === cp.month);
-          if(sc) sc.paid = Math.max(0, round2((Number(sc.paid) || 0) - (Number(cp.amount) || payAmt)));
-        }
-      }
-      state.cardPayments = (state.cardPayments || []).filter(p => String(p.id) !== String(cp.id));
+async function cancelAndDeleteLinkedPaymentTx(txId){
+  const success=await runCriticalWalletAction('قبل حذف حركة سداد',()=>{
+    const tx=(state.transactions||[]).find(x=>String(x.id)===String(txId));
+    if(!tx)throw new Error('حركة السداد غير موجودة');
+    const clone=value=>value?JSON.parse(JSON.stringify(value)):null;
+    const archive={transaction:clone(tx),related:{
+      commitmentPayment:clone((state.commitmentPayments||[]).find(x=>String(x.id)===String(tx.linkedCommitmentPaymentId))),
+      cardPayment:clone((state.cardPayments||[]).find(x=>String(x.id)===String(tx.linkedCardPaymentRecordId))),
+      cardOp:tx.linkedCardOpId?{id:tx.linkedCardOpId}:null
+    },cancelledAt:new Date().toISOString()};
+    const linked=tx.linkedCardPaymentRecordId;
+    if(linked||tx.source==='card-payment'||tx.linkedCardPayKind){
+      const cp=linked?(state.cardPayments||[]).find(x=>String(x.id)===String(linked)):null;
+      if(linked&&!cp)throw new Error('سجل السداد المرتبط مفقود؛ لم يتم الحذف');
+      const opId=cp?.cardOpId||cp?.opId||tx.linkedCardOpId;
+      const op=(state.cardOps||[]).find(x=>String(x.id)===String(opId));
+      if(!op)throw new Error('عملية البطاقة المرتبطة مفقودة؛ لم يتم الحذف');
+      const kind=cp?.paymentKind||tx.linkedCardPayKind;
+      const month=cp?.paymentMonth||tx.linkedCardPayMonth;
+      const amount=Number(cp?.amount??tx.settledAmount??tx.amount);
+      if(!Number.isFinite(amount)||amount<=0)throw new Error('مبلغ السداد غير صالح');
+      let target,field;
+      if(kind==='card_swipe'){target=op;field='paid';}
+      else if(kind==='card_fee'){target=op;field='feePaid';}
+      else if(kind==='card_inst'){
+        target=(op.schedules||[]).find(x=>String(x.month)===String(month));field='paid';
+        if(!target)throw new Error('قسط شهر السداد غير موجود؛ لم يتم الحذف');
+      }else throw new Error('نوع السداد غير محدد؛ يلزم مراجعة السجل قبل حذفه');
+      const paid=Number(target[field])||0;
+      if(paid+0.005<amount)throw new Error('السداد أكبر من الرصيد المسدد المسجل؛ يلزم مراجعة البيانات');
+      target[field]=Math.max(0,round2(paid-amount));
+      if(cp)state.cardPayments=state.cardPayments.filter(x=>String(x.id)!==String(cp.id));
+    }else if(tx.linkedCardOpId){
+      throw new Error('ارتباط البطاقة غير مكتمل؛ لم يتم تغيير الرصيد');
     }
-  } else if(tx.linkedCardOpId){
-    const op = (state.cardOps || []).find(o => String(o.id) === String(tx.linkedCardOpId));
-    if(op) op.paid = Math.max(0, round2((Number(op.paid) || 0) - payAmt));
-  }
-  // Reverse linked commitment payment
-  if(tx.linkedCommitmentPaymentId){
-    state.commitmentPayments = (state.commitmentPayments || []).filter(p => String(p.id) !== String(tx.linkedCommitmentPaymentId));
-  }
-  state.transactions = (state.transactions || []).filter(x => String(x.id) !== String(txId));
-  if(typeof syncCardInstallmentsToCommitments === 'function') syncCardInstallmentsToCommitments();
-  persist();
-  if(typeof renderActiveScreenOnly === 'function') renderActiveScreenOnly();
-  if(document.getElementById('statementFullModal')?.classList.contains('show') && typeof renderFullStatementModalContent === 'function'){
-    renderFullStatementModalContent();
-  }
-  toast('تم إلغاء وحذف حركة السداد وإرجاع الرصيد ✓');
+    if(tx.linkedCommitmentPaymentId){
+      if(!(state.commitmentPayments||[]).some(x=>String(x.id)===String(tx.linkedCommitmentPaymentId)))throw new Error('سجل سداد الالتزام مفقود');
+      state.commitmentPayments=state.commitmentPayments.filter(x=>String(x.id)!==String(tx.linkedCommitmentPaymentId));
+    }
+    state.cancelledTransactions=[archive,...(state.cancelledTransactions||[])].slice(0,500);
+    if(typeof auditRecord==='function')auditRecord('حذف','سداد',tx.id,tx,null);
+    state.transactions=state.transactions.filter(x=>String(x.id)!==String(txId));
+    if(typeof syncCardInstallmentsToCommitments==='function')syncCardInstallmentsToCommitments();
+  });
+  if(!success)return;
+  if(document.getElementById('statementFullModal')?.classList.contains('show')&&typeof renderFullStatementModalContent==='function')renderFullStatementModalContent();
+  toast('تم إلغاء السداد وحفظ التغيير مع نسخة استعادة ✓');
 }

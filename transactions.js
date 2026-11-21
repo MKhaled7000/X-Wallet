@@ -1104,9 +1104,10 @@ function deleteAnyItem(id, kind){
 }
 
 function deleteTransaction(id){
-  showAppConfirm('إلغاء الحركة', 'سيتم إلغاء تأثير الحركة على الأرصدة مع الاحتفاظ بها في سجل المحذوفات لإمكانية استعادتها. هل تريد المتابعة؟', ()=>{
+  showAppConfirm('إلغاء الحركة', 'سيتم إلغاء تأثير الحركة على الأرصدة مع الاحتفاظ بها في سجل المحذوفات لإمكانية استعادتها. هل تريد المتابعة؟', async()=>{
     const txObj = state.transactions.find(x=>String(x.id)===String(id));
     if(!txObj)return;
+    if(txObj.source==='card-payment'||txObj.source==='commitment-payment'||txObj.linkedCardPaymentRecordId||txObj.linkedCommitmentPaymentId){await cancelAndDeleteLinkedPaymentTx(txObj.id);refreshSecondaryFeeds();return;}
     state.cancelledTransactions=Array.isArray(state.cancelledTransactions)?state.cancelledTransactions:[];
     const clone=value=>value?JSON.parse(JSON.stringify(value)):null;
     const related={

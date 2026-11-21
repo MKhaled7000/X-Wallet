@@ -15,23 +15,29 @@ function restoreWalletStateAfterCriticalFailure(previousState){
   return true;
 }
 async function verifyCriticalWalletPersistence(){
-  const expected=JSON.stringify(state);
-  let local;
-  try{local=JSON.parse(localStorage.getItem(KEY)||'null');}catch(_){throw new Error('تعذر قراءة نسخة LocalStorage بعد الحفظ');}
-  if(JSON.stringify(local)!==expected) throw new Error('لم تتطابق بيانات LocalStorage مع الحالة الحالية');
-  const db=await openSafeIDB();
+  await verifyStoredWallet(state);return true;
+}
+let _criticalWalletBusy=false;
+async function runCriticalWalletAction(label,mutate){
+  if(_criticalWalletBusy){toast('انتظر اكتمال الحفظ الحالي');return false;}
+  _criticalWalletBusy=true;const wasInert=document.body.inert;document.body.inert=true;
+  let previous=null;
   try{
-    const stored=await new Promise((resolve,reject)=>{
-      const tx=db.transaction(IDB_STORE,'readonly');
-      const req=tx.objectStore(IDB_STORE).get(KEY);
-      req.onsuccess=()=>resolve(req.result??null);
-      req.onerror=()=>reject(req.error||new Error('تعذر قراءة IndexedDB بعد الحفظ'));
-    });
-    if(JSON.stringify(stored)!==expected) throw new Error('لم تتطابق بيانات IndexedDB مع الحالة الحالية');
-  }finally{try{db.close();}catch(_){}}
-  return true;
+    await flushLiveDatabaseWrites();previous=cloneWalletStateForRollback(state);
+    await createPreRestoreSnapshot(label);
+    const snapshots=cloneWalletStateForRollback(_autoSnapshotsMemory||[]);
+    mutate();await commitCriticalWalletState(previous,snapshots,label);
+    try{renderAll();}catch(renderError){console.error('Saved wallet, but UI refresh failed:',renderError);}
+    return true;
+  }catch(err){
+    if(previous){previous.storageRevision=Math.max(Number(previous.storageRevision)||0,Number(state?.storageRevision)||0);state=previous;}
+    try{renderAll();}catch(_){}
+    toast(err?.message||'تعذر تنفيذ التغيير؛ تم الاحتفاظ بالبيانات السابقة');return false;
+  }finally{document.body.inert=wasInert;_criticalWalletBusy=false;}
 }
 async function commitCriticalWalletState(previousState,rollbackSnapshots,actionLabel='التغيير'){
+  if(_idbSaveTimer){clearTimeout(_idbSaveTimer);_idbSaveTimer=null;}
+  await _writeQueue.catch(()=>{});
   const previous=cloneWalletStateForRollback(previousState);
   const previousRevision=Number(previous.storageRevision)||0;
   const attemptedRevision=Number(state?.storageRevision)||0;
@@ -200,14 +206,7 @@ function validateRestoredState(parsedDoc){
     const tx=restored.transactions[i];
     if(tx.amount!==undefined && !Number.isFinite(Number(tx.amount))) throw new Error(`مبلغ غير صالح في المعاملة ${i+1}`);
     if(tx.date!==undefined && tx.date && !/^\d{4}-\d{2}-\d{2}/.test(String(tx.date))) throw new Error(`تاريخ غير صالح في المعاملة ${i+1}`);
-    if(tx.receipts!==undefined && !Array.isArray(tx.receipts)) throw new Error(`قائمة إيصالات غير صالحة في المعاملة ${i+1}`);
-    for(let j=0;j<(tx.receipts||[]).length;j++){
-      const receipt=tx.receipts[j];
-      if(!receipt||typeof receipt!=='object'||Array.isArray(receipt)||!receipt.id||typeof receipt.data!=='string'||typeof receipt.type!=='string') throw new Error(`بيانات إيصال غير صالحة في المعاملة ${i+1}`);
-      if(typeof receiptDataUrlMatchesType==='function'&&!receiptDataUrlMatchesType(receipt.data,receipt.type)) throw new Error(`محتوى الإيصال ${receipt.name||j+1} تالف أو نوعه غير مطابق`);
-      const estimatedBytes=Math.floor((receipt.data.length-String(receipt.data).indexOf(',')-1)*3/4);
-      if(estimatedBytes>5*1024*1024+3) throw new Error(`الإيصال ${receipt.name||j+1} يتجاوز الحد الأقصى المسموح`);
-    }
+
   }
   // Backups from pre-EGP-only releases are normalized before they can replace
   // the live state. Missing historical FX fails the restore without mutation.
@@ -218,7 +217,7 @@ function validateRestoredState(parsedDoc){
     restored.currencies=[{code:'EGP',name:'جنيه مصري',rate:1}];
     restored.currencyRates=[];
   }
-  return restored;
+  return stripRetiredAttachments(restored);
 }
 
 function preserveDeviceSecurityAndDrivePrefs(oldPrefs, newState){
@@ -229,7 +228,7 @@ function preserveDeviceSecurityAndDrivePrefs(oldPrefs, newState){
   const localOnlyKeys = [
     'secPin', 'secPinHash', 'secPinSalt', 'bioEnabled', 'bioCredentialId',
     'appLockOnStart', 'bioOnPrivacy',
-    'driveEmail', 'driveWebhookUrl', 'driveAccessToken', 'driveClientId',
+    'driveEmail', 'driveWebhookUrl', 'driveAccessToken', 'driveClientId', 'driveSharedSecret',
     'ghToken', 'ghGistId', 'syncProvider',
     'autoDriveFreq', 'lastDriveBackup', 'lastBackupDate'
   ];
@@ -347,7 +346,7 @@ async function triggerEasyDriveSave(jsonStr, fileName){
 function openDriveCloudSetupModal(){
   const html = `
     <p class="hint" style="margin:0 0 10px;color:var(--text-sub)">
-      يمكنك مشاركة ملف نسخة عادية إلى Google Drive من الهاتف. هذه النسخة <b>غير مشفرة</b>؛ استخدم زر «رفع مشفر» من شاشة النسخ الاحتياطي عندما تحتاج حماية محتوى الملف. النسخ المجدول هنا محلي على الجهاز فقط.
+      المزامنة السحابية مشفرة افتراضياً وتطلب كلمة مرور لا تُحفظ. المشاركة العادية أدناه خيار يدوي غير مشفر. النسخ المجدول محلي على الجهاز فقط.
     </p>
     <div style="display:flex;flex-direction:column;gap:8px">
       <button type="button" class="primary" style="background:var(--blue);color:#fff" onclick="closeAppDialog();quickShareBackupToDrive()">☁ مشاركة نسخة عادية (غير مشفرة)</button>
@@ -368,24 +367,29 @@ async function exportBackupToGoogleDrive(silentAuto, options={}){
     return {success:false, reason:'not-configured'};
   }
 
-  const encrypted = !!options.encrypted;
+  if(typeof options.content!=='string'){requestEncryptedCloudBackup('google');return {success:false,reason:'awaiting-encryption'};}
+  const encrypted=isEncryptedBackupDocument(options.content);
+  if(!encrypted)throw new Error('لن تُرفع نسخة غير مشفرة');
   const fileName = `x-wallet-${encrypted ? 'encrypted-' : ''}backup-${today()}.json`;
-  const jsonStr = typeof options.content === 'string' ? options.content : await createBackupDocument(state);
+  const jsonStr=options.content;
 
   // Google Apps Script endpoint: no-cors can send the request but cannot expose the server response.
   if(p.driveWebhookUrl){
     if(!silentAuto) toast(encrypted ? 'جاري إرسال النسخة المشفرة إلى Google Drive…' : 'جاري إرسال النسخة إلى Google Drive…');
     try{
+      if(!p.driveSharedSecret)throw new Error('أضف السر المشترك وأعد نشر سكريبت الحفظ الآمن أولاً');
+      if(new URL(p.driveWebhookUrl).protocol!=='https:')throw new Error('يلزم رابط HTTPS');
+      await verifyGoogleScriptEndpoint(p);
       const response = await fetch(p.driveWebhookUrl, {
         method: 'POST',
         mode: 'no-cors',
         headers: {'Content-Type': 'text/plain;charset=utf-8'},
-        body: jsonStr
+        body: JSON.stringify({secret:p.driveSharedSecret,backup:jsonStr})
       });
       if(response.type === 'opaque' || response.status === 0){
         state.prefs.lastBackupAttempt = today();
         await persistCurrentStateStore();
-        if(!silentAuto) toast('تم إرسال النسخة إلى Google Drive.');
+        if(!silentAuto) toast('أُرسل طلب الحفظ، لكن استجابة الخادم غير متاحة. تحقق بالاستعادة قبل الاعتماد على النسخة.');
         return {success:true, verified:false, provider:'google-apps-script'};
       }
       if(!response.ok) throw new Error(`Google Apps Script HTTP ${response.status}`);
@@ -396,7 +400,8 @@ async function exportBackupToGoogleDrive(silentAuto, options={}){
       return {success:true, verified:true, provider:'google-apps-script'};
     }catch(err){
       console.error('X-Wallet Google Apps Script upload failed:', err);
-      if(!silentAuto) toast('فشل الإرسال عبر رابط Google Drive؛ جارٍ تجربة وسيلة الربط الأخرى إن وجدت');
+      if(!silentAuto)toast(err?.message||'تعذر إرسال النسخة عبر رابط Google Drive');
+      return {success:false,reason:'webhook-failed',error:err};
     }
   }
 

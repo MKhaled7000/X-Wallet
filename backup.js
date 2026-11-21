@@ -1,6 +1,6 @@
 /* X-Wallet V14.2 — Backup format, sanitization and integrity verification */
 function getSanitizedStateForBackup(rawState){
-  const copy = JSON.parse(JSON.stringify(rawState || {}));
+  const copy = cleanWalletCopy(rawState || {});
   delete copy.autoSnapshots;
   delete copy.storageRevision; // Per-device persistence ordering is not portable backup data.
   if(copy.prefs){
@@ -11,6 +11,7 @@ function getSanitizedStateForBackup(rawState){
     delete copy.prefs.bioCredentialId;
     delete copy.prefs.driveEmail;
     delete copy.prefs.driveWebhookUrl;
+    delete copy.prefs.driveSharedSecret;
     delete copy.prefs.driveAccessToken;
     delete copy.prefs.driveClientId;
     delete copy.prefs.ghToken;
@@ -43,7 +44,7 @@ async function backupSha256Hex(text){
 }
 
 async function createBackupDocument(rawState){
-  const payload = getSanitizedStateForBackup(rawState || state);
+  const payload=getSanitizedStateForBackup(rawState || state);
   const payloadText = JSON.stringify(payload);
   const checksum = await backupSha256Hex(payloadText);
   return JSON.stringify({
