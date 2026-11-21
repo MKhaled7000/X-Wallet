@@ -7257,3 +7257,168 @@ html[data-field-style] #quickModal .c-row > .picker-trigger > b {
 #wallet .wth-col-box small {
   font-size: .7rem !important;
 }
+
+
+/* =========================================================
+   X-WALLET V15.3.0 PIXEL-PERFECT ROW 2, SLIM SOFT FONT, WALLET ALIGNMENT & CATS WIDTH
+   ========================================================= */
+
+/* 1. Exact 100% Identical Row 2 Height (46px) across Records, Analytics, Wallet, Commitments, More, Sub-pages & Statement */
+.mm-stats-card.compact-stats-strip,
+#trans .mm-stats-card,
+#analytics .mm-stats-card,
+#wallet .mm-stats-card,
+#commitments .mm-stats-card,
+#statementFullModal .mm-stats-card,
+#settings .dev-profile-card.compact-dev-card,
+#settingsSubModal .dev-profile-card.pinned-sub-dev-card {
+  height: 46px !important;
+  min-height: 46px !important;
+  max-height: 46px !important;
+  padding: 4px 10px !important;
+  margin-top: 0 !important;
+  margin-bottom: 8px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+}
+.mm-stats-card.compact-stats-strip .mm-stats {
+  width: 100% !important;
+  align-items: center !important;
+}
+#settings .dev-profile-card.compact-dev-card,
+#settingsSubModal .dev-profile-card.pinned-sub-dev-card {
+  justify-content: space-between !important;
+}
+#settings .dev-card-logo,
+#settingsSubModal .dev-card-logo {
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 8px !important;
+  flex-shrink: 0 !important;
+}
+#settings .dev-card-info b,
+#settingsSubModal .dev-card-info b {
+  font-size: .78rem !important;
+  line-height: 1.15 !important;
+}
+#settings .dev-card-info span,
+#settingsSubModal .dev-card-info span,
+#settingsSubModal .dev-card-info small {
+  font-size: .64rem !important;
+  line-height: 1.15 !important;
+}
+
+/* 2. Slimmer, smaller font & calm Cash-column tone across letters and numbers */
+body, button, input, select, textarea {
+  font-weight: 400 !important;
+}
+.tx-cat-col b,
+.tx-acc-col small,
+.tx-acc-col span,
+.tx-amt-col,
+.day-head-right span,
+.day-totals span,
+.wth-title,
+#accountsList .listitem .info b,
+#cardsList .listitem .info b,
+#accountsList .listitem strong,
+#cardsList .listitem strong,
+.wallet-card-two-col .wallet-card-cols span,
+#repCatBreakdownList .listitem .info b,
+#repCatBreakdownList .listitem strong,
+#settings .fold-link-card .ic-txt span,
+.c-row > label,
+.c-row > input,
+.c-row > select,
+.c-row > .picker-trigger b,
+.custom-sel-trigger .cs-val {
+  font-weight: 400 !important;
+  font-size: .76rem !important;
+}
+.tx-cat-col b,
+#accountsList .listitem .info b,
+#cardsList .listitem .info b,
+#repCatBreakdownList .listitem .info b,
+#settings .fold-link-card .ic-txt span,
+.day-head-right span,
+.wth-title,
+.utb-stepper .step-label {
+  color: var(--muted) !important;
+}
+.mm-stats-card.compact-stats-strip .mm-stat-box small {
+  font-size: .68rem !important;
+  font-weight: 400 !important;
+}
+.mm-stats-card.compact-stats-strip .mm-stat-box b {
+  font-size: .76rem !important;
+  font-weight: 500 !important;
+}
+.utb-tab-btn {
+  font-size: .78rem !important;
+  font-weight: 500 !important;
+}
+
+/* 3. Exact Pixel Alignment in Wallet: Accounts (Balance) & Cards (Available | Due) */
+#wallet .wallet-table-head {
+  padding: 7px 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+#wallet #accountsList .listitem,
+#wallet #cardsList .listitem {
+  padding: 8px 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+}
+#wallet .accounts-head .wth-col-box,
+#wallet #accountsList .listitem > strong,
+#wallet #accountsList .listitem .acc-bal {
+  width: 96px !important;
+  min-width: 96px !important;
+  max-width: 96px !important;
+  text-align: right !important;
+  margin-left: auto !important;
+  flex-shrink: 0 !important;
+}
+#wallet .cards-head .wth-cards-cols,
+#wallet .wallet-card-two-col .wallet-card-cols {
+  display: grid !important;
+  grid-template-columns: 88px 88px !important;
+  gap: 6px !important;
+  width: 182px !important;
+  min-width: 182px !important;
+  max-width: 182px !important;
+  text-align: right !important;
+  margin-left: auto !important;
+  flex-shrink: 0 !important;
+  align-items: center !important;
+}
+#wallet .cards-head .wth-cards-cols .wth-col-box {
+  width: 88px !important;
+  text-align: right !important;
+}
+#wallet .wallet-card-two-col .wallet-card-cols span {
+  display: block !important;
+  width: 88px !important;
+  text-align: right !important;
+}
+
+/* 5. Uniform 100% Width for ALL frames & rows inside Manage Categories (#catsManagerModal) */
+#catsManagerModal .sub-tabs,
+#catsManagerModal .cats-toolbar,
+#catsManagerModal #settingsCatsTreeContainer,
+#catsManagerModal #settingsCatsTreeContainer > *,
+#catsManagerModal .cat-group-card,
+#catsManagerModal details.fold,
+#catsManagerModal .panel,
+#catsManagerModal .c-list {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  box-sizing: border-box !important;
+}

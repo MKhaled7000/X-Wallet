@@ -176,6 +176,7 @@ function applyPreferences(){
   setv('prefLang', lang);
   document.documentElement.lang = lang;
   document.documentElement.dir = 'ltr';
+  if(typeof applyFullAppLanguage === 'function') applyFullAppLanguage(lang);
   setv('prefFontSize', p.fontSize || '1');
   setv('prefAutoDriveFreq', p.autoDriveFreq || 'off');
   if(typeof updateLocalAutoFreqBtnText === 'function') updateLocalAutoFreqBtnText();
@@ -742,4 +743,120 @@ function previewGroupFrames(checked){
   state.prefs.groupFrames = !!checked;
   document.documentElement.setAttribute('data-group-frames', state.prefs.groupFrames ? 'on' : 'off');
   persist();
+}
+
+
+/* =========================================================
+   X-WALLET V15.3.0 FULL ARABIC <-> ENGLISH TRANSLATION ENGINE
+   ========================================================= */
+const XW_AR_TO_EN = {
+  // Bottom Nav & Main Tabs
+  'المعاملات':'Transactions', 'التحليل':'Analytics', 'المحفظة':'Wallet', 'الالتزامات':'Commitments', 'المزيد':'More',
+  'السجل':'Records', 'الملخص':'Summary', 'الدخل':'Income', 'المصروفات':'Expenses', 'التحويلات':'Transfers', 'الصافي':'Net',
+  'الأصول':'Assets', 'المديونيات':'Liabilities', 'الحسابات':'Accounts', 'البطاقات':'Cards',
+  'الرصيد':'Balance', 'المتاح':'Available', 'المستحق':'Due', 'إجمالي التزامات الشهر':'Monthly Commitments Total',
+  // Filter Cards & Actions
+  'بالتاريخ':'Date', 'بالمبلغ':'Amount', 'بالحساب':'Account', 'بالقسم':'Category', 'بالنوع':'Type',
+  '✕ إلغاء':'✕ Cancel', 'دخل':'Income', 'مصروف':'Expense', 'مصروفات':'Expenses', 'تحويل':'Transfer', 'تحويلات':'Transfers',
+  'بحث':'Search', 'ابحث':'Search', 'ابحث في البنود...':'Search categories...', 'ابحث في الالتزامات':'Search commitments...',
+  // Quick Entry
+  'إضافة معاملة':'Add Transaction', 'تعديل معاملة':'Edit Transaction', 'التاريخ':'Date', 'الحساب':'Account',
+  'من حساب':'From Account', 'إلى حساب':'To Account', 'القسم':'Category', 'اختر القسم':'Select Category',
+  'اختر الحساب':'Select Account', 'المبلغ':'Amount', 'رسوم':'Fee', 'ملاحظات':'Note', 'الوصف':'Description',
+  'حفظ':'Save', 'إلغاء':'Cancel', 'حذف':'Delete', 'نسخ':'Copy', 'تكرار':'Repeat', 'تقسيط':'Installment',
+  // More & Settings Sub-pages
+  'مديرك المالي الذكي':'Your Smart Finance Manager', 'إعدادات عامة':'General Settings', 'إعدادات المظهر':'Appearance',
+  'الأمان والخصوصية':'Security & Privacy', 'النسخ الاحتياطي والاستعادة':'Backup & Restore',
+  'تخصيص الأقسام':'Manage Categories', 'حاسبة الراتب':'Salary Calculator', 'التقرير السنوي':'Annual Report',
+  'فحص التحديثات':'Check Updates', 'حول التطبيق':'About App', 'تصفير البيانات':'Reset Data',
+  // General Settings
+  'اللغة':'Language', 'العربية':'Arabic', 'English':'English', 'العملة الأساسية':'Base Currency',
+  'طريقة التمرير':'Swipe Mode', 'تبديل القوائم':'Switch Tabs', 'تبديل الشهور':'Switch Months',
+  'نوع النوافذ':'Modal Mode', 'نافذة واحدة':'Single Modal', 'نوافذ متعددة':'Multi Modal',
+  'الاختصارات السريعة':'Quick Shortcuts', 'عرض / إخفاء الصفحات':'Show / Hide Pages',
+  'صفحة المعاملات':'Transactions Page', 'صفحة التحليل':'Analytics Page', 'صفحة المحفظة':'Wallet Page', 'صفحة الالتزامات':'Commitments Page',
+  'حفظ الإعدادات':'Save Settings',
+  // Appearance
+  'وضع الخلفية':'Background Mode', 'داكن':'Dark', 'فاتح':'Light', 'معدني':'Metallic', 'أسود':'Black',
+  'تدرج الخلفية':'Background Gradient', 'مموج':'Gradient', 'لون واحد':'Solid', 'متوهج':'Glow',
+  'نقشة الخلفية':'Background Pattern', 'سادة':'Plain', 'خطوط':'Lines', 'شبكة':'Grid', 'نقاط':'Dots', 'فريمات':'Frames',
+  'إطار المجموعات والأيام':'Group & Day Frames',
+  'تصميم الشريط العلوي':'Header Style', 'تصميم البطاقات والبنود':'Cards & Items Style',
+  'تصميم حقول الإدخال':'Input Fields Style', 'تصميم صفوف السجل':'Records Row Style',
+  'فريم':'Framed', 'ناعم':'Soft', 'خط فاصل':'Divider', 'خط فاصل طولي':'Vertical Divider', 'خط سفلي':'Underline',
+  'لون الثيم':'Theme Color', 'اختيار اللون':'Pick Color', 'نوع الخط':'Font Family', 'حجم الخط':'Font Size',
+  'الأرقام العشرية':'Decimal Places', 'إظهار':'Show', 'إخفاء':'Hide',
+  // Backup & Security
+  'النسخ السحابي':'Cloud Backup', 'تصدير':'Export', 'استيراد':'Import', 'استيراد ماني مانجر':'Import Money Manager',
+  'قفل التطبيق بالبصمة':'Biometric App Lock', 'رمز المرور (PIN)':'PIN Passcode', 'إخفاء الأرقام بالبصمة':'Biometric Privacy Mask',
+  'فتح التطبيق بالبصمة':'Unlock with Biometrics', 'فتح':'Unlock',
+  // Modals & Calendar & Analytics
+  'تأكيد الخروج':'Exit Confirmation', 'هل تريد الخروج من تطبيق X-Wallet؟':'Do you want to exit X-Wallet?',
+  'البقاء في التطبيق':'Stay in App', 'نعم، خروج':'Yes, Exit', 'اليوم':'Today', 'إغلاق':'Close', 'تأكيد':'Confirm',
+  'الصنف':'Item', 'النسبة':'Share', 'الإجمالي':'Total', 'المعاملة':'Item', 'النوع':'Type', 'الموعد':'Due Date', 'الإجراء':'Action',
+  'سداد':'Pay', 'مدفوع':'Paid', 'لا توجد بيانات':'No data available', 'لا توجد التزامات مطابقة للبحث.':'No matching commitments.',
+  'لا توجد مبالغ مستحقة في هذا الشهر.':'No dues for this month.', 'لا توجد حسابات مسجلة.':'No accounts added.',
+  'لا توجد بطاقات مسجلة.':'No cards added.',
+  'إضافة حساب':'Add Account', 'تعديل الحساب':'Edit Account', 'إضافة بطاقة':'Add Card', 'تعديل البطاقة':'Edit Card',
+  'اختر الحساب أو البطاقة':'Select Account or Card',
+  'فلترة بالتاريخ (من : إلى)':'Filter by Date (From : To)', 'فلترة بالمبلغ (من : إلى)':'Filter by Amount (From : To)',
+  'فلترة بالحساب':'Filter by Account', 'فلترة بالقسم الرئيسي والفرعي':'Filter by Category', 'فلترة بالنوع':'Filter by Type',
+  'من تاريخ':'From Date', 'إلى تاريخ':'To Date', 'من مبلغ':'Min Amount', 'إلى مبلغ':'Max Amount',
+  'النسخ الاحتياطي':'Backup', 'الأمان':'Security', 'المظهر':'Appearance', 'عام':'General'
+};
+
+let _xwI18nObserver = null;
+function translateDomTreeToLang(root, lang){
+  if(!root) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+  let node;
+  while((node = walker.nextNode())){
+    const p = node.parentElement;
+    if(!p || p.tagName === 'SCRIPT' || p.tagName === 'STYLE') continue;
+    const raw = node.nodeValue;
+    const trimmed = raw.trim();
+    if(!trimmed) continue;
+    if(lang === 'en'){
+      if(!p.dataset.xwOrigAr && XW_AR_TO_EN[trimmed]){
+        p.dataset.xwOrigAr = trimmed;
+      }
+      const key = p.dataset.xwOrigAr || trimmed;
+      if(XW_AR_TO_EN[key] && trimmed !== XW_AR_TO_EN[key]){
+        node.nodeValue = raw.replace(trimmed, XW_AR_TO_EN[key]);
+      }
+    } else {
+      if(p.dataset.xwOrigAr && trimmed !== p.dataset.xwOrigAr){
+        node.nodeValue = raw.replace(trimmed, p.dataset.xwOrigAr);
+      }
+    }
+  }
+  root.querySelectorAll('input[placeholder], textarea[placeholder]').forEach(el => {
+    const ph = (el.getAttribute('placeholder') || '').trim();
+    if(lang === 'en'){
+      if(!el.dataset.xwOrigPh && XW_AR_TO_EN[ph]) el.dataset.xwOrigPh = ph;
+      const k = el.dataset.xwOrigPh || ph;
+      if(XW_AR_TO_EN[k]) el.setAttribute('placeholder', XW_AR_TO_EN[k]);
+    } else if(el.dataset.xwOrigPh){
+      el.setAttribute('placeholder', el.dataset.xwOrigPh);
+    }
+  });
+}
+
+function applyFullAppLanguage(lang){
+  const targetLang = (lang === 'en') ? 'en' : 'ar';
+  translateDomTreeToLang(document.body, targetLang);
+  if(typeof updateTopTabTitle === 'function') updateTopTabTitle();
+  if(typeof syncCustomSelectTriggers === 'function') syncCustomSelectTriggers();
+  if(!_xwI18nObserver && typeof MutationObserver !== 'undefined'){
+    let rafId = 0;
+    _xwI18nObserver = new MutationObserver(() => {
+      if((state?.prefs?.lang || 'ar') !== 'en') return;
+      if(rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = 0;
+        translateDomTreeToLang(document.body, 'en');
+      });
+    });
+    _xwI18nObserver.observe(document.body, { childList: true, subtree: true });
+  }
 }
