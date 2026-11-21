@@ -33,17 +33,17 @@ function amountInAccountCurrency(amount,sourceCurrency,targetCurrency,date,locke
   if(typeof convertCurrencyAmount==='function')return convertCurrencyAmount(Number(amount)||0,sourceCurrency,targetCurrency,date,lockedSourceRate);
   return Number(amount)||0;
 }
-function accountBalance(a){
+function accountBalance(a,wallet=state){
   if(!a)return 0;
   const currency=String(a.currency||'EGP').toUpperCase();
   let n=Number(a.opening)||0;
-  for(const t of state.transactions||[]){
+  for(const t of wallet.transactions||[]){
     if(t.deletedAt||String(t.accountId)!==String(a.id))continue;
     const amount=amountInAccountCurrency(t.amount,t.currency||currency,currency,t.date||(typeof today==='function'?today():new Date().toISOString().slice(0,10)),t.exchangeRateAtCreation??t.currencyRate);
     if(t.type==='income'||t.type==='fund')n+=amount;
     else if(t.type==='expense'||t.type==='credit_payment')n-=amount;
   }
-  for(const l of state.ledger||[]){
+  for(const l of wallet.ledger||[]){
     if(l.deletedAt)continue;
     if(l.type==='adjust'){
       if(String(l.from)===String(a.id))n+=amountInAccountCurrency(l.delta??l.amount,l.currency||currency,currency,l.date||(typeof today==='function'?today():new Date().toISOString().slice(0,10)),l.exchangeRateAtCreation);
@@ -51,7 +51,7 @@ function accountBalance(a){
     }
     if(String(l.from)===String(a.id)){
       const fromAmount=l.fromAmount??l.amount;
-      const hasLinkedFee=(state.transactions||[]).some(t=>!t.deletedAt&&(String(t.id)===String(l.feeTransactionId||'')||String(t.linkedTransferLedgerId||'')===String(l.id)));
+      const hasLinkedFee=(wallet.transactions||[]).some(t=>!t.deletedAt&&(String(t.id)===String(l.feeTransactionId||'')||String(t.linkedTransferLedgerId||'')===String(l.id)));
       const fee=hasLinkedFee?0:(Number(l.fee)||0);
       n-=amountInAccountCurrency(fromAmount,l.fromCurrency||l.currency||currency,currency,l.date||(typeof today==='function'?today():new Date().toISOString().slice(0,10)),l.fromExchangeRateAtCreation??l.exchangeRateAtCreation);
       if(fee)n-=amountInAccountCurrency(fee,l.feeCurrency||l.fromCurrency||l.currency||currency,currency,l.date||(typeof today==='function'?today():new Date().toISOString().slice(0,10)),l.feeExchangeRateAtCreation);
@@ -74,11 +74,11 @@ function opOutstanding(op){
     ? (op.schedules||[]).reduce((s,x)=>s+Math.max(0,(Number(x.amount)||0)-(Number(x.paid)||0)),0)+Math.max(0,(Number(op.feeDue)||0)-(Number(op.feePaid)||0))
     : Math.max(0,(Number(op.amount)||0)-(Number(op.paid)||0));
 }
-function cardOpsOutstandingFor(cardId){
-  return (state.cardOps||[]).filter(o=>!o.deletedAt&&String(o.cardId)===String(cardId)).reduce((s,o)=>s+opOutstanding(o),0);
+function cardOpsOutstandingFor(cardId,wallet=state){
+  return (wallet.cardOps||[]).filter(o=>!o.deletedAt&&String(o.cardId)===String(cardId)).reduce((s,o)=>s+opOutstanding(o),0);
 }
-function cardTotalOutstanding(card){
-  return round2(Math.max(0,Number(card.balance)||0) + cardOpsOutstandingFor(card.id));
+function cardTotalOutstanding(card,wallet=state){
+  return round2(Math.max(0,Number(card.balance)||0) + cardOpsOutstandingFor(card.id,wallet));
 }
 function cardCurrentAvailable(card){
   const lim=Number(card.limit)||0;
@@ -171,4 +171,3 @@ function healSuezCanalBankOps(){
   }
 }
 healSuezCanalBankOps();
-
