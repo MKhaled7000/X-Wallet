@@ -118,6 +118,7 @@ function updateTopTabTitle(pageId){
 let _transSearchActive = false;
 const FAB_FILTER_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>';
 const FAB_SHORTCUT_DEFS = [
+  { id:'chart', label:'◔ الرسم البياني' },
   { id:'search', label:'🔍 بحث' },
   { id:'filter', label:'🎛 فلتر' },
   { id:'commitments', label:'🗓 الالتزامات' },
@@ -134,9 +135,9 @@ function getFabShortcutsList(){
       arr.splice(2, 0, 'commitments');
       state.prefs.fabCommitmentsSeeded = true;
     }
-    return arr;
+    return !state.prefs.fabChartConfigured&&!arr.includes('chart')?[...arr,'chart']:arr;
   }
-  return ['search','filter','commitments','swipe','monthly','yearly','salary','backup'];
+  return ['search','filter','commitments','swipe','monthly','yearly','salary','backup','chart'];
 }
 function isFabSpeedDialEnabled(){
   return state.prefs?.fabSpeedDial !== false;
@@ -162,6 +163,7 @@ function onFabSettingsChanged(){
   if(ichk) state.prefs.fabIconsOnly = !!ichk.checked;
   const chks = [...document.querySelectorAll('#fabShortcutsCfgGrid input[type="checkbox"]:checked')].map(c=>c.value);
   state.prefs.fabShortcuts = chks.length ? chks : ['search'];
+  state.prefs.fabChartConfigured=true;
   persist();
   updateFabVisibility();
 }
@@ -185,10 +187,12 @@ function renderFabSpeedMenuItems(){
   const isFilterOpen = document.getElementById('mmSearchBox')?.style.display !== 'none';
   const hasAdv = (typeof hasAnyTransAdvFilter === 'function' && hasAnyTransAdvFilter());
   const isMonthly = (activeTransSubTab === 'monthly');
-  const list = FAB_SHORTCUT_DEFS.filter(d=>enabled.includes(d.id));
+  const inAnalysis=document.querySelector('.screen.active')?.id==='analytics';
+  const list = FAB_SHORTCUT_DEFS.filter(d=>enabled.includes(d.id)&&(inAnalysis?['search','chart'].includes(d.id):d.id!=='chart'));
   menu.innerHTML = list.map((d, idx)=>{
     let act = false;
-    if(d.id === 'search') act = hasQ;
+    if(d.id==='chart') act=typeof activeCatDrillState!=='undefined'&&activeCatDrillState?catDrillChartOpen:mainRepChartOpen;
+    else if(d.id === 'search') act = hasQ;
     else if(d.id === 'filter') act = isFilterOpen || hasAdv;
     else if(d.id === 'monthly') act = isMonthly;
     else if(d.id === 'swipe') act = (state.prefs?.swipeMode === 'months');
@@ -200,7 +204,8 @@ function renderFabSpeedMenuItems(){
 }
 function runFabShortcut(id){
   document.getElementById('fabSpeedWrap')?.classList.remove('open');
-  if(id === 'search') toggleSearchFromFab();
+  if(id === 'chart'){toggleAnaChartFromHeader();updateFabVisibility();}
+  else if(id === 'search') document.querySelector('.screen.active')?.id==='analytics'?toggleAnaSearchBar():toggleSearchFromFab();
   else if(id === 'filter') toggleFilterFromFab();
   else if(id === 'commitments'){ go('commitments', document.querySelector('.nav[data-page="commitments"]')); }
   else if(id === 'monthly') toggleMonthlySummaryView();
@@ -244,10 +249,19 @@ function updateFabVisibility(){
   document.getElementById('btnToggleMonthlyTop')?.classList.toggle('active', activeTransSubTab === 'monthly');
 
   if(fab) fab.style.display = isTransDaily ? 'grid' : 'none';
+  const isAnalysis=activePage==='analytics';
+  const analysisShortcuts=getFabShortcutsList().some(id=>['chart','search'].includes(id));
+  const showSpeed=grouped&&(isTransDaily||(isAnalysis&&analysisShortcuts));
   if(speedWrap){
-    speedWrap.style.display = (isTransDaily && grouped) ? 'flex' : 'none';
-    if(!isTransDaily || !grouped) speedWrap.classList.remove('open');
-    else if(!speedWrap.classList.contains('open')) renderFabSpeedMenuItems();
+    speedWrap.style.display=showSpeed?'flex':'none';
+    if(!showSpeed)speedWrap.classList.remove('open');
+    else if(!speedWrap.classList.contains('open'))renderFabSpeedMenuItems();
+  }
+  const chartButton=document.getElementById('fabChartBtn');
+  if(chartButton){
+    const chartOn=typeof activeCatDrillState!=='undefined'&&activeCatDrillState?catDrillChartOpen:mainRepChartOpen;
+    chartButton.style.display=isAnalysis&&!grouped&&getFabShortcutsList().includes('chart')?'grid':'none';
+    chartButton.classList.toggle('active',chartOn);chartButton.setAttribute('aria-pressed',String(chartOn));
   }
   const hasQ = _transSearchActive || !!(document.getElementById('actSearch')?.value || '').trim();
   if(fabS){
@@ -286,7 +300,7 @@ function toggleSearchFromFab(){
 
 function closeAllOpenModalsForce(forceAll){
   if(!forceAll && state?.prefs?.modalMode === 'multi') return;
-  ['quickModal','salaryModal','annualReportModal','catsManagerModal','statementFullModal',
+  ['quickModal','salaryModal','annualReportModal','financialToolsModal','catsManagerModal','statementFullModal',
    'accountModal','themeGridModal','settingsSubModal','aboutAppModal','appDialogModal',
    'customSelectModal','ymModal','updateAvailableModal','exitConfirmModal'].forEach(mid=>{
     document.getElementById(mid)?.classList.remove('show');

@@ -807,39 +807,18 @@ function renderPlanScreen(){
   if(!filteredItems.length){
     listEl.innerHTML = comQ ? '<div class="empty">لا توجد التزامات مطابقة للبحث.</div>' : '<div class="empty">لا توجد مبالغ مستحقة في هذا الشهر.</div>';
   } else {
-    // 4.5 Unified Horizontal-Scroll Table for Monthly Dues matching All Commitments with full details
-    listEl.innerHTML = `
-      <table class="com-all-table">
-        <thead>
-          <tr>
-            <th>المعاملة</th>
-            <th>النوع</th>
-            <th>التفاصيل</th>
-            <th style="text-align:right">المبلغ</th>
-            <th style="text-align:right">المسدد</th>
-            <th style="text-align:right">المتبقي</th>
-            <th>الحالة</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${filteredItems.map(it=>{
-            const left = it.remaining;
-            const actCall = `openMonthlyDueActionsModal('${escJs(it.kind)}','${escJs(it.uid)}','${escJs(it.opId||'')}','${m}',${left},'${escJs(it.title)}')`;
-            return `
-              <tr style="cursor:pointer" onclick="${actCall}">
-                <td><b>${esc(it.title)}</b></td>
-                <td>${esc(it.categoryType)}</td>
-                <td><small style="color:var(--muted)">${esc(it.sub)}</small></td>
-                <td style="text-align:right;direction:ltr"><b>${maskable(fmtNum(it.amount))} ${esc(it.currency||'EGP')}</b></td>
-                <td style="text-align:right;direction:ltr" class="mint">${maskable(fmtNum(it.paid))} ${esc(it.currency||'EGP')}</td>
-                <td style="text-align:right;direction:ltr" class="${left>0?'orange':'mint'}"><b>${maskable(fmtNum(left))} ${esc(it.currency||'EGP')}</b></td>
-                <td><span class="tag" style="color:${left>0?'var(--orange)':'var(--mint)'}">${left>0?'سداد':'مسدد'}</span></td>
-              </tr>
-            `;
-          }).join('')}
-        </tbody>
-      </table>
-    `;
+    listEl.innerHTML = '<div class="commitment-list">'+filteredItems.map(it=>{
+      const left=it.remaining;
+      const actCall=`openMonthlyDueActionsModal('${escJs(it.kind)}','${escJs(it.uid)}','${escJs(it.opId||'')}','${m}',${left},'${escJs(it.title)}')`;
+      const amount=value=>`${maskable(fmtNum(value))} ${esc(it.currency||'EGP')}`;
+      return `<details class="commitment-entry">
+        <summary class="commitment-compact-summary"><span class="commitment-compact-info"><b>${esc(it.title)}</b><small>${esc(it.sub)}</small></span><span class="commitment-compact-due ${left>0?'orange':'mint'}"><small>${left>0?'المتبقي':'مسدد'}</small><b dir="ltr">${amount(left)}</b><span class="commitment-expand-mark" aria-hidden="true">⌄</span></span></summary>
+        <div class="commitment-expanded"><span class="commitment-description">${esc(it.categoryType)}</span>
+        <span class="commitment-amounts" dir="ltr"><span><small>المبلغ</small><b>${amount(it.amount)}</b></span><span class="mint"><small>المسدد</small><b>${amount(it.paid)}</b></span><span class="${left>0?'orange':'mint'}"><small>المتبقي</small><b>${amount(left)}</b></span></span>
+        <button type="button" class="smallbtn commitment-open-actions" onclick="${actCall}">السداد والإجراءات</button></div>
+      </details>`;
+    }).join('')+'</div>';
+
   }
 
   renderAllCommitmentsMasterTable();

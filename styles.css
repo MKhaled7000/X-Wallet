@@ -8011,10 +8011,10 @@ html body #wallet .cards-head .wth-title { min-width:0; overflow:hidden; text-ov
 /* Accounts: separate the balance from the name at the same x in header/rows. */
 html body #wallet #accountsList { padding-inline:0!important; }
 html body #wallet .accounts-head .wth-col-box,
-html body #wallet #accountsList .listitem > strong { position:relative; min-height:30px; display:flex; flex-direction:column; justify-content:center; }
+html body #wallet #accountsList .listitem > strong { position:relative; width:82px!important; min-width:82px!important; max-width:82px!important; min-height:30px; display:flex; flex-direction:column; justify-content:center; }
 html body #wallet .accounts-head .wth-col-box::before,
 html body #wallet #accountsList .listitem > strong::before {
-  content:''; position:absolute; left:-9px; top:2px; bottom:2px;
+  content:''; position:absolute; left:-9.5px; top:2px; bottom:2px;
   width:1px; background:var(--line2); pointer-events:none;
 }
 html body #wallet:is(.wallet-mode-delete,.wallet-mode-hide) .accounts-head .wth-col-box { margin-right:42px!important; }
@@ -8025,3 +8025,102 @@ html body #wallet .accounts-head .wth-title { min-width:0; overflow:hidden; text
 .account-delete-preview ul { padding-inline-start:22px; }
 .account-delete-preview .actions { padding-top:10px; }
 .account-delete-continue { color:var(--red)!important; border-color:var(--red)!important; }
+
+/* More menu: grouped destinations, with financial tools in their own home. */
+#settings .more-menu-group {margin:14px 0 0;}
+#settings .more-menu-group h2 {font-size:.7rem;font-weight:500;color:var(--muted);margin:0 0 6px;padding:0 10px;text-align:start;}
+#settings .more-menu-rows,.ft-home-list {background:var(--panel2);border:1px solid var(--line);border-radius:15px;overflow:hidden;}
+.more-menu-row {appearance:none;display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;min-height:44px;padding:10px 12px;margin:0;border:0;border-radius:0;box-shadow:none;background:transparent;color:var(--text);text-align:start;font:inherit;cursor:pointer;}
+.more-menu-row + .more-menu-row {border-top:1px solid var(--line);}
+.more-menu-icon {flex:0 0 24px;text-align:center;font-size:1rem;}
+.more-menu-row > span:last-child {min-width:0;}
+.more-menu-name {display:block;font-size:.78rem;font-weight:400;line-height:1.5;}
+.more-menu-row small {display:block;color:var(--muted);font-size:.64rem;line-height:1.7;margin-top:3px;}
+.more-menu-row:focus-visible {outline:2px solid var(--mint);outline-offset:-3px;}
+.more-menu-row:hover {background:color-mix(in srgb,var(--mint) 5%,transparent);}
+#settings .more-menu-danger {margin-top:20px;}
+#settings .more-menu-danger .more-menu-rows {border-color:#75404b66;}
+#settings .more-menu-danger .more-menu-row {color:var(--red);}
+html[data-item-style="frameless"] #settings .more-menu-rows {background:transparent;border-color:transparent;}
+html[data-item-style="soft"] #settings .more-menu-rows {border-color:transparent;}
+html[data-item-style="underline"] #settings .more-menu-rows,html[data-item-style="divider"] #settings .more-menu-rows {background:transparent;border:0;border-radius:0;}
+html[data-item-style="underline"] #settings .more-menu-group {border-bottom:1px solid var(--line2);}
+#financialToolsModal .ft-tabs[hidden] {display:none!important;}
+html body .modal.fullpage-modal.financial-tool-child {z-index:92!important;}
+/* Independent separators. Auto preserves existing designs, show/hide override only inner rules. */
+.table-separator-note {padding:6px 10px;margin:0;font-size:.66rem;line-height:1.8;}
+html body #wallet .wallet-section-card {background:linear-gradient(150deg,var(--panel2),var(--panel));}
+html[data-record-style="divider"] body #wallet .wallet-section-card {background:var(--panel2)!important;}
+html[data-record-style="soft"] body #wallet .wallet-section-card {background:var(--panel2)!important;}
+html[data-record-style="frameless"] body #wallet .wallet-section-card,
+html[data-record-style="underline"] body #wallet .wallet-section-card {background:transparent!important;}
+html body #wallet :is(#accountsList,#cardsList) .listitem {background:transparent!important;}
+html[data-item-style="frameless"] body #wallet .wallet-section-card {background:transparent!important;}
+html body #wallet .wallet-table-head {background:var(--surface);}
+html[data-separators-horizontal="hide"] body :is(#trans,#analytics) :is(.tx-row,.day-head),
+html[data-separators-horizontal="hide"] body #repCatBreakdownList > .listitem,
+html[data-separators-horizontal="hide"] body #wallet :is(.wallet-table-head,#accountsList .listitem,#cardsList .listitem),
+html[data-separators-horizontal="hide"] body #commitments .commitment-entry {border-bottom:0!important;}
+html[data-separators-horizontal="show"] body :is(#trans,#analytics) :is(.tx-row,.day-head),
+html[data-separators-horizontal="show"] body #repCatBreakdownList > .listitem,
+html[data-separators-horizontal="show"] body #wallet :is(.wallet-table-head,#accountsList .listitem,#cardsList .listitem),
+html[data-separators-horizontal="show"] body #commitments .commitment-entry {border-bottom:1px solid var(--line2)!important;}
+html[data-separators-horizontal="show"] body :is(#trans,#analytics) .tx-wrap:last-child .tx-row,
+html[data-separators-horizontal="show"] body #repCatBreakdownList > .listitem:last-child,
+html[data-separators-horizontal="show"] body #wallet :is(#accountsList,#cardsList) .listitem:last-child,
+html[data-separators-horizontal="show"] body #commitments .commitment-entry:last-child {border-bottom:0!important;}
+html[data-separators-vertical="hide"] body :is(#trans,#analytics) :is(.tx-cat-col,.tx-acc-col),
+html[data-separators-vertical="hide"] body #repCatBreakdownList > .listitem > .info,
+html[data-separators-vertical="hide"] body #commitments .commitment-amounts > span {border-inline:0!important;}
+html[data-separators-vertical="hide"] body #wallet .accounts-head .wth-col-box::before,
+html[data-separators-vertical="hide"] body #wallet #accountsList .listitem > strong::before,
+html[data-separators-vertical="hide"] body #wallet .cards-head .wth-cards-cols::after,
+html[data-separators-vertical="hide"] body #wallet .wallet-card-cols::after {display:none!important;}
+html[data-separators-vertical="show"] body :is(#trans,#analytics) :is(.tx-cat-col,.tx-acc-col) {border-right:1px solid var(--line2)!important;padding-inline:10px!important;}
+html[data-separators-vertical="show"] body #repCatBreakdownList > .listitem > .info {border-inline:1px solid var(--line2)!important;padding-inline:10px!important;}
+html[data-separators-vertical="show"] body #wallet .accounts-head .wth-col-box::before,
+html[data-separators-vertical="show"] body #wallet #accountsList .listitem > strong::before,
+html[data-separators-vertical="show"] body #wallet .cards-head .wth-cards-cols::after,
+html[data-separators-vertical="show"] body #wallet .wallet-card-cols::after {display:block!important;}
+/* Monthly commitments retain every detail and original actions without a wide table. */
+html body #commitments #commitmentsList {overflow:visible!important;min-width:0;}
+.commitment-list {display:flex;flex-direction:column;min-width:0;}
+.commitment-entry {appearance:none;display:block;width:100%;box-sizing:border-box;border:0;border-bottom:1px solid var(--line);border-radius:0;box-shadow:none;padding:13px 12px;background:transparent;color:var(--text);font:inherit;text-align:start;cursor:pointer;}
+.commitment-entry:last-child {border-bottom:0;}
+.commitment-entry:focus-visible {outline:2px solid var(--mint);outline-offset:-3px;}
+.commitment-title-row {display:flex;align-items:baseline;justify-content:space-between;gap:12px;}
+.commitment-title-row > b {font-size:.8rem;font-weight:500;overflow-wrap:anywhere;min-width:0;}
+.commitment-status {font-size:.66rem;flex-shrink:0;}
+.commitment-description {display:block;color:var(--muted);font-size:.66rem;line-height:1.8;overflow-wrap:anywhere;margin-top:3px;}
+.commitment-amounts {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px;}
+.commitment-amounts > span {min-width:0;}
+.commitment-amounts small {display:block;font-size:.61rem;color:var(--muted);}
+.commitment-amounts b {display:block;font-size:.72rem;line-height:1.8;font-weight:500;overflow-wrap:anywhere;}
+.commitment-action-label {display:block;margin-top:8px;color:var(--muted);font-size:.62rem;}
+html[data-separators-vertical="show"] body #commitments .commitment-amounts > span + span {border-left:1px solid var(--line2);padding-left:8px;}
+#analytics #fabSpeedWrap {z-index:80;}
+#fabChartBtn.active {color:var(--mint);border-color:var(--mint);}
+html[data-separators-horizontal="hide"] body #wallet .wallet-horiz-sep {display:none!important;}
+html[data-separators-horizontal="show"] body #wallet .wallet-horiz-sep {display:block!important;}
+html[data-separators-horizontal="hide"] body #analytics .subcat-table :is(th,td) {border-bottom:0!important;}
+html[data-separators-horizontal="show"] body #analytics .subcat-table :is(th,td) {border-bottom:1px solid var(--line2)!important;}
+html[data-separators-vertical="hide"] body #analytics .subcat-table :is(th,td) {border-inline:0!important;}
+html[data-separators-vertical="show"] body #analytics .subcat-table :is(th,td) + :is(th,td) {border-left:1px solid var(--line2)!important;}
+
+/* Calm commitment overview: the amounts and actions expand only when needed. */
+html body #commitments details.commitment-entry {padding:0;cursor:default;}
+.commitment-compact-summary {list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;cursor:pointer;}
+.commitment-compact-summary::-webkit-details-marker {display:none;}
+.commitment-compact-summary:focus-visible {outline:2px solid var(--mint);outline-offset:-3px;}
+.commitment-compact-info {display:block;min-width:0;flex:1;}
+.commitment-compact-info > b {display:block;font-size:.78rem;font-weight:400;overflow-wrap:anywhere;line-height:1.7;}
+.commitment-compact-info > small {display:block;font-size:.61rem;color:var(--muted);line-height:1.8;overflow-wrap:anywhere;}
+.commitment-compact-due {display:grid;grid-template-columns:minmax(0,1fr) 10px;align-items:center;column-gap:7px;text-align:right;max-width:46%;flex-shrink:0;}
+.commitment-compact-due > small {grid-column:1;font-size:.58rem;color:var(--muted);}
+.commitment-compact-due > b {grid-column:1;font-size:.74rem;font-weight:500;overflow-wrap:anywhere;line-height:1.8;}
+.commitment-expand-mark {grid-column:2;grid-row:1/3;color:var(--muted);font-size:.72rem;}
+.commitment-entry[open] .commitment-expand-mark {transform:rotate(180deg);}
+.commitment-expanded {padding:0 12px 12px;}
+.commitment-open-actions {margin-top:12px;min-height:36px;width:100%;font-size:.7rem;}
+/* Wallet section headings share their rows' background, without a dark strip. */
+html body #wallet .wallet-table-head {background:transparent!important;}

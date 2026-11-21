@@ -2,10 +2,16 @@
 const FINANCIAL_TOOL_LABELS={goals:'الأهداف',budgets:'الميزانيات',recurringRules:'القواعد المتكررة'};
 let _financialToolTab='goals';
 function financialToolsPanel(){return document.getElementById('financialToolsModal');}
-function openFinancialTools(tab='goals'){
+function openFinancialTools(tab='home'){
   ensureManagementState();
-  _financialToolTab=Object.hasOwn(FINANCIAL_TOOL_LABELS,tab)?tab:'goals';
+  _financialToolTab=Object.hasOwn(FINANCIAL_TOOL_LABELS,tab)?tab:'home';
   financialToolsPanel()?.classList.add('show');renderFinancialTools();
+}
+function backFinancialTools(){if(_financialToolTab==='home')closeFinancialTools();else openFinancialTools('home');}
+function launchFinancialToolWindow(kind){
+  const id=kind==='salary'?'salaryModal':'annualReportModal';
+  document.getElementById(id)?.classList.add('financial-tool-child');
+  if(kind==='salary')openSalaryModal();else openAnnualReportModal();
 }
 function closeFinancialTools(){financialToolsPanel()?.classList.remove('show');}
 function ftAmount(value){return Number(value||0).toLocaleString('ar-EG',{maximumFractionDigits:2})+' ج.م';}
@@ -17,6 +23,18 @@ function renderFinancialTools(){
   const body=document.getElementById('financialToolsBody');if(!body)return;
   ensureManagementState();
   const kind=_financialToolTab;
+  const home=kind==='home';
+  const tabs=document.querySelector('#financialToolsModal .ft-tabs');if(tabs)tabs.hidden=home;
+  const title=document.getElementById('financialToolsTitle');if(title)title.textContent=home?'أدوات مالية':FINANCIAL_TOOL_LABELS[kind];
+  if(home){
+    body.innerHTML='<div class="ft-home-list">'+[
+      ['🎯','الأهداف','تابع أهداف الادخار',"openFinancialTools('goals')"],
+      ['📋','الميزانيات','حدود الإنفاق الشهرية',"openFinancialTools('budgets')"],
+      ['🔁','القواعد المتكررة','إدارة الدخل والمصروف المتكرر',"openFinancialTools('recurringRules')"],
+      ['💼','حاسبة المرتب','حساب المرتب وتفاصيله',"launchFinancialToolWindow('salary')"],
+      ['📊','التقرير السنوي','عرض تقرير السنة',"launchFinancialToolWindow('yearly')"]
+    ].map(([icon,label,detail,action])=>'<button type="button" class="more-menu-row" onclick="'+action+'"><span class="more-menu-icon" aria-hidden="true">'+icon+'</span><span><span class="more-menu-name">'+label+'</span><small>'+detail+'</small></span></button>').join('')+'</div>';return;
+  }
   document.querySelectorAll('[data-ft-tab]').forEach(btn=>{const on=btn.dataset.ftTab===kind;btn.classList.toggle('active',on);btn.setAttribute('aria-selected',String(on));});
   const notes={goals:'تابع تقدم ادخارك. تسجيل مبلغ لهدف لا يحرك رصيد أي حساب ولا ينشئ معاملة.',budgets:'حدود إنفاق شهرية بالجنيه. المصروف المحسوب يستبعد المشتريات المسجلة على البطاقات وسدادها، مثل إجمالي مصروفات السجل.',recurringRules:'قواعد شهرية للدخل والمصروف فقط. تُنشأ معاملات الشهر المستحقة عند فتح التطبيق، مرة واحدة لكل قاعدة. لا تُنشأ أشهر فائتة تلقائياً.'};
   body.innerHTML=`<p class="hint ft-intro">${notes[kind]}</p><button type="button" class="primary ft-add" onclick="editFinancialTool('${kind}')">＋ إضافة ${kind==='goals'?'هدف':kind==='budgets'?'ميزانية':'قاعدة شهرية'}</button>`+

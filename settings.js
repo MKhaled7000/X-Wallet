@@ -121,6 +121,13 @@ function previewRecordStyle(st){
   _pendingRecordStyle = st || 'framed';
   document.documentElement.setAttribute('data-record-style', _pendingRecordStyle);
 }
+const pendingTableSeparators={};
+function tableSeparatorMode(value){return ['show','hide'].includes(value)?value:'auto';}
+function previewTableSeparators(axis,value){
+  if(!['horizontal','vertical'].includes(axis))return;
+  pendingTableSeparators[axis]=tableSeparatorMode(value);
+  document.documentElement.setAttribute('data-separators-'+axis,pendingTableSeparators[axis]);
+}
 function selectTempTheme(thName){
   _pendingTheme = thName;
   document.querySelectorAll('.theme-dot').forEach(btn=>btn.classList.toggle('active', btn.dataset.theme===thName));
@@ -133,6 +140,11 @@ function selectTempTheme(thName){
 }
 function applyPreferences(){
   const p = state.prefs || {};
+  for(const axis of ['horizontal','vertical']){
+    const value=tableSeparatorMode(p[axis+'Separators']);
+    document.documentElement.setAttribute('data-separators-'+axis,value);
+    setv(axis==='horizontal'?'prefHorizontalSeparators':'prefVerticalSeparators',value);
+  }
   document.documentElement.style.setProperty('--scale', p.fontSize || '1');
   const fKey = p.fontFamily || 'system';
   document.documentElement.style.setProperty('--app-font', FONT_STACKS[fKey] || FONT_STACKS.system);
@@ -257,6 +269,11 @@ function saveGeneralSettings(){
   state.prefs.headerStyle = _pendingHeaderStyle || document.getElementById('prefHeaderStyle')?.value || 'framed';
   state.prefs.itemStyle = _pendingItemStyle || document.getElementById('prefItemStyle')?.value || 'framed';
   state.prefs.recordStyle = _pendingRecordStyle || document.getElementById('prefRecordStyle')?.value || 'framed';
+  for(const axis of ['horizontal','vertical']){
+    const id=axis==='horizontal'?'prefHorizontalSeparators':'prefVerticalSeparators';
+    state.prefs[axis+'Separators']=tableSeparatorMode(pendingTableSeparators[axis]??document.getElementById(id)?.value);
+    delete pendingTableSeparators[axis];
+  }
   if(_pendingTheme) state.prefs.theme = _pendingTheme;
   _pendingTheme = null;
   _pendingBgMode = null;
