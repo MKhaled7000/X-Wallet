@@ -44,7 +44,7 @@ async function uploadCloudBackupContent(contentStr, options={}){
   const provider = options.provider || p.syncProvider || (p.ghToken?'github':'google');
 
   if(provider === 'google'){
-    if(!p.driveClientId){
+    if(!(typeof xwEffectiveGoogleClientId==='function' ? xwEffectiveGoogleClientId() : p.driveClientId)){
       if(!options.silent) openCloudSyncModal();
       return {success:false, reason:'not-configured'};
     }
@@ -139,7 +139,7 @@ function requestEncryptedCloudBackup(provider, manualOnly=false){
 async function syncCloudNow(){
   const p=state.prefs||{};const provider=p.syncProvider||(p.ghToken?'github':'google');
   if(provider==='google'){
-    if(!p.driveClientId){openCloudSyncModal();return;}
+    if(!(typeof xwEffectiveGoogleClientId==='function' ? xwEffectiveGoogleClientId() : p.driveClientId)){openCloudSyncModal();return;}
     try{await authorizeGoogleDrive();requestEncryptedCloudBackup('google');}catch(err){toast(err.message);}
     return;
   }

@@ -1,14 +1,23 @@
 /* X-Wallet 15.3.6: GIS token model. OAuth tokens never enter wallet state/storage. */
 const GOOGLE_DRIVE_SCOPE='https://www.googleapis.com/auth/drive.file';
+/* X-Wallet 15.3.8: developer configuration separated from normal use.
+   When the developer ships a client ID here, the user only picks a Google
+   account and approves; the field in إعداد الربط stays as an advanced override.
+   An OAuth Web Client ID is a public identifier, not a secret. */
+const XW_GOOGLE_CLIENT_ID='';
+function xwEffectiveGoogleClientId(){
+  const custom=String(state.prefs?.driveClientId||'').trim();
+  return custom||XW_GOOGLE_CLIENT_ID;
+}
 let _googleDriveSession=null;
 let _googleDriveAuthPending=false;
 let _googleDriveBusy=false;
 function clearGoogleDriveSession(){_googleDriveSession=null;}
 function googleDriveToken(){
-  return _googleDriveSession && _googleDriveSession.clientId===state.prefs?.driveClientId && Date.now()<_googleDriveSession.expiresAt ? _googleDriveSession.token : '';
+  return _googleDriveSession && _googleDriveSession.clientId===xwEffectiveGoogleClientId() && Date.now()<_googleDriveSession.expiresAt ? _googleDriveSession.token : '';
 }
 function authorizeGoogleDrive(){
-  const clientId=String(state.prefs?.driveClientId||'').trim();
+  const clientId=xwEffectiveGoogleClientId();
   if(!/^[a-zA-Z0-9_-]+\.apps\.googleusercontent\.com$/.test(clientId)){
     openCloudSyncModal();return Promise.reject(new Error('أضف OAuth Client ID الصحيح في إعداد الربط أولاً'));
   }
@@ -33,7 +42,7 @@ function authorizeGoogleDrive(){
           if(response.error || !response.access_token || !(Number(response.expires_in)>60) || !google.accounts.oauth2.hasGrantedAllScopes(response,GOOGLE_DRIVE_SCOPE)){
             finish(new Error('لم تمنح Google صلاحية ملفات التطبيق؛ لم يتم رفع أي بيانات'));return;
           }
-          if(state.prefs?.driveClientId!==clientId){finish(new Error('تغير إعداد الربط؛ حاول مرة أخرى'));return;}
+          if(xwEffectiveGoogleClientId()!==clientId){finish(new Error('تغير إعداد الربط؛ حاول مرة أخرى'));return;}
           finish(null,response);
         },
         error_callback:()=>finish(new Error('أُغلقت نافذة Google أو منعها المتصفح؛ اسمح بالنوافذ المنبثقة وحاول مجدداً'))

@@ -1108,7 +1108,7 @@ input, textarea, [contenteditable="true"] {
   touch-action: pan-x pan-y;
   border: 1px solid var(--line2);
   border-radius: 12px;
-  background: var(--panel);
+  background: var(--panel2);
 }
 .excel-table {
   width: max-content;
@@ -1139,7 +1139,7 @@ input, textarea, [contenteditable="true"] {
   position: sticky;
   left: 0;
   z-index: 3;
-  background: var(--surface);
+  background: var(--panel2);
   text-align: left;
   border-right: 2px solid var(--line2);
   min-width: 68px;
@@ -5773,8 +5773,9 @@ html.xwallet-boot-loading .app{visibility:hidden !important}
   max-width: none !important;
 }
 .qm-recur-btn {
-  width: 32px;
+  min-width: 44px;
   height: 28px;
+  padding: 0 10px;
   border-radius: 8px;
   border: 1px solid var(--line2);
   background: var(--surface);
@@ -5784,11 +5785,10 @@ html.xwallet-boot-loading .app{visibility:hidden !important}
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  padding: 0;
 }
 .qm-recur-btn.active {
+  background: #43d6b21e;
   border-color: var(--mint);
-  background: #43d6b224;
   color: var(--mint);
 }
 
@@ -6054,21 +6054,21 @@ html.xwallet-boot-loading .app{visibility:hidden !important}
 
 /* 4.1 Monochrome Recurring Toggle (matching .swap-acc-btn style) */
 .qm-recur-btn {
-  width: 30px !important;
-  height: 24px !important;
-  border-radius: 99px !important;
+  min-width: 44px !important;
+  height: 28px !important;
+  padding: 0 10px !important;
+  border-radius: 8px !important;
   border: 1px solid var(--line2) !important;
   background: var(--surface) !important;
   color: var(--muted) !important;
-  opacity: .68;
+  opacity: 1;
   transition: all .16s ease;
 }
 .qm-recur-btn.active {
+  background: #43d6b21e !important;
   border-color: var(--mint) !important;
-  background: #43d6b222 !important;
   color: var(--mint) !important;
   opacity: 1;
-  box-shadow: 0 0 8px #43d6b244;
 }
 
 /* 4.2 Icon-only Grid/List Toggle Button */
@@ -7808,14 +7808,6 @@ html #quickModal #qmRecurringBtn[aria-pressed="true"] {
 html #quickModal #qmRecurringBtn:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
 
 /* 15.3.7: scoped RTL cloud password biometric controls. */
-.backup-bio-setting { flex-wrap:wrap; direction:rtl; text-align:right; }
-.backup-bio-setting input[type="checkbox"] { appearance:none; -webkit-appearance:none; position:relative; width:44px; height:26px!important; min-height:26px!important; max-height:26px; align-self:center; flex:0 0 44px; margin:0; padding:0; border:1px solid var(--line2); border-radius:20px; background:var(--surface); cursor:pointer; }
-.backup-bio-setting input[type="checkbox"]::before { content:''; position:absolute; width:18px; height:18px; top:3px; left:3px; border-radius:50%; background:var(--muted); transition:transform .15s; }
-.backup-bio-setting input[type="checkbox"]:checked { background:var(--mint); }
-.backup-bio-setting input[type="checkbox"]:checked::before { background:#06221e; transform:translateX(18px); }
-.backup-bio-setting input[type="checkbox"]:focus-visible { outline:2px solid var(--mint); outline-offset:3px; }
-.backup-bio-setting input[type="checkbox"]:disabled { opacity:.55; cursor:wait; }
-.backup-bio-setting > .hint { flex-basis:100%; margin:4px 0 0; line-height:1.8; font-size:.72rem; }
 #backupBioModal { z-index:240; }
 #backupBioModal [hidden] { display:none!important; }
 .backup-bio-sheet { max-width:390px; text-align:right; }
@@ -7825,3 +7817,79 @@ html #quickModal #qmRecurringBtn:focus-visible { outline: 2px solid var(--text);
 #backupBioPassword { width:100%; height:44px; padding:0 11px; color:var(--text); background:var(--surface); border:1px solid var(--line2); border-radius:11px; font:inherit; }
 .backup-bio-sheet .actions { margin-top:14px; }
 .backup-bio-manual { width:100%; margin-top:9px; min-height:42px; }
+
+/* =========================================================
+   X-Wallet V15.3.8: symmetry & consistency revisions
+   ========================================================= */
+
+/* 1. Identical summary-row typography across Records, Analytics and Wallet */
+html #trans .mm-stats-card .mm-stat-box small,
+html #analytics .mm-stats-card .mm-stat-box small,
+html #wallet .mm-stats-card .mm-stat-box small {
+  font-size: .72rem !important;
+  font-weight: 400 !important;
+  line-height: 1.25 !important;
+  font-family: inherit !important;
+  margin: 0 !important;
+}
+html #trans .mm-stats-card .mm-stat-box b,
+html #analytics .mm-stats-card .mm-stat-box b,
+html #wallet .mm-stats-card .mm-stat-box b {
+  font-size: .82rem !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+  font-family: inherit !important;
+  margin: 0 !important;
+}
+
+/* 2. Selected income/expense indicator on the Analytics summary row */
+#analytics .mm-stats-card .mm-stat-box.clickable-stat {
+  position: relative !important;
+}
+#analytics .mm-stats-card .mm-stat-box.clickable-stat.stat-selected::after {
+  content: '';
+  position: absolute;
+  bottom: 1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 26px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--mint);
+}
+
+/* 3. Wallet rows: long names truncate instead of wrapping, keeping rows identical */
+#wallet #accountsList .listitem,
+#wallet #cardsList .listitem {
+  flex-wrap: nowrap !important;
+}
+#wallet #accountsList .listitem .info,
+#wallet #cardsList .listitem .info {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+#wallet #accountsList .listitem .info b,
+#wallet #cardsList .listitem .info b {
+  display: block !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* 4. Salary calculator: tab strip lives inside the table's scroll context so
+      both share the same left/right edges (scrollbar included) */
+#salaryModal .sal-sub-tabs-sticky {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 6 !important;
+  background: var(--bg) !important;
+  margin: -10px -12px 8px !important;
+  padding: 10px 12px 4px !important;
+}
+
+/* 5. Backup biometric helper text grouped with its row */
+.backup-bio-hint {
+  margin: -4px 4px 0 !important;
+  font-size: .7rem !important;
+  line-height: 1.8 !important;
+}

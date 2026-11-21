@@ -157,15 +157,21 @@ function openCloudSyncModal(){
   const provider=p.syncProvider||(p.ghToken?'github':'google');
   const html=`<div class="ft-form" dir="rtl">
     <section class="ft-card"><h3>Google Drive مباشرة</h3>
-      <p class="hint">بعد الإعداد مرة واحدة: اضغط مزامنة، اختر حساب Google، ثم افتح كلمة مرور النسخة بالبصمة إن كانت مفعلة، أو أدخلها. لا سكريبت ولا سر مشترك. صلاحية الوصول لملفات التطبيق فقط، وليس كل درايف.</p>
-      <label class="ft-field" for="cfgDrvClientId"><span>OAuth Web Client ID</span><input id="cfgDrvClientId" dir="ltr" type="text" value="${esc(p.driveClientId||'')}" placeholder="…apps.googleusercontent.com" autocomplete="off"></label>
-      <p class="hint">أنشئ مشروع Google Cloud، فعّل Drive API، وأضف Web OAuth Client بالأصل التالي في Authorized JavaScript origins. في وضع Testing أضف بريدك إلى Test users. الخطوات في README.txt.</p>
-      <code class="ft-origin">${esc(location.origin)}</code>
-      <p class="hint">معرّف العميل ليس سراً. لا تدخل Client Secret. جلسة Google مؤقتة ولا تُحفظ. قد تحتاج تسجيل الدخول مجدداً بعد الإغلاق أو انتهاء الجلسة.</p>
+      <p class="hint">الاستخدام العادي لا يحتاج أي إعداد منك: اضغط مزامنة، اختر حساب Google، وامنح صلاحية ملفات التطبيق فقط. الجلسة مؤقتة ولا تُحفظ، وقد تحتاج تسجيل الدخول مجدداً بعد الإغلاق أو انتهائها.</p>
+      <p class="hint">${xwEffectiveGoogleClientId()?'الربط مُجهز ✓':'الربط غير مُجهز بعد. يحتاج إعداد المطوّر أدناه مرة واحدة.'}</p>
       <button type="button" class="smallbtn" onclick="clearGoogleDriveSession();toast('تم نسيان الجلسة محلياً. اختر الحساب عند العملية التالية')">نسيان جلسة Google / تغيير الحساب</button>
+      <details class="fold" style="margin-top:10px"><summary><span class="ic-txt"><i>⚙</i><span>إعداد المطوّر (متقدم)</span></span><span class="fold-arrow">▼</span></summary>
+        <div class="fold-body">
+          <p class="hint">هذا الإعداد مسؤولية مطوّر التطبيق ويُنفَّذ مرة واحدة، وليس خطوة يومية للمستخدم: مشروع Google Cloud مع تفعيل Drive API، ثم Web OAuth Client بالأصل التالي في Authorized JavaScript origins، وفي وضع Testing يُضاف البريد إلى Test users. الخطوات في README.txt.</p>
+          <code class="ft-origin">${esc(location.origin)}</code>
+          <label class="ft-field" for="cfgDrvClientId"><span>OAuth Web Client ID (تجاوز يدوي)</span><input id="cfgDrvClientId" dir="ltr" type="text" value="${esc(p.driveClientId||'')}" placeholder="…apps.googleusercontent.com" autocomplete="off"></label>
+          <p class="hint">معرّف العميل ليس سراً. لا تدخل Client Secret.</p>
+        </div>
+      </details>
     </section>
     <section class="ft-card" dir="rtl"><h3>كلمة مرور النسخة</h3>
-      <div class="c-row backup-bio-setting"><label for="cloudBackupBioToggle">فتح بالبصمة</label><input id="cloudBackupBioToggle" data-backup-bio-toggle type="checkbox" role="switch" aria-describedby="cloudBackupBioStatus" onchange="backupBiometric.toggle(this)"><p class="hint" id="cloudBackupBioStatus" data-backup-bio-status>غير مفعلة. كلمة المرور هي وسيلة الاستعادة دائماً.</p></div>
+      <div class="c-row"><label for="cloudBackupBioToggle">فتح بالبصمة</label><label class="xw-switch"><input id="cloudBackupBioToggle" data-backup-bio-toggle type="checkbox" role="switch" aria-describedby="cloudBackupBioStatus" onchange="backupBiometric.toggle(this)"><span class="xw-slider"></span></label></div>
+      <p class="hint backup-bio-hint" id="cloudBackupBioStatus" data-backup-bio-status>غير مفعلة. كلمة المرور هي وسيلة الاستعادة دائماً.</p>
       <p class="hint">تحقق الجهاز قد يستخدم البصمة أو رمز قفل الشاشة. عند التعطيل تُمسح كلمة المرور المشفرة وربط البصمة من التطبيق، ولا يُحذف مفتاح المرور من مدير الجهاز تلقائياً.</p>
     </section>
     <section class="ft-card"><h3>GitHub Gist (اختياري)</h3>
@@ -180,7 +186,7 @@ function openCloudSyncModal(){
     const id=(document.getElementById('cfgDrvClientId')?.value||'').trim();
     if(id&&!/^[a-zA-Z0-9_-]+\.apps\.googleusercontent\.com$/.test(id)){toast('Client ID غير صحيح؛ لا تدخل Client Secret');return false;}
     const selected=document.getElementById('cfgSyncProvider')?.value||'google';
-    if(selected==='google'&&!id){toast('أضف Client ID أولاً، ثم احفظ');return false;}
+    if(selected==='google'&&!id&&!(typeof XW_GOOGLE_CLIENT_ID==='string'&&XW_GOOGLE_CLIENT_ID)){toast('الربط غير مُجهز بعد؛ يحتاج إعداد المطوّر (Client ID) أولاً');return false;}
     state.prefs=state.prefs||{};
     if(state.prefs.driveClientId!==id)clearGoogleDriveSession();
     state.prefs.driveClientId=id;

@@ -63,6 +63,8 @@ function switchReportTab(tab){
   document.getElementById('repTabInc')?.classList.toggle('active', activeReportTab==='inc');
   document.getElementById('repTabExp')?.classList.toggle('active', activeReportTab==='exp');
   document.getElementById('repTabTrn')?.classList.toggle('active', activeReportTab==='trn');
+  document.getElementById('repStatBoxInc')?.classList.toggle('stat-selected', activeReportTab==='inc');
+  document.getElementById('repStatBoxExp')?.classList.toggle('stat-selected', activeReportTab==='exp');
   if(typeof updateTopTabTitle==='function') updateTopTabTitle('analytics');
   renderReportsScreen();
 }

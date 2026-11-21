@@ -130,7 +130,7 @@ function renderAutoSnapshotsList(){
   if(cntEl) cntEl.textContent = String(snaps.length);
   const syncBtn = document.getElementById('btnCloudSyncSetup');
   if(syncBtn){
-    const hasCloud = !!state.prefs?.driveClientId;
+    const hasCloud = typeof xwEffectiveGoogleClientId==='function' ? !!xwEffectiveGoogleClientId() : !!state.prefs?.driveClientId;
     syncBtn.textContent = hasCloud ? '☁ إعداد Google جاهز' : '⚙ إعداد Google';
   }
 }
