@@ -1,15 +1,3 @@
-async function verifyGoogleScriptEndpoint(p){
-  if(!p.driveSharedSecret||p.driveSharedSecret.length<32)throw new Error('أضف سراً مشتركاً عشوائياً لا يقل عن 32 حرفاً');
-  const endpoint=new URL(p.driveWebhookUrl);
-  if(endpoint.protocol!=='https:'||endpoint.hostname!=='script.google.com'||!/^\/macros\/s\/[^/]+\/exec$/.test(endpoint.pathname))throw new Error('استخدم رابط نشر Apps Script الرسمي المنتهي بـ /exec');
-  endpoint.searchParams.set('secret',p.driveSharedSecret);endpoint.searchParams.set('action','status');
-  const response=await fetch(endpoint.toString(),{cache:'no-store',referrerPolicy:'no-referrer'});
-  if(!response.ok)throw new Error('تعذر التحقق من السكريبت الآمن');
-  let status;try{status=await response.json();}catch(_){throw new Error('السكريبت قديم أو السر غير صحيح. استبدل الكود وأعد النشر قبل الرفع.');}
-  if(status?.protocol!=='x-wallet-secure-drive-v2'||status?.authenticated!==true)throw new Error('لم يؤكد الخادم دعم الحماية الجديدة؛ لم يتم إرسال النسخة');
-  return true;
-}
-
 /* X-Wallet V14.2 — Cloud backup upload and restore workflows */
 
 /* Split large Gist payloads into API-readable files (< 1 MB each), avoiding raw-host CORS on restore. */
@@ -53,10 +41,10 @@ async function uploadCloudBackupContent(contentStr, options={}){
   const p = state.prefs || {};
   const encrypted=isEncryptedBackupDocument(contentStr);
   if(!encrypted)throw new Error('الرفع السحابي يتطلب نسخة مشفرة؛ لم يتم إرسال البيانات');
-  const provider = options.provider || p.syncProvider || 'github';
+  const provider = options.provider || p.syncProvider || (p.ghToken?'github':'google');
 
   if(provider === 'google'){
-    if(!p.driveWebhookUrl && !p.driveAccessToken && !p.driveEmail){
+    if(!p.driveClientId){
       if(!options.silent) openCloudSyncModal();
       return {success:false, reason:'not-configured'};
     }
@@ -127,7 +115,15 @@ async function uploadCloudBackupContent(contentStr, options={}){
   }
 }
 
-function requestEncryptedCloudBackup(provider){
+function requestEncryptedCloudBackup(provider, manualOnly=false){
+  if(!manualOnly && window.backupBiometric){
+    backupBiometric.offer(async password=>{
+      let content='';
+      try{content=await createEncryptedBackupDocument(state,password);password='';await uploadCloudBackupContent(content,{encrypted:true,provider});}
+      finally{password='';content='';}
+    },()=>requestEncryptedCloudBackup(provider,true));
+    return;
+  }
   showAppPrompt('تشفير النسخة السحابية','كلمة مرور لا تقل عن 10 أحرف. لن تُحفظ؛ احتفظ بها للاستعادة.','',password=>{
     if(String(password).length<10){toast('كلمة المرور يجب ألا تقل عن 10 أحرف');return;}
     showAppPrompt('تأكيد كلمة مرور النسخة','أعد كتابة كلمة المرور','',async confirmation=>{
@@ -136,12 +132,18 @@ function requestEncryptedCloudBackup(provider){
         const content=await createEncryptedBackupDocument(state,password);
         await uploadCloudBackupContent(content,{encrypted:true,provider});
       }catch(err){toast(err?.message||'تعذر تجهيز النسخة المشفرة');}
+      finally{password='';confirmation='';}
     },false,'password');
   },false,'password');
 }
 async function syncCloudNow(){
-  const p=state.prefs||{};const provider=p.syncProvider||'github';
-  if((provider==='google'&&!p.driveWebhookUrl&&!p.driveAccessToken&&!p.driveEmail)||(provider!=='google'&&!p.ghToken)){openCloudSyncModal();return;}
+  const p=state.prefs||{};const provider=p.syncProvider||(p.ghToken?'github':'google');
+  if(provider==='google'){
+    if(!p.driveClientId){openCloudSyncModal();return;}
+    try{await authorizeGoogleDrive();requestEncryptedCloudBackup('google');}catch(err){toast(err.message);}
+    return;
+  }
+  if(!p.ghToken){openCloudSyncModal();return;}
   requestEncryptedCloudBackup(provider);
 }
 
@@ -149,8 +151,17 @@ async function applyCloudBackupState(parsedDoc, source, encrypted){
   await applyImportedBackupState(parsedDoc, source, encrypted);
 }
 
-function restoreCloudBackupText(rawText, source){
+function restoreCloudBackupText(rawText, source, manualOnly=false){
   if(isEncryptedBackupDocument(rawText)){
+    if(!manualOnly && window.backupBiometric){
+      backupBiometric.offer(async password=>{
+        try{
+          const parsedDoc=await parseEncryptedBackupDocument(rawText,password);password='';
+          await applyCloudBackupState(parsedDoc,source,true);
+        }finally{password='';}
+      },()=>restoreCloudBackupText(rawText,source,true));
+      return;
+    }
     showAppPrompt(
       'فك تشفير نسخة السحابة',
       'أدخل كلمة مرور النسخة المشفرة',
@@ -161,7 +172,7 @@ function restoreCloudBackupText(rawText, source){
           await applyCloudBackupState(parsedDoc, source, true);
         }catch(err){
           toast(err?.message || 'تعذر فك تشفير النسخة؛ تحقق من كلمة المرور والملف');
-        }
+        }finally{pass='';}
       },
       false,
       'password'
@@ -175,48 +186,8 @@ function restoreCloudBackupText(rawText, source){
 
 async function restoreFromCloudSync(){
   const p = state.prefs || {};
-  const provider = p.syncProvider || 'github';
-  if(provider === 'google'){
-    if(!p.driveWebhookUrl && !p.driveAccessToken){
-      openCloudSyncModal();
-      return;
-    }
-    toast('جاري تنزيل النسخة من Google Drive…');
-    try{
-      let rawCloud = '';
-      if(p.driveWebhookUrl){
-        if(!p.driveSharedSecret)throw new Error('أضف السر المشترك وأعد نشر كود Apps Script الآمن أولاً');
-        await verifyGoogleScriptEndpoint(p);
-        const endpoint=new URL(p.driveWebhookUrl);
-        if(endpoint.protocol!=='https:')throw new Error('رابط المزامنة يجب أن يستخدم HTTPS');
-        endpoint.searchParams.set('secret',p.driveSharedSecret);
-        const res = await fetch(endpoint.toString(), {cache:'no-store',referrerPolicy:'no-referrer'});
-        if(!res.ok) throw new Error(`Google Drive HTTP ${res.status}`);
-        rawCloud = await res.text();
-      }else{
-        const query = "trashed = false and (name contains 'x-wallet-backup-' or name contains 'x-wallet-encrypted-backup-')";
-        const listRes = await fetch('https://www.googleapis.com/drive/v3/files?q=' + encodeURIComponent(query) + '&orderBy=modifiedTime%20desc&pageSize=1&fields=files(id,name,modifiedTime)', {
-          headers:{'Authorization':'Bearer ' + p.driveAccessToken, 'Accept':'application/json'},
-          cache:'no-store'
-        });
-        if(!listRes.ok) throw new Error(`Google Drive HTTP ${listRes.status}`);
-        const listing = await listRes.json();
-        const latest = listing?.files?.[0];
-        if(!latest?.id) throw new Error('لم يتم العثور على نسخة محفوظة في Google Drive');
-        const fileRes = await fetch('https://www.googleapis.com/drive/v3/files/' + encodeURIComponent(latest.id) + '?alt=media', {
-          headers:{'Authorization':'Bearer ' + p.driveAccessToken},
-          cache:'no-store'
-        });
-        if(!fileRes.ok) throw new Error(`تعذر تنزيل ملف النسخة من Google Drive (HTTP ${fileRes.status})`);
-        rawCloud = await fileRes.text();
-      }
-      if(!rawCloud || rawCloud.trim() === '{}') throw new Error('لم يتم العثور على نسخة محفوظة في Google Drive');
-      restoreCloudBackupText(rawCloud, 'Google Drive');
-    }catch(err){
-      toast(err?.message || 'تعذر تنزيل النسخة من Google Drive');
-    }
-    return;
-  }
+  const provider = p.syncProvider || (p.ghToken?'github':'google');
+  if(provider === 'google'){await restoreGoogleDriveBackup();return;}
 
   if(!p.ghToken || !p.ghGistId){
     openCloudSyncModal();

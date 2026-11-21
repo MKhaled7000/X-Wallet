@@ -62,7 +62,7 @@ async function commitCriticalWalletState(previousState,rollbackSnapshots,actionL
 }
 
 /* =========================================================
-   #8.3 GOOGLE DRIVE CLOUD SYNC (Gmail Account + Direct Cloud Upload via Google Script / OAuth2 / Android Share)
+   #8.3 GOOGLE DRIVE CLOUD SYNC (Direct Google Drive OAuth and local snapshots)
    ========================================================= */
 function updateLocalAutoFreqBtnText(){
   const btn = document.getElementById('btnLocalAutoFreq');
@@ -130,8 +130,8 @@ function renderAutoSnapshotsList(){
   if(cntEl) cntEl.textContent = String(snaps.length);
   const syncBtn = document.getElementById('btnCloudSyncSetup');
   if(syncBtn){
-    const hasCloud = !!(state.prefs?.driveWebhookUrl || state.prefs?.driveAccessToken);
-    syncBtn.textContent = hasCloud ? '☁ مزامنة متصلة ✓' : '⚙ ربط تلقائي';
+    const hasCloud = !!state.prefs?.driveClientId;
+    syncBtn.textContent = hasCloud ? '☁ إعداد Google جاهز' : '⚙ إعداد Google';
   }
 }
 
@@ -234,6 +234,7 @@ function preserveDeviceSecurityAndDrivePrefs(oldPrefs, newState){
   ];
   for(const k of localOnlyKeys) delete newState.prefs[k];
   for(const k of localOnlyKeys){
+    if(['driveEmail','driveWebhookUrl','driveAccessToken','driveSharedSecret'].includes(k))continue;
     if(op[k] !== undefined && op[k] !== '') newState.prefs[k] = op[k];
   }
   return newState;
@@ -311,7 +312,7 @@ async function quickShareBackupToDrive(){
       if(err && err.name === 'AbortError') return;
     }
   }
-  if(p.driveWebhookUrl || p.driveAccessToken){
+  if(p.driveClientId){
     await exportBackupToGoogleDrive(false);
     return;
   }
@@ -355,136 +356,6 @@ function openDriveCloudSetupModal(){
   `;
   showAppCustomForm('الحفظ اليدوي والنسخ المحلي', html, null, true);
 }
-
-async function exportBackupToGoogleDrive(silentAuto, options={}){
-  const p = state.prefs || {};
-  const email = (p.driveEmail || val('prefDriveEmail') || '').trim();
-  if(!email && !p.driveWebhookUrl && !p.driveAccessToken){
-    if(!silentAuto){
-      openDriveCloudSetupModal();
-      toast('أكمل إعداد Google Drive أولاً');
-    }
-    return {success:false, reason:'not-configured'};
-  }
-
-  if(typeof options.content!=='string'){requestEncryptedCloudBackup('google');return {success:false,reason:'awaiting-encryption'};}
-  const encrypted=isEncryptedBackupDocument(options.content);
-  if(!encrypted)throw new Error('لن تُرفع نسخة غير مشفرة');
-  const fileName = `x-wallet-${encrypted ? 'encrypted-' : ''}backup-${today()}.json`;
-  const jsonStr=options.content;
-
-  // Google Apps Script endpoint: no-cors can send the request but cannot expose the server response.
-  if(p.driveWebhookUrl){
-    if(!silentAuto) toast(encrypted ? 'جاري إرسال النسخة المشفرة إلى Google Drive…' : 'جاري إرسال النسخة إلى Google Drive…');
-    try{
-      if(!p.driveSharedSecret)throw new Error('أضف السر المشترك وأعد نشر سكريبت الحفظ الآمن أولاً');
-      if(new URL(p.driveWebhookUrl).protocol!=='https:')throw new Error('يلزم رابط HTTPS');
-      await verifyGoogleScriptEndpoint(p);
-      const response = await fetch(p.driveWebhookUrl, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {'Content-Type': 'text/plain;charset=utf-8'},
-        body: JSON.stringify({secret:p.driveSharedSecret,backup:jsonStr})
-      });
-      if(response.type === 'opaque' || response.status === 0){
-        state.prefs.lastBackupAttempt = today();
-        await persistCurrentStateStore();
-        if(!silentAuto) toast('أُرسل طلب الحفظ، لكن استجابة الخادم غير متاحة. تحقق بالاستعادة قبل الاعتماد على النسخة.');
-        return {success:true, verified:false, provider:'google-apps-script'};
-      }
-      if(!response.ok) throw new Error(`Google Apps Script HTTP ${response.status}`);
-      state.prefs.lastDriveBackup = today();
-      state.prefs.lastBackupDate = today();
-      persist();
-      if(!silentAuto) toast(encrypted ? 'تم رفع النسخة المشفرة إلى Google Drive ✓' : 'تم رفع النسخة إلى Google Drive ✓');
-      return {success:true, verified:true, provider:'google-apps-script'};
-    }catch(err){
-      console.error('X-Wallet Google Apps Script upload failed:', err);
-      if(!silentAuto)toast(err?.message||'تعذر إرسال النسخة عبر رابط Google Drive');
-      return {success:false,reason:'webhook-failed',error:err};
-    }
-  }
-
-  // Google Drive REST API v3. This route verifies the returned file metadata.
-  if(p.driveAccessToken){
-    if(!silentAuto) toast('جاري الرفع عبر Google Drive API… ☁');
-    try{
-      const metadata = {name:fileName, mimeType:'application/json'};
-      const boundary = 'xwallet_' + Math.random().toString(16).slice(2) + Date.now().toString(16);
-      const multipartRequestBody =
-        `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n` +
-        `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${jsonStr}\r\n` +
-        `--${boundary}--`;
-      const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType', {
-        method:'POST',
-        headers:{
-          'Authorization':'Bearer ' + p.driveAccessToken,
-          'Content-Type':'multipart/related; boundary=' + boundary
-        },
-        body:multipartRequestBody
-      });
-      if(!res.ok){
-        let detail='';
-        try{detail=(await res.json())?.error?.message||'';}catch(_){}
-        throw new Error(`Google Drive HTTP ${res.status}${detail ? ': '+detail : ''}`);
-      }
-      const uploaded = await res.json();
-      if(!uploaded?.id) throw new Error('Google Drive لم يؤكد إنشاء ملف النسخة');
-      state.prefs.lastDriveBackup = today();
-      state.prefs.lastBackupDate = today();
-      persist();
-      if(!silentAuto) toast(encrypted ? 'تم رفع النسخة المشفرة والتحقق من إنشاء الملف في Google Drive ✓' : 'تم رفع النسخة والتحقق من إنشاء الملف في Google Drive ✓');
-      return {success:true, verified:true, provider:'google-drive-api', fileId:uploaded.id};
-    }catch(err){
-      console.error('X-Wallet Drive API upload failed:', err);
-      if(!silentAuto) toast(err?.message || 'تعذر الرفع عبر Google Drive API');
-    }
-  }
-
-  // Share-sheet fallback. For encrypted backups, the shared file is already ciphertext.
-  if(!silentAuto && navigator.canShare && navigator.share){
-    try{
-      const fileObj = new File([jsonStr], fileName, {type:'application/json'});
-      if(navigator.canShare({files:[fileObj]})){
-        await navigator.share({
-          title:`X-Wallet ${encrypted ? 'Encrypted ' : ''}Backup (${email || 'Google Drive'})`,
-          text: encrypted
-            ? 'نسخة X-Wallet مشفرة. احتفظ بكلمة المرور لاستعادتها.'
-            : `نسخة احتياطية لحساب ${email || 'X-Wallet'} - اختر Google Drive للحفظ`,
-          files:[fileObj]
-        });
-        state.prefs.lastDriveBackup = today();
-        state.prefs.lastBackupDate = today();
-        persist();
-        toast(encrypted ? 'تمت مشاركة ملف النسخة المشفرة؛ أكمل الحفظ في Google Drive' : 'تمت مشاركة النسخة؛ أكمل الحفظ في Google Drive');
-        return {success:true, verified:false, provider:'share-sheet'};
-      }
-    }catch(err){
-      if(err?.name === 'AbortError') return {success:false, reason:'cancelled'};
-      console.warn('X-Wallet share-sheet backup failed:', err);
-    }
-  }
-
-  if(!silentAuto && encrypted){
-    try{
-      const blob = new Blob([jsonStr], {type:'application/json'});
-      const objectUrl = URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
-      anchor.href = objectUrl;
-      anchor.download = fileName;
-      anchor.click();
-      setTimeout(()=>URL.revokeObjectURL(objectUrl), 1000);
-      toast('لم يتوفر اتصال مباشر بـ Google Drive؛ تم تنزيل ملف النسخة المشفرة لرفعه يدوياً.');
-      return {success:false, reason:'manual-download'};
-    }catch(err){
-      toast('تعذر الرفع أو تنزيل ملف النسخة المشفرة');
-      return {success:false, reason:'no-upload-route', error:err};
-    }
-  }
-  if(!silentAuto) openDriveCloudSetupModal();
-  return {success:false, reason:'no-upload-route'};
-}
-
 
 async function checkScheduledDriveBackupOnBoot(){
   renderAutoSnapshotsList();

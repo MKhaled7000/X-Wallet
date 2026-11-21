@@ -7,6 +7,8 @@ function closeAppDialog(){
   if(m) m.classList.remove('show');
   const actBar = document.getElementById('appDialogActionsBar');
   if(actBar) actBar.style.display = 'flex';
+  const secretInput = document.getElementById('appDialogInput');
+  if(secretInput?.type === 'password') secretInput.value = '';
   _appDialogState = null;
 }
 function showAppConfirm(title, msg, onConfirm, isDanger){
@@ -126,6 +128,8 @@ window.addEventListener('popstate', function(){
   if(dp && dp.classList.contains('show')){ closeAppDatePicker(); try{history.pushState({xwGuard:2},'');}catch(_){} return; }
   const ad = document.getElementById('appDialogModal');
   if(ad && ad.classList.contains('show')){ closeAppDialog(); try{history.pushState({xwGuard:2},'');}catch(_){} return; }
+  const ft = document.getElementById('financialToolsModal');
+  if(ft && ft.classList.contains('show')){ closeFinancialTools(); try{history.pushState({xwGuard:2},'');}catch(_){} return; }
   const am = document.getElementById('accountModal');
   if(am && am.classList.contains('show')){ closeAccountModal(); try{history.pushState({xwGuard:2},'');}catch(_){} return; }
   const qm = document.getElementById('quickModal');

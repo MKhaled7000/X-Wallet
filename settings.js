@@ -180,11 +180,11 @@ function applyPreferences(){
   setv('prefFontSize', p.fontSize || '1');
   setv('prefAutoDriveFreq', p.autoDriveFreq || 'off');
   if(typeof updateLocalAutoFreqBtnText === 'function') updateLocalAutoFreqBtnText();
-  setv('prefDriveEmail', p.driveEmail || '');
   setv('secPinInput', (p.secPinHash || p.secPin) ? '••••' : '');
   setv('secAppLockOnStart', p.appLockOnStart === false ? '0' : '1');
   setv('secBioOnPrivacy', p.bioOnPrivacy === false ? '0' : '1');
 
+  if(window.backupBiometric) backupBiometric.refresh();
   const bioBadge = document.getElementById('bioStatusBadge');
   if(bioBadge){
     bioBadge.textContent = p.bioEnabled ? 'البصمة مفعلة ✓' : 'أضف بصمة';

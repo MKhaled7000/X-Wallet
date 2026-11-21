@@ -5,7 +5,7 @@
 <title>X-Wallet</title>
 <link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;600;700&family=Almarai:wght@400;700&family=Amiri:wght@400;700&family=Cairo:wght@400;700&family=Changa:wght@400;600;700&family=El+Messiri:wght@400;600;700&family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Inter:wght@400;600;700&family=Mada:wght@400;600;700&family=Noto+Sans+Arabic:wght@400;600;700&family=Poppins:wght@400;600;700&family=Readex+Pro:wght@400;600;700&family=Roboto:wght@400;500;700&family=Rubik:wght@400;600;700&family=Tajawal:wght@400;700&family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=15.3.5">
+<link rel="stylesheet" href="styles.css?v=15.3.7">
 </head>
 <body>
 <div id="globalUpdateBar" class="global-update-bar">
@@ -327,7 +327,7 @@
         <span>مديرك المالي الذكي</span>
       </div>
     </div>
-    <span class="tag" id="devCardVerBadge" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V15.3.5</span>
+    <span class="tag" id="devCardVerBadge" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V15.3.7</span>
   </div>
 
   <!-- 2.1 & 2.2 & 2.3 كل خيارات المزيد تفتح في صفحة مستقلة بدون أسهم وبشكل مضغوط -->
@@ -343,6 +343,9 @@
   <div class="fold-link-card compact-more-card" onclick="openSettingsSubPage('fab', 'زر الاختصارات العائم')">
     <span class="ic-txt"><i>⚡</i><span>زر الاختصارات العائم</span></span>
   </div>
+  <button type="button" class="fold-link-card compact-more-card ft-more-entry" onclick="openFinancialTools()">
+    <span class="ic-txt"><i>🎯</i><span>أدوات مالية</span></span>
+  </button>
   <div class="fold-link-card compact-more-card" onclick="openSalaryModal()">
     <span class="ic-txt"><i>💼</i><span>حاسبة المرتب</span></span>
   </div>
@@ -439,7 +442,7 @@
             <input id="qmDate" type="hidden" onchange="syncQmDateDisplay()">
           </div>
           <div class="inline-months-wrap" id="qmRecurWrap" onclick="event.stopPropagation()">
-            <button type="button" class="qm-recur-btn" id="qmRecurringBtn" onclick="toggleQmRecurringMonthly(event)" title="تكرار شهري تلقائي في الالتزامات"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span id="qmRecurBadge" style="display:none;font-size:.66rem;margin-left:3px"></span></button>
+            <button type="button" class="qm-recur-btn" id="qmRecurringBtn" aria-pressed="false" aria-label="تفعيل التكرار الشهري" onclick="toggleQmRecurringMonthly(event)" title="تكرار شهري تلقائي في الالتزامات"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg><span id="qmRecurBadge" style="display:none;font-size:.66rem;margin-left:3px"></span></button>
             <div class="inline-months-menu" id="qmRecurMonthsMenu"><button type="button" class="imm-opt active" data-rm="0" onclick="selectQmRecurMonths(0)">مفتوح</button><button type="button" class="imm-opt" data-rm="1" onclick="selectQmRecurMonths(1)">1</button><button type="button" class="imm-opt" data-rm="2" onclick="selectQmRecurMonths(2)">2</button><button type="button" class="imm-opt" data-rm="3" onclick="selectQmRecurMonths(3)">3</button><button type="button" class="imm-opt" data-rm="4" onclick="selectQmRecurMonths(4)">4</button><button type="button" class="imm-opt" data-rm="5" onclick="selectQmRecurMonths(5)">5</button><button type="button" class="imm-opt" data-rm="6" onclick="selectQmRecurMonths(6)">6</button><button type="button" class="imm-opt" data-rm="7" onclick="selectQmRecurMonths(7)">7</button><button type="button" class="imm-opt" data-rm="8" onclick="selectQmRecurMonths(8)">8</button><button type="button" class="imm-opt" data-rm="9" onclick="selectQmRecurMonths(9)">9</button><button type="button" class="imm-opt" data-rm="10" onclick="selectQmRecurMonths(10)">10</button><button type="button" class="imm-opt" data-rm="11" onclick="selectQmRecurMonths(11)">11</button><button type="button" class="imm-opt" data-rm="12" onclick="selectQmRecurMonths(12)">12</button><button type="button" class="imm-opt" data-rm="13" onclick="selectQmRecurMonths(13)">13</button><button type="button" class="imm-opt" data-rm="14" onclick="selectQmRecurMonths(14)">14</button><button type="button" class="imm-opt" data-rm="15" onclick="selectQmRecurMonths(15)">15</button><button type="button" class="imm-opt" data-rm="16" onclick="selectQmRecurMonths(16)">16</button><button type="button" class="imm-opt" data-rm="17" onclick="selectQmRecurMonths(17)">17</button><button type="button" class="imm-opt" data-rm="18" onclick="selectQmRecurMonths(18)">18</button><button type="button" class="imm-opt" data-rm="19" onclick="selectQmRecurMonths(19)">19</button><button type="button" class="imm-opt" data-rm="20" onclick="selectQmRecurMonths(20)">20</button><button type="button" class="imm-opt" data-rm="21" onclick="selectQmRecurMonths(21)">21</button><button type="button" class="imm-opt" data-rm="22" onclick="selectQmRecurMonths(22)">22</button><button type="button" class="imm-opt" data-rm="23" onclick="selectQmRecurMonths(23)">23</button><button type="button" class="imm-opt" data-rm="24" onclick="selectQmRecurMonths(24)">24</button></div>
             <input type="hidden" id="qmRecurMonths" value="0">
           </div>
@@ -731,7 +734,7 @@
           <span>مديرك المالي الذكي</span>
         </div>
       </div>
-      <span class="tag" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V15.3.5</span>
+      <span class="tag" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V15.3.7</span>
     </div>
     <div class="set-sub-scroll">
       <div class="set-sub-pane" id="setPane_general" style="display:none"><div class="c-list aligned-settings-list">
@@ -950,6 +953,12 @@
           <label>إعدادات النسخ السحابي</label>
           <button type="button" class="smallbtn aligned-ctrl-btn" onclick="openCloudSyncModal()">⚙ إعداد الربط</button>
         </div>
+
+        <div class="c-row backup-bio-setting" dir="rtl">
+          <label for="backupBioToggle">فتح بالبصمة</label>
+          <input id="backupBioToggle" data-backup-bio-toggle type="checkbox" role="switch" aria-describedby="backupBioStatus" onchange="backupBiometric.toggle(this)">
+          <p class="hint" id="backupBioStatus" data-backup-bio-status>غير مفعلة. كلمة المرور هي وسيلة الاستعادة دائماً.</p>
+        </div>
         <div class="c-row">
           <label>ماني مانجر</label>
           <button type="button" class="smallbtn aligned-ctrl-btn" style="border-color:var(--blue)!important;color:var(--blue)!important" onclick="openFilePicker('mmbakFile')">استيراد ملف</button>
@@ -964,7 +973,7 @@
       <div class="set-sub-pane" id="setPane_updates" style="display:none"><div class="c-list aligned-settings-list">
         <div class="c-row">
           <span class="c-lbl">الإصدار الحالي</span>
-          <span class="upd-equal-box" id="appVersionTag">V15.3.5</span>
+          <span class="upd-equal-box" id="appVersionTag">V15.3.7</span>
         </div>
         <div class="c-row">
           <span class="c-lbl">فحص التحديثات</span>
@@ -991,7 +1000,7 @@
     </h3>
     <img src="icon-192.png" alt="X-Wallet" style="width:68px;height:68px;border-radius:18px;margin:0 auto 8px">
     <b style="font-size:1.1rem;color:var(--text);display:block">X-Wallet</b>
-    <span style="font-size:.78rem;color:var(--mint);display:block;margin-bottom:8px">مديرك المالي الذكي — الإصدار V15.3.5</span>
+    <span style="font-size:.78rem;color:var(--mint);display:block;margin-bottom:8px">مديرك المالي الذكي — الإصدار V15.3.7</span>
     <div style="background:var(--surface);border:1px solid var(--line2);border-radius:12px;padding:10px;font-size:.74rem;line-height:1.7;color:var(--text-sub);text-align:right">
       <div>• التخزين: محلي على جهازك مع قفل التطبيق برمز PIN أو البصمة</div>
       <div>• المزامنة: دعم النسخ الاحتياطي المحلي والسحابي (جيت هاب وجوجل درايف)</div>
@@ -1179,6 +1188,22 @@
   </div>
 </div>
 
+<!-- Local PRF-backed backup password unlock. No Google/OAuth UI in this dialog. -->
+<div class="modal center-modal" id="backupBioModal" role="dialog" aria-modal="true" aria-labelledby="backupBioTitle" onclick="if(event.target===this)backupBiometric.cancel()">
+  <div class="sheet backup-bio-sheet" dir="rtl">
+    <h3 id="backupBioTitle">تفعيل فتح بالبصمة</h3>
+    <p class="hint">حماية كلمة مرور النسخة على هذا المتصفح فقط، باستخدام WebAuthn وPRF. قد يطلب الجهاز بصمة أو رمز قفل الشاشة، ولا يمكن فرض البصمة وحدها.</p>
+    <div id="backupBioEnrollFields">
+      <label for="backupBioPassword">كلمة مرور النسخ المشفرة الحالية</label>
+      <input id="backupBioPassword" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="10 أحرف على الأقل" onkeydown="if(event.key==='Enter')backupBiometric.action()">
+      <p class="hint">اكتب نفس كلمة مرور نسخك الحالية. لا يمكن التأكد من صحتها دون فتح نسخة. قد تظهر خطوتا تحقق عند التفعيل.</p>
+    </div>
+    <p class="hint">احتفظ بكلمة المرور في مكان آمن. التفعيل اختياري، وإذا لم يدعم جهازك الحماية فلن نحفظها. عند تغيير كلمة مرور النسخ، عطّل الخيار ثم فعّله بالكلمة الجديدة.</p>
+    <div class="actions"><button class="primary" id="backupBioAction" type="button" onclick="backupBiometric.action()">تفعيل والتحقق</button><button class="secondary" type="button" onclick="backupBiometric.cancel()">إلغاء</button></div>
+    <button class="secondary backup-bio-manual" id="backupBioFallback" type="button" hidden onclick="backupBiometric.fallback()">استخدام كلمة المرور</button>
+  </div>
+</div>
+
 <!-- Unified Custom Dialog Modal -->
 <div class="modal center-modal" id="appDialogModal" onclick="if(event.target===this)closeAppDialog()">
   <div class="sheet" dir="rtl" style="max-width:390px">
@@ -1244,28 +1269,43 @@
 <div class="toast" id="toast"></div>
 
 <!-- SQL.js is required by migration.js to read Money Manager .mmbak SQLite backups. -->
+<div class="modal fullpage-modal" id="financialToolsModal" role="dialog" aria-modal="true" aria-labelledby="financialToolsTitle" onclick="if(event.target===this)closeFinancialTools()">
+  <div class="sheet fullpage-sheet" dir="rtl">
+    <header class="ft-header"><h2 id="financialToolsTitle">أدوات مالية</h2><button type="button" class="smallbtn" onclick="closeFinancialTools()">رجوع</button></header>
+    <div class="ft-tabs" role="tablist" aria-label="أدوات مالية">
+      <button type="button" role="tab" data-ft-tab="goals" onclick="openFinancialTools('goals')">الأهداف</button>
+      <button type="button" role="tab" data-ft-tab="budgets" onclick="openFinancialTools('budgets')">الميزانيات</button>
+      <button type="button" role="tab" data-ft-tab="recurringRules" onclick="openFinancialTools('recurringRules')">قواعد متكررة</button>
+    </div>
+    <div id="financialToolsBody" role="tabpanel"></div>
+  </div>
+</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
-<script src="core.js?v=15.3.5"></script>
-<script src="security.js?v=15.3.5"></script>
-<script src="storage.js?v=15.3.5"></script>
-<script src="backup.js?v=15.3.5"></script>
-<script src="financial-engine.js?v=15.3.5"></script>
-<script src="components.js?v=15.3.5"></script>
-<script src="settings.js?v=15.3.5"></script>
-<script src="dashboard.js?v=15.3.5"></script>
-<script src="transactions.js?v=15.3.5"></script>
-<script src="migration.js?v=15.3.5"></script>
-<script src="accounts.js?v=15.3.5"></script>
-<script src="installments.js?v=15.3.5"></script>
-<script src="cards.js?v=15.3.5"></script>
-<script src="reports.js?v=15.3.5"></script>
-<script src="payroll.js?v=15.3.5"></script>
-<script src="analytics.js?v=15.3.5"></script>
-<script src="quick-entry.js?v=15.3.5"></script>
-<script src="sync.js?v=15.3.5"></script>
-<script src="management.js?v=15.3.5"></script>
-<script src="cloud-backup.js?v=15.3.5"></script>
-<script src="single-currency.js?v=15.3.5"></script>
-<script src="app.js?v=15.3.5"></script>
+<script async defer src="https://accounts.google.com/gsi/client"></script>
+<script src="core.js?v=15.3.7"></script>
+<script src="security.js?v=15.3.7"></script>
+<script src="storage.js?v=15.3.7"></script>
+<script src="backup.js?v=15.3.7"></script>
+<script src="financial-engine.js?v=15.3.7"></script>
+<script src="components.js?v=15.3.7"></script>
+<script src="settings.js?v=15.3.7"></script>
+<script src="dashboard.js?v=15.3.7"></script>
+<script src="transactions.js?v=15.3.7"></script>
+<script src="migration.js?v=15.3.7"></script>
+<script src="accounts.js?v=15.3.7"></script>
+<script src="installments.js?v=15.3.7"></script>
+<script src="cards.js?v=15.3.7"></script>
+<script src="reports.js?v=15.3.7"></script>
+<script src="payroll.js?v=15.3.7"></script>
+<script src="analytics.js?v=15.3.7"></script>
+<script src="quick-entry.js?v=15.3.7"></script>
+<script src="sync.js?v=15.3.7"></script>
+<script src="management.js?v=15.3.7"></script>
+<script src="backup-biometric.js?v=15.3.7"></script>
+<script src="cloud-backup.js?v=15.3.7"></script>
+<script src="google-drive.js?v=15.3.7"></script>
+<script src="financial-tools.js?v=15.3.7"></script>
+<script src="single-currency.js?v=15.3.7"></script>
+<script src="app.js?v=15.3.7"></script>
 </body>
 </html>

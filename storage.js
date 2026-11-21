@@ -30,8 +30,9 @@ function normalizePersistedState(input){
     lang:'ar',fontFamily:'system',fontSize:'1',theme:'mint',bgMode:'dark',userName:'',defaultAccount:'',
     privacy:false,homeDecimals:false,secPin:'',bioEnabled:false,bioCredentialId:'',
     appLockOnStart:true,bioOnPrivacy:true,autoDriveFreq:'off',lastDriveBackup:'',
-    driveEmail:'',driveWebhookUrl:'',driveClientId:'',driveAccessToken:''
+    driveClientId:''
   };
+  for(const key of ['driveWebhookUrl','driveSharedSecret','driveAccessToken','driveEmail'])delete next.prefs[key];
   return next;
 }
 let _initialLocalStateRaw='';
@@ -353,10 +354,7 @@ function updateBackupStatusUI(){
     const last = state.prefs?.lastBackupDate;
     lbl.textContent = last ? ('آخر نسخة: ' + last) : 'لم يتم التصدير بعد';
   }
-  const drvEmail = document.getElementById('prefDriveEmail');
-  if(drvEmail && document.activeElement !== drvEmail){
-    drvEmail.value = state.prefs?.driveEmail || '';
-  }
+
 }
 
 let _idbSaveTimer = null;

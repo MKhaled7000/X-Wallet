@@ -153,59 +153,44 @@ function suggestSmartTransferFee(){
 
 /* 14. Unified Cloud Sync Setup (GitHub Private Gist + Google Drive) with pure unreversed Arabic */
 function openCloudSyncModal(){
-  const p = state.prefs || {};
-  const ghToken = esc(p.ghToken || '');
-  const ghGistId = esc(p.ghGistId || '');
-  const drvUrl = esc(p.driveWebhookUrl || '');
-  const html = `
-    <div dir="rtl" style="text-align:right;unicode-bidi:plaintext;display:flex;flex-direction:column;gap:10px">
-      <div style="background:var(--surface);border:1px solid var(--mint);border-radius:12px;padding:10px">
-        <b style="color:var(--mint);font-size:.82rem;display:block;margin-bottom:6px">أولاً: المزامنة عبر جيت هاب (Gist غير عام)</b>
-        <div class="hint" style="margin:0 0 6px;font-size:.72rem;line-height:1.7">
-          ١. افتح الرابط التالي لإنشاء مفتاح الربط من موبايلك بصلاحية Gists فقط:<br>
-          <a href="https://github.com/settings/tokens/new?scopes=gist&description=X-Wallet" target="_blank" style="color:var(--mint);text-decoration:underline">اضغط هنا لفتح صفحة إنشاء المفتاح في جيت هاب</a><br>
-          ٢. انزل لآخر الصفحة واضغط زر توليد المفتاح ثم انسخه والصقه هنا.<br>
-          ٣. اترك خانة رقم المفكرة فارغة في أول مرة وسيُنشأ Gist غير عام (Secret) تلقائياً. تنبيه: Secret ليس خاصاً فعلياً؛ من يملك الرابط يستطيع فتح الملف، لذلك استخدم الرفع المشفر.
-        </div>
-        <input id="cfgGhToken" type="password" autocomplete="off" value="${ghToken}" placeholder="الصق مفتاح جيت هاب هنا" style="width:100%;height:34px;margin-bottom:6px;background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:0 10px;color:var(--text);font-size:.74rem">
-        <small class="hint" style="display:block;margin:0 0 6px">مفتاح GitHub يُحفظ على هذا الجهاز داخل بيانات التطبيق؛ إخفاؤه هنا بصري فقط وليس تشفيراً له. استخدم مفتاحاً بصلاحية Gists فقط.</small>
-        <input id="cfgGhGistId" type="text" value="${ghGistId}" placeholder="رقم المفكرة (يملأ تلقائياً)" style="width:100%;height:34px;background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:0 10px;color:var(--text);font-size:.74rem">
-      </div>
-      <div style="background:var(--surface);border:1px solid var(--blue);border-radius:12px;padding:10px">
-        <b style="color:var(--blue);font-size:.82rem;display:block;margin-bottom:6px">ثانياً: المزامنة عبر جوجل درايف</b>
-        <div class="hint" style="margin:0 0 6px;font-size:.72rem;line-height:1.7">
-          ١. افتح موقع سكريبتات جوجل من الرابط التالي:<br>
-          <a href="https://script.google.com/" target="_blank" style="color:var(--blue);text-decoration:underline">اضغط هنا لفتح صفحة سكريبتات جوجل</a><br>
-          ٢. أنشئ مشروعاً جديداً، الصق كود الحفظ، انشره كتطبيق ويب، ثم الصق الرابط هنا.
-        </div>
-        <button type="button" class="smallbtn" style="width:100%;margin-bottom:6px;border-color:var(--blue);color:var(--blue)" onclick="copyGoogleDriveScriptCode()">📋 نسخ كود الحفظ لجوجل درايف</button>
-        <input id="cfgDrvWebhook" type="url" value="${drvUrl}" placeholder="الصق رابط سكريبت جوجل هنا" style="width:100%;height:34px;background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:0 10px;color:var(--text);font-size:.74rem">
-        <label for="cfgDrvSecret" class="hint">السر المشترك، ضعه أيضاً في خاصية السكريبت XW_SHARED_SECRET. يُحفظ على هذا الجهاز دون تشفير مثل مفتاح GitHub.</label>
-        <input id="cfgDrvSecret" type="password" autocomplete="off" value="${esc(p.driveSharedSecret||'')}" placeholder="سر عشوائي لا يقل عن 32 حرفاً" style="width:100%">
-        <small class="hint">يجب استبدال الكود القديم وإعادة نشر السكريبت. تحديث التطبيق وحده لا يغلق الرابط القديم. لا تشارك الرابط المضاف إليه السر.</small>
-      </div>
-      <div class="c-row" style="padding:4px 0">
-        <label style="font-size:.75rem">الخدمة المستخدمة عند المزامنة:</label>
-        <select id="cfgSyncProvider" style="height:32px;background:var(--panel2);border:1px solid var(--line2);border-radius:8px;color:var(--text);font-size:.74rem">
-          <option value="github" ${p.syncProvider!=='google'?'selected':''}>جيت هاب</option>
-          <option value="google" ${p.syncProvider==='google'?'selected':''}>جوجل درايف</option>
-        </select>
-      </div>
-    </div>
-  `;
-  showAppCustomForm('إعداد المزامنة السحابية', html, ()=>{
-    const secret=(document.getElementById('cfgDrvSecret')?.value||'').trim();
-    const webhook=(document.getElementById('cfgDrvWebhook')?.value||'').trim();
-    if(webhook&&secret.length<32){toast('استخدم سراً مشتركاً عشوائياً لا يقل عن 32 حرفاً');return false;}
+  const p=state.prefs||{};
+  const provider=p.syncProvider||(p.ghToken?'github':'google');
+  const html=`<div class="ft-form" dir="rtl">
+    <section class="ft-card"><h3>Google Drive مباشرة</h3>
+      <p class="hint">بعد الإعداد مرة واحدة: اضغط مزامنة، اختر حساب Google، ثم افتح كلمة مرور النسخة بالبصمة إن كانت مفعلة، أو أدخلها. لا سكريبت ولا سر مشترك. صلاحية الوصول لملفات التطبيق فقط، وليس كل درايف.</p>
+      <label class="ft-field" for="cfgDrvClientId"><span>OAuth Web Client ID</span><input id="cfgDrvClientId" dir="ltr" type="text" value="${esc(p.driveClientId||'')}" placeholder="…apps.googleusercontent.com" autocomplete="off"></label>
+      <p class="hint">أنشئ مشروع Google Cloud، فعّل Drive API، وأضف Web OAuth Client بالأصل التالي في Authorized JavaScript origins. في وضع Testing أضف بريدك إلى Test users. الخطوات في README.txt.</p>
+      <code class="ft-origin">${esc(location.origin)}</code>
+      <p class="hint">معرّف العميل ليس سراً. لا تدخل Client Secret. جلسة Google مؤقتة ولا تُحفظ. قد تحتاج تسجيل الدخول مجدداً بعد الإغلاق أو انتهاء الجلسة.</p>
+      <button type="button" class="smallbtn" onclick="clearGoogleDriveSession();toast('تم نسيان الجلسة محلياً. اختر الحساب عند العملية التالية')">نسيان جلسة Google / تغيير الحساب</button>
+    </section>
+    <section class="ft-card" dir="rtl"><h3>كلمة مرور النسخة</h3>
+      <div class="c-row backup-bio-setting"><label for="cloudBackupBioToggle">فتح بالبصمة</label><input id="cloudBackupBioToggle" data-backup-bio-toggle type="checkbox" role="switch" aria-describedby="cloudBackupBioStatus" onchange="backupBiometric.toggle(this)"><p class="hint" id="cloudBackupBioStatus" data-backup-bio-status>غير مفعلة. كلمة المرور هي وسيلة الاستعادة دائماً.</p></div>
+      <p class="hint">تحقق الجهاز قد يستخدم البصمة أو رمز قفل الشاشة. عند التعطيل تُمسح كلمة المرور المشفرة وربط البصمة من التطبيق، ولا يُحذف مفتاح المرور من مدير الجهاز تلقائياً.</p>
+    </section>
+    <section class="ft-card"><h3>GitHub Gist (اختياري)</h3>
+      <p class="hint">مفتاح بصلاحية Gists فقط. Gist غير عام ليس خاصاً بالكامل: من يملك الرابط قد يفتح الملف، لذلك الرفع مشفر دائماً. المفتاح محفوظ على الجهاز دون تشفير.</p>
+      <label class="ft-field"><span>مفتاح GitHub</span><input id="cfgGhToken" type="password" autocomplete="off" value="${esc(p.ghToken||'')}"></label>
+      <label class="ft-field"><span>رقم Gist (اتركه فارغاً للإنشاء)</span><input id="cfgGhGistId" dir="ltr" type="text" value="${esc(p.ghGistId||'')}"></label>
+    </section>
+    <label class="ft-field"><span>الخدمة المستخدمة</span><select data-no-custom="1" id="cfgSyncProvider"><option value="google" ${provider==='google'?'selected':''}>Google Drive</option><option value="github" ${provider==='github'?'selected':''}>GitHub</option></select></label>
+    <p class="hint">المزامنة هنا رفع نسخة أو استعادة المحفظة كاملة، وليست دمجاً تلقائياً بين الأجهزة. النسخ مشفرة. لا تُحفظ كلمة مرورها إلا باختيارك عبر حماية PRF على هذا المتصفح. الرفع لا يحذف نسخ Drive القديمة، وقد يستهلك مساحة.</p>
+  </div>`;
+  showAppCustomForm('إعداد المزامنة السحابية',html,()=>{
+    const id=(document.getElementById('cfgDrvClientId')?.value||'').trim();
+    if(id&&!/^[a-zA-Z0-9_-]+\.apps\.googleusercontent\.com$/.test(id)){toast('Client ID غير صحيح؛ لا تدخل Client Secret');return false;}
+    const selected=document.getElementById('cfgSyncProvider')?.value||'google';
+    if(selected==='google'&&!id){toast('أضف Client ID أولاً، ثم احفظ');return false;}
     state.prefs=state.prefs||{};
+    if(state.prefs.driveClientId!==id)clearGoogleDriveSession();
+    state.prefs.driveClientId=id;
     state.prefs.ghToken=(document.getElementById('cfgGhToken')?.value||'').trim();
     state.prefs.ghGistId=(document.getElementById('cfgGhGistId')?.value||'').trim();
-    state.prefs.driveSharedSecret=secret;
-    state.prefs.driveWebhookUrl=webhook;
-    state.prefs.syncProvider = document.getElementById('cfgSyncProvider')?.value || 'github';
-    persist();
-    toast('تم حفظ إعدادات المزامنة ✓');
+    state.prefs.syncProvider=selected;
+    for(const key of ['driveWebhookUrl','driveSharedSecret','driveAccessToken','driveEmail'])delete state.prefs[key];
+    persist();toast('تم حفظ الإعدادات. اضغط مزامنة لفتح Google ✓');
   });
+  backupBiometric.refresh();
 }
 
 /* 22. Splash Screen Fade Out */
@@ -216,52 +201,6 @@ function openCloudSyncModal(){
   }
 })();
 
-
-function copyGoogleDriveScriptCode(){
-  const code = `// Set XW_SHARED_SECRET in Project Settings > Script Properties, then deploy a NEW version.
-function authorized_(secret) {
-  var expected = PropertiesService.getScriptProperties().getProperty('XW_SHARED_SECRET');
-  return !!expected && expected.length >= 32 && typeof secret === 'string' && secret === expected;
-}
-function deny_() { return ContentService.createTextOutput('Unauthorized'); }
-function doPost(e) {
-  var request;
-  try { request = JSON.parse(e.postData.contents); } catch (_) { return deny_(); }
-  if (!request || typeof request !== 'object' || !authorized_(request.secret)) return deny_();
-  var content = request.backup;
-  var document;
-  try { document = JSON.parse(content); } catch (_) { return ContentService.createTextOutput('Invalid backup'); }
-  if (!document || document.format !== 'x-wallet-encrypted-backup' || document.schemaVersion !== 1 || typeof document.data !== 'string' || !document.data || !document.salt || !document.iv) return ContentService.createTextOutput('Encrypted backups only');
-  var lock = LockService.getScriptLock();
-  lock.waitLock(30000);
-  try {
-    var folderName = 'X-Wallet Backups';
-    var folders = DriveApp.getFoldersByName(folderName);
-    var folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
-    var stamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd-HHmmss');
-    folder.createFile('x-wallet-encrypted-backup-' + stamp + '-' + Utilities.getUuid() + '.json', content, MimeType.PLAIN_TEXT);
-    return ContentService.createTextOutput('OK');
-  } finally { lock.releaseLock(); }
-}
-function doGet(e) {
-  if (!authorized_(e && e.parameter && e.parameter.secret)) return deny_();
-  if (e.parameter.action === 'status') return ContentService.createTextOutput(JSON.stringify({protocol:'x-wallet-secure-drive-v2',authenticated:true})).setMimeType(ContentService.MimeType.JSON);
-  var folders = DriveApp.getFoldersByName('X-Wallet Backups');
-  if (!folders.hasNext()) return ContentService.createTextOutput('{}');
-  var files = folders.next().getFiles();
-  var latest = null;
-  while (files.hasNext()) {
-    var file = files.next();
-    if (file.getName().indexOf('x-wallet-encrypted-backup-') !== 0) continue;
-    if (!latest || file.getLastUpdated() > latest.getLastUpdated()) latest = file;
-  }
-  if (!latest) return ContentService.createTextOutput('{}');
-  return ContentService.createTextOutput(latest.getBlob().getDataAsString()).setMimeType(ContentService.MimeType.JSON);
-}`;
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(code).then(()=>toast('تم نسخ كود الحفظ ✓')).catch(()=>toast('تعذر النسخ التلقائي'));
-  }
-}
 
 function openImportChoiceModal(){
   const html = `

@@ -11,6 +11,9 @@ function syncQmRecurringUI(){
   if(wrap) wrap.style.display = allow ? 'inline-block' : 'none';
   if(!allow){ qmState.recurringMonthly = false; closeQmRecurMenu(); }
   btn.classList.toggle('active', !!qmState.recurringMonthly);
+  btn.setAttribute('aria-pressed',String(!!qmState.recurringMonthly));
+  btn.setAttribute('aria-label',qmState.recurringMonthly?'التكرار الشهري مفعل':'تفعيل التكرار الشهري');
+  btn.title=qmState.recurringMonthly?'التكرار الشهري مفعل، اضغط لإغلاق القائمة ثم للإيقاف':'تفعيل التكرار الشهري';
   const mVal = Number(qmState.recurringMonths || 0);
   if(badge){
     badge.style.display = (qmState.recurringMonthly && mVal > 0) ? 'inline' : 'none';
@@ -480,7 +483,7 @@ function setQuickTxType(t){
   document.getElementById('qmAccRow')?.classList.toggle('is-transfer-from', isTrn);
   document.getElementById('qmToAccRow').style.display = isTrn ? 'flex' : 'none';
   document.getElementById('qmSwapAccRow').style.display = isTrn ? 'flex' : 'none';
-  document.getElementById('qmCatRow').style.display = isTrn ? 'none' : 'flex';
+  document.getElementById('qmCatRow').style.display = isTrn ? 'none' : 'grid';
   document.getElementById('qmAccLabelTitle').textContent = isTrn ? 'من حساب' : 'الحساب';
 
   const feeInp = document.getElementById('qmFee');
@@ -569,6 +572,7 @@ function setQmCardMode(mode){
 function updateQmCatLabel(){
   const label = qmState.subCategory ? `${qmState.category} / ${qmState.subCategory}` : (qmState.category || 'اختر القسم');
   document.getElementById('qmCatSelectedText').textContent = label;
+  document.getElementById('qmCatSelectedText').title = label;
 }
 
 function getQuickSelectedCurrency(){return 'EGP';}
