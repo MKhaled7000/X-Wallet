@@ -184,7 +184,6 @@ function applyPreferences(){
   setv('secAppLockOnStart', p.appLockOnStart === false ? '0' : '1');
   setv('secBioOnPrivacy', p.bioOnPrivacy === false ? '0' : '1');
 
-  if(window.backupBiometric) backupBiometric.refresh();
   const bioBadge = document.getElementById('bioStatusBadge');
   if(bioBadge){
     bioBadge.textContent = p.bioEnabled ? 'البصمة مفعلة ✓' : 'أضف بصمة';
@@ -805,4 +804,4 @@ function applyFullAppLanguage(lang){
     });
     _xwI18nObserver.observe(document.body, { childList: true, subtree: true });
   }
-}
+  }
