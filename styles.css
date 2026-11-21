@@ -7807,17 +7807,6 @@ html #quickModal #qmRecurringBtn[aria-pressed="true"] {
 }
 html #quickModal #qmRecurringBtn:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
 
-/* 15.3.7: scoped RTL cloud password biometric controls. */
-#backupBioModal { z-index:240; }
-#backupBioModal [hidden] { display:none!important; }
-.backup-bio-sheet { max-width:390px; text-align:right; }
-.backup-bio-sheet h3 { margin-bottom:10px; }
-.backup-bio-sheet .hint { line-height:1.9; font-size:.77rem; }
-#backupBioEnrollFields label { display:block; margin:12px 0 6px; font-size:.8rem; }
-#backupBioPassword { width:100%; height:44px; padding:0 11px; color:var(--text); background:var(--surface); border:1px solid var(--line2); border-radius:11px; font:inherit; }
-.backup-bio-sheet .actions { margin-top:14px; }
-.backup-bio-manual { width:100%; margin-top:9px; min-height:42px; }
-
 /* =========================================================
    X-Wallet V15.3.8: symmetry & consistency revisions
    ========================================================= */
@@ -7881,13 +7870,7 @@ html #wallet .mm-stats-card .mm-stat-box b {
   padding: 10px 0 4px !important;
 }
 
-/* 5. Backup biometric helper text grouped with its row */
-.backup-bio-hint {
-  margin: -4px 4px 0 !important;
-  font-size: .7rem !important;
-  line-height: 1.8 !important;
-}
-/* V15.3.11: one shared summary layout, independent of screen-specific rules. */
+/* V15.3.12: one shared summary layout, independent of screen-specific rules. */
 html body :is(#trans,#analytics,#wallet) .mm-stats-card {
   box-sizing:border-box!important;
   width:100%!important;
@@ -7950,21 +7933,6 @@ html body #salaryModal .salary-scroll-body {
   scrollbar-gutter:auto;
   scrollbar-width:none;
 }
-.cloud-backup-simple {
-  margin:10px 0 6px;
-  padding:16px 12px;
-  border:1px solid var(--line2);
-  border-radius:14px;
-  background:var(--panel);
-  text-align:right;
-}
-.cloud-backup-simple h3 {margin:0 0 10px;font-size:.85rem;font-weight:700;}
-.cloud-backup-simple p {line-height:1.7;overflow-wrap:anywhere;}
-.cloud-account {font-size:.76rem;color:var(--text);margin:0 0 5px;}
-.cloud-last {font-size:.72rem;color:var(--text-sub);margin:0 0 14px;}
-.cloud-main-actions {display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.cloud-main-actions button {min-height:42px;font-size:.78rem;}
-.cloud-settings-link {display:block;background:none;border:0;color:var(--text-sub);font:inherit;font-size:.7rem;text-decoration:underline;padding:10px 0 0;cursor:pointer;}
 .cloud-restore-list {display:flex;flex-direction:column;gap:8px;max-height:55vh;overflow:auto;}
 .cloud-restore-item {display:flex;flex-direction:column;gap:6px;align-items:stretch;text-align:right;padding:12px;}
 .cloud-restore-item b {font-size:.74rem;white-space:normal;overflow-wrap:anywhere;}
@@ -7981,3 +7949,79 @@ html body #salaryModal .salary-scroll-body {
   html body #mainUnifiedHeader .ym-stepper.utb-stepper .step-arrow {width:18px!important;min-width:18px!important;}
   html body #mainUnifiedHeader .ym-stepper.utb-stepper .step-label {font-size:.62rem!important;min-width:0!important;flex:1!important;}
 }
+
+/* V15.3.12: older attribute selectors overrode Transactions only.
+   Match the unchanged Analytics card's content box in each affected style. */
+html[data-header-style="frameless"] body #trans .mm-stats-card {
+  border:1px solid transparent!important;
+  border-radius:14px!important;
+  padding:0 10px!important;
+}
+html[data-header-style="soft"] body #trans .mm-stats-card {
+  border:1px solid transparent!important;
+  border-radius:14px!important;
+  padding:0 10px!important;
+}
+html[data-header-style="divider"] body #trans .mm-stats-card {
+  padding:0 10px!important;
+}
+/* Available / due divider centered between the two amount columns.
+   Covers the header and every card row, including toolbar modes. */
+#wallet .cards-head .wth-cards-cols,
+#wallet .wallet-card-two-col .wallet-card-cols {
+  position:relative;
+}
+#wallet .cards-head .wth-cards-cols::after,
+#wallet .wallet-card-two-col .wallet-card-cols::after {
+  content:'';
+  position:absolute;
+  left:calc(50% - .5px);
+  top:2px;
+  bottom:2px;
+  width:1px;
+  background:var(--line2);
+  pointer-events:none;
+}
+/* Align the cards list with its header, removing the nested list inset. */
+html body #wallet #cardsList { padding-inline:0!important; }
+html body #wallet .cards-head .wth-cards-cols,
+html body #wallet .wallet-card-two-col .wallet-card-cols {
+  grid-template-columns:82px 82px!important;
+  gap:18px!important;
+  min-height:30px;
+}
+html body #wallet .cards-head .wth-cards-cols .wth-col-box,
+html body #wallet .wallet-card-two-col .wallet-card-cols span { width:82px!important; }
+/* Match the 28px row action plus its 6px margin and 8px flex gap. */
+html body #wallet:is(.wallet-mode-delete,.wallet-mode-hide) .cards-head .wth-cards-cols {
+  margin-right:42px!important;
+}
+/* A narrow header title must yield space to the same fixed amount columns. */
+html body #wallet .cards-head .wth-left { min-width:0; flex:1 1 0; overflow:hidden; }
+html body #wallet .cards-head .wth-title { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+/* The row title opens cloud settings without adding a third action button. */
+.c-row > .cloud-row-settings {
+  appearance:none; background:transparent; border:0; border-radius:4px;
+  box-shadow:none; color:inherit; font:inherit; font-weight:400!important;
+  font-size:.76rem!important; padding:0; margin:0; min-height:0; align-self:stretch;
+  text-align:start; cursor:pointer;
+}
+.c-row > .cloud-row-settings:focus-visible { outline:2px solid var(--mint); outline-offset:3px; }
+/* Accounts: separate the balance from the name at the same x in header/rows. */
+html body #wallet #accountsList { padding-inline:0!important; }
+html body #wallet .accounts-head .wth-col-box,
+html body #wallet #accountsList .listitem > strong { position:relative; min-height:30px; display:flex; flex-direction:column; justify-content:center; }
+html body #wallet .accounts-head .wth-col-box::before,
+html body #wallet #accountsList .listitem > strong::before {
+  content:''; position:absolute; left:-9px; top:2px; bottom:2px;
+  width:1px; background:var(--line2); pointer-events:none;
+}
+html body #wallet:is(.wallet-mode-delete,.wallet-mode-hide) .accounts-head .wth-col-box { margin-right:42px!important; }
+html body #wallet .accounts-head .wth-left { min-width:0; flex:1 1 0; overflow:hidden; }
+html body #wallet .accounts-head .wth-title { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.account-delete-preview { text-align:right; font-size:.8rem; line-height:1.8; }
+.account-delete-count { display:flex; justify-content:space-between; gap:12px; padding:5px 0; border-bottom:1px solid var(--line2); }
+.account-delete-preview ul { padding-inline-start:22px; }
+.account-delete-preview .actions { padding-top:10px; }
+.account-delete-continue { color:var(--red)!important; border-color:var(--red)!important; }

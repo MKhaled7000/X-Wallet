@@ -59,27 +59,127 @@ function normalizeCardStatementItem(item,card,index){
 
 /* ---- Original app.js lines 2567-2982 ---- */
 
-function deleteAccount(id){
-  const account=(state.accounts||[]).find(a=>String(a.id)===String(id));
-  if(!account)return;
-  showAppConfirm('حذف الحساب', 'يمكن حذف الحساب فقط إذا لم يكن له رصيد أو سجل مالي مرتبط. هل تريد المتابعة؟', ()=>{
-    const usedInTransactions=(state.transactions||[]).some(t=>String(t.accountId||'')===String(id));
-    const usedInArchive=(state.cancelledTransactions||[]).some(x=>String((x.transaction||x).accountId||'')===String(id));
-    const usedInLedger=(state.ledger||[]).some(l=>String(l.from||'')===String(id)||String(l.to||'')===String(id));
-    const usedInPayments=(state.cardPayments||[]).some(x=>String(x.accountId||'')===String(id)) || (state.commitmentPayments||[]).some(x=>String(x.accountId||'')===String(id));
-    const usedInRules=(state.recurringRules||[]).some(x=>String(x.accountId||'')===String(id));
-    const referencedByAudit=(state.auditLog||[]).some(e=>e.action==='حذف'&&e.before&&(String(e.before.accountId||'')===String(id)||String(e.before.from||'')===String(id)||String(e.before.to||'')===String(id)));
-    const opening=Number(account.opening)||0;
-    if(usedInTransactions||usedInArchive||usedInLedger||usedInPayments||usedInRules||referencedByAudit||Math.abs(opening)>0.000001){
-      toast('لا يمكن حذف الحساب لوجود رصيد أو معاملات أو تحويلات أو سجلات مرتبطة به. احتفظ بالحساب أو عالج السجلات أولاً.');
-      return;
-    }
-    if(typeof auditRecord==='function')auditRecord('حذف','حساب',account.id,account,null);
-    state.accounts = state.accounts.filter(a=>String(a.id)!==String(id));
-    if(String(state.prefs?.defaultAccount||'')===String(id))state.prefs.defaultAccount=state.accounts[0]?.id||'';
-    persist(); toast('تم حذف الحساب الفارغ ✓');
-  }, true);
+/* Account removal plans are built on a clone. No live mutation before confirmation. */
+function accountDeletionFingerprint(wallet){
+  const keys=['accounts','transactions','ledger','cardPayments','cardOps','cards','commitmentPayments','commitments','cancelledTransactions','recurringRules'];
+  return JSON.stringify([keys.map(k=>wallet[k]||[]),wallet.prefs?.defaultAccount||'']);
 }
+function buildAccountDeletionPlan(wallet,accountId){
+  const id=String(accountId),same=v=>v!==undefined&&v!==null&&String(v)===id;
+  const account=(wallet.accounts||[]).find(a=>same(a.id));
+  if(!account)throw new Error('الحساب لم يعد موجوداً');
+  const next=JSON.parse(JSON.stringify(wallet));
+  const ledger=(wallet.ledger||[]).filter(l=>same(l.from)||same(l.to));
+  const ledgerIds=new Set(ledger.map(l=>String(l.id)));
+  const feeIds=new Set(ledger.map(l=>String(l.feeTransactionId||'')).filter(Boolean));
+  const directTx=t=>same(t.accountId)||same(t.toAccountId)||ledgerIds.has(String(t.linkedTransferLedgerId||''))||feeIds.has(String(t.id));
+  const initialTx=(wallet.transactions||[]).filter(directTx);
+  const cardPayIds=new Set(initialTx.map(t=>String(t.linkedCardPaymentRecordId||'')).filter(Boolean));
+  const comPayIds=new Set(initialTx.map(t=>String(t.linkedCommitmentPaymentId||'')).filter(Boolean));
+  const cardPayments=(wallet.cardPayments||[]).filter(p=>same(p.accountId)||cardPayIds.has(String(p.id)));
+  const commitmentPayments=(wallet.commitmentPayments||[]).filter(p=>same(p.accountId)||comPayIds.has(String(p.id)));
+  cardPayments.forEach(p=>cardPayIds.add(String(p.id)));
+  commitmentPayments.forEach(p=>comPayIds.add(String(p.id)));
+  const tx=(wallet.transactions||[]).filter(t=>directTx(t)||cardPayIds.has(String(t.linkedCardPaymentRecordId||''))||comPayIds.has(String(t.linkedCommitmentPaymentId||'')));
+  const txIds=new Set(tx.map(t=>String(t.id)));
+  const fail=()=>{throw new Error('ارتباط سداد أو تحويل قديم غير مكتمل أو متعارض. لم تُحذف بيانات؛ يلزم مراجعة السجل المرتبط أولاً');};
+  for(const t of tx){
+    if(t.accountId&&!same(t.accountId)){
+      const feeLedger=ledger.find(l=>String(l.feeTransactionId||'')===String(t.id)||String(t.linkedTransferLedgerId||'')===String(l.id));
+      if(t.source!=='transfer-fee'||!feeLedger||String(feeLedger.from)!==String(t.accountId))fail();
+    }
+    if(isCardPurchaseTx(t))fail(); // A purchase belongs to a card, never erase it as an account payment.
+    if(t.type==='transfer')fail(); // Legacy transfers with no stable ledger cannot be safely paired.
+    if(t.source==='transfer-fee'&&!ledgerIds.has(String(t.linkedTransferLedgerId||''))&&!feeIds.has(String(t.id)))fail();
+    if(t.source==='card-payment'||t.linkedCardOpId||t.linkedCardPaymentRecordId||t.linkedCardPayKind){
+      const p=cardPayments.find(p=>String(p.id)===String(t.linkedCardPaymentRecordId||''));
+      if(!p||!t.linkedCardPaymentRecordId)fail();
+      if(t.linkedCardOpId&&String(t.linkedCardOpId)!==String(p.cardOpId||p.opId))fail();
+      if(t.linkedCardPayKind&&t.linkedCardPayKind!==p.paymentKind)fail();
+      if(t.linkedCardPayMonth&&p.paymentMonth&&t.linkedCardPayMonth!==p.paymentMonth)fail();
+      const settled=Number(t.settledAmount??t.amount);
+      if(!Number.isFinite(settled)||Math.abs(settled-Number(p.amount))>.005)fail();
+      if(tx.filter(x=>String(x.linkedCardPaymentRecordId||'')===String(p.id)).length!==1)fail();
+    }
+    if(t.source==='commitment-payment'||t.linkedCommitmentPaymentId){
+      const p=commitmentPayments.find(p=>String(p.id)===String(t.linkedCommitmentPaymentId||''));
+      if(!p||!t.linkedCommitmentPaymentId)fail();
+      if(!Number.isFinite(Number(t.settledAmount??t.amount))||Math.abs(Number(t.settledAmount??t.amount)-Number(p.amount))>.005)fail();
+      if(tx.filter(x=>String(x.linkedCommitmentPaymentId||'')===String(p.id)).length!==1)fail();
+    }
+  }
+  for(const key of ['accounts','transactions','ledger','cardPayments','cardOps','cards','commitmentPayments','commitments']){
+    const list=wallet[key]||[],ids=list.map(x=>String(x.id||''));if(ids.some(x=>!x)||new Set(ids).size!==ids.length)fail();
+  }
+  const reversalTargets=new Set();
+  for(const p of cardPayments){
+    if(p.accountId&&!same(p.accountId))fail();
+    const op=(next.cardOps||[]).find(o=>String(o.id)===String(p.cardOpId||p.opId||''));
+    if(!op||op.deletedAt||!p.cardId||String(op.cardId)!==String(p.cardId)||!(next.cards||[]).some(c=>String(c.id)===String(op.cardId)))fail();
+    let target,field;
+    if(p.paymentKind==='card_swipe'){target=op;field='paid';}
+    else if(p.paymentKind==='card_fee'){target=op;field='feePaid';}
+    else if(p.paymentKind==='card_inst'){target=(op.schedules||[]).find(s=>String(s.month)===String(p.paymentMonth));field='paid';}
+    else fail();
+    const amount=Number(p.amount);if(!target||!Number.isFinite(amount)||amount<=0||(Number(target[field])||0)+.005<amount)fail();
+    target[field]=round2(Math.max(0,(Number(target[field])||0)-amount));
+    reversalTargets.add(String(op.cardId));
+  }
+  for(const p of commitmentPayments){
+    if(p.accountId&&!same(p.accountId))fail();
+    if(!(next.commitments||[]).some(c=>String(c.id)===String(p.commitmentId))||!Number.isFinite(Number(p.amount))||Number(p.amount)<=0)fail();
+  }
+  for(const l of ledger){
+    if(!l.id||!['transfer','adjust'].includes(l.type))fail();
+    if(l.type==='transfer'){
+      if(!l.from||!l.to||same(l.from)&&same(l.to))fail();
+      if(!(wallet.accounts||[]).some(a=>String(a.id)===String(l.from))||!(wallet.accounts||[]).some(a=>String(a.id)===String(l.to)))fail();
+    }
+  }
+  next.transactions=(next.transactions||[]).filter(t=>!txIds.has(String(t.id)));
+  next.ledger=(next.ledger||[]).filter(l=>!ledgerIds.has(String(l.id)));
+  next.cardPayments=(next.cardPayments||[]).filter(p=>!cardPayIds.has(String(p.id)));
+  next.commitmentPayments=(next.commitmentPayments||[]).filter(p=>!comPayIds.has(String(p.id)));
+  const archiveMatches=x=>{const t=x.transaction||x;return directTx(t)||txIds.has(String(t.id))||cardPayIds.has(String(t.linkedCardPaymentRecordId||''))||comPayIds.has(String(t.linkedCommitmentPaymentId||''))||ledgerIds.has(String(x.related?.transferLedgerId||''));};
+  const archived=(next.cancelledTransactions||[]).filter(archiveMatches);
+  next.cancelledTransactions=(next.cancelledTransactions||[]).filter(x=>!archiveMatches(x));
+  const rules=(next.recurringRules||[]).filter(r=>same(r.accountId));
+  next.recurringRules=(next.recurringRules||[]).filter(r=>!same(r.accountId));
+  next.accounts=next.accounts.filter(a=>!same(a.id));
+  next.prefs=next.prefs||{};
+  const defaultCleared=same(next.prefs.defaultAccount);if(defaultCleared)next.prefs.defaultAccount='';
+  const accountImpacts=(wallet.accounts||[]).filter(a=>!same(a.id)).map(a=>({name:a.name,currency:a.currency||'EGP',before:accountBalance(a,wallet),after:accountBalance(a,next)})).filter(x=>Math.abs(x.before-x.after)>.005);
+  const cardImpacts=(wallet.cards||[]).filter(c=>reversalTargets.has(String(c.id))).map(c=>({name:c.name,currency:c.currency||'EGP',before:cardTotalOutstanding(c,wallet),after:cardTotalOutstanding(c,next)}));
+  const commitmentImpacts=commitmentPayments.map(p=>({name:(wallet.commitments||[]).find(c=>String(c.id)===String(p.commitmentId))?.title||'التزام',month:p.month,amount:Number(p.amount),currency:p.currency||'EGP'}));
+  return {id,account,next,fingerprint:accountDeletionFingerprint(wallet),counts:{transactions:tx.length,ledger:ledger.length,cardPayments:cardPayments.length,commitmentPayments:commitmentPayments.length,archived:archived.length,rules:rules.length},accountImpacts,cardImpacts,commitmentImpacts,defaultCleared};
+}
+function deleteAccount(id){
+  let plan;try{plan=buildAccountDeletionPlan(state,id);}catch(error){toast(error.message);return;}
+  const countRows=[['معاملات',plan.counts.transactions],['تحويلات / تسويات',plan.counts.ledger],['سجلات سداد بطاقات',plan.counts.cardPayments],['سجلات سداد التزامات',plan.counts.commitmentPayments],['سجل محذوفات مرتبط',plan.counts.archived],['قواعد متكررة',plan.counts.rules]].map(([label,value])=>`<div class="account-delete-count"><span>${label}</span><b>${value}</b></div>`).join('');
+  const money=n=>esc(fmtNum(n));
+  const impacts=[...plan.accountImpacts.map(x=>`رصيد ${esc(x.name)}: قبل ${money(x.before)}، بعد ${money(x.after)} ${esc(x.currency)}`),...plan.cardImpacts.map(x=>`مستحق ${esc(x.name)}: قبل ${money(x.before)}، بعد ${money(x.after)} ${esc(x.currency)}`),...plan.commitmentImpacts.map(x=>`يعود مستحقاً على ${esc(x.name)} لشهر ${esc(x.month||'غير محدد')}: ${money(x.amount)} ${esc(x.currency)}`)];
+  const html=`<div class="account-delete-preview" dir="rtl"><p>حذف «${esc(plan.account.name)}» من المحفظة وسجلاته المحددة بالمعرّفات.</p><p>الرصيد الحالي: <b>${money(accountBalance(plan.account))} ${esc(plan.account.currency||'EGP')}</b></p>${countRows}<h4>الأثر على بقية المحفظة</h4>${impacts.length?`<ul>${impacts.map(s=>`<li>${s}</li>`).join('')}</ul>`:'<p>لا تغيير في أرصدة الحسابات الأخرى أو مستحقات البطاقات والالتزامات.</p>'}${plan.defaultCleared?'<p>سيُلغى اختيار هذا الحساب كحساب افتراضي. اختر حساباً آخر من الإعدادات عند الحاجة.</p>':''}<p>حذف التحويل يلغي أثره على الحساب الآخر. حذف السداد يعيد المبلغ مستحقاً، ولا يحذف البطاقة أو الالتزام.</p><p>تُحفظ نقطة استعادة محلية كاملة قبل المسح. تظل النسخ السابقة وسجل المراجعة محفوظة؛ هذا ليس مسحاً لكل نسخ البيانات. الاستعادة من المزيد ← النسخ الاحتياطي ← المحلي ← استيراد ← النسخ التلقائية.</p><div class="actions"><button type="button" class="secondary" onclick="closeAppDialog()">إلغاء</button><button type="button" class="secondary account-delete-continue" id="accountDeleteContinue">متابعة الحذف</button></div></div>`;
+  showAppCustomForm('مراجعة حذف الحساب',html,null,true);
+  document.getElementById('accountDeleteContinue').onclick=()=>{
+    if(accountDeletionFingerprint(state)!==plan.fingerprint){toast('تغيرت البيانات. راجع أثر الحذف من جديد');closeAppDialog();return;}
+    showAppConfirm('تأكيد الحذف النهائي من المحفظة',`هل تؤكد حذف «${plan.account.name}» وسجلاته والأثر المعروض على بقية المحفظة؟ لن يبدأ المسح دون حفظ نقطة الاستعادة والتحقق منها.`,async()=>{
+      const success=await runCriticalWalletAction('قبل حذف الحساب وسجلاته',()=>{
+        if(accountDeletionFingerprint(state)!==plan.fingerprint)throw new Error('تغيرت البيانات. راجع أثر الحذف من جديد');
+        const current=buildAccountDeletionPlan(state,id);
+        for(const key of ['accounts','transactions','ledger','cardPayments','cardOps','commitmentPayments','cancelledTransactions','recurringRules'])state[key]=current.next[key];
+        state.prefs.defaultAccount=current.next.prefs.defaultAccount;
+        if(typeof auditRecord==='function')auditRecord('حذف','حساب',id,plan.account,{counts:plan.counts});
+      });
+      if(success){
+        if(typeof _auditFingerprint==='function')_auditSnapshot=_auditFingerprint();
+        document.getElementById('accountModal')?.classList.remove('show');
+        if(typeof activeStatementState!=='undefined'&&activeStatementState?.kind==='account'&&String(activeStatementState.id)===String(id))document.getElementById('statementFullModal')?.classList.remove('show');
+        toast('تم حذف الحساب وسجلاته من المحفظة مع نقطة استعادة محلية ✓');
+      }
+    },true);
+  };
+}
+
 function closeAccountModal(){ if(document.getElementById('quickModal')?.classList.contains('show') && typeof renderQuickPickers==='function') setTimeout(renderQuickPickers, 30);
   document.getElementById('accountModal').classList.remove('show');
 }

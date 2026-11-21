@@ -1,0 +1,11 @@
+X-Wallet V15.3.12 | 21 November 2026
+
+- Transactions summary matches unchanged Analytics across all five header styles, including exact padding and separators.
+- Added aligned available/due card separators and account/balance separators. Header and rows stay aligned in hide/delete modes.
+- Cloud backup is a plain row like local backup, with export/import only. Tap its title for existing account/folder settings.
+- Removed backup biometric controls, modal, module and obsolete local biometric record only. Existing encrypted cloud backups and app PIN/biometric lock remain unchanged. Backup passwords are requested directly.
+- Account deletion now previews exact linked history and effects, then requires a second confirmation. Linked transfers reverse their counterpart effect; deleted card/commitment payments become due again. Unrelated records are retained. Ambiguous legacy links stop deletion rather than guessing.
+- Deletion requires a verified local recovery snapshot and storage readback, with rollback on failed persistence. Prior backups, recovery snapshots and audit history remain available. This is active-wallet removal, not forensic erasure.
+- No automatic account deletion, wallet migration, Google permission change or OAuth publication.
+
+Checks: 75 exact summary geometry comparisons, 25 card-divider and 25 account-divider comparisons over five widths/modes. Nine deletion-plan groups, six Drive safety tests and six backup-security tests. Disposable-browser tests cover cancellation, confirmed deletion, counterpart reversal, snapshot recovery, stale previews, snapshot-write failure and commit rollback. Browser encryption roundtrip and wrong-password rejection pass, with unchanged wallet state and no page errors. All JavaScript syntax and diff checks pass.
