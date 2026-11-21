@@ -189,6 +189,8 @@ function renderReportsScreen(){
   document.getElementById('repTabInc')?.classList.toggle('active', isInc);
   document.getElementById('repTabExp')?.classList.toggle('active', !isInc && !isTrn);
   document.getElementById('repTabTrn')?.classList.toggle('active', isTrn);
+  document.getElementById('repStatBoxInc')?.classList.toggle('stat-selected', isInc);
+  document.getElementById('repStatBoxExp')?.classList.toggle('stat-selected', !isInc && !isTrn);
   document.getElementById('repCardTotalInc')?.classList.toggle('active-inc', isInc);
   document.getElementById('repCardTotalExp')?.classList.toggle('active-exp', !isInc);
 
