@@ -8124,3 +8124,16 @@ html body #commitments details.commitment-entry {padding:0;cursor:default;}
 .commitment-open-actions {margin-top:12px;min-height:36px;width:100%;font-size:.7rem;}
 /* Wallet section headings share their rows' background, without a dark strip. */
 html body #wallet .wallet-table-head {background:transparent!important;}
+
+/* More keeps the same grouped-card surface as Financial tools, independent of transaction row style. */
+#settings .more-menu-group .more-menu-rows {
+  background:var(--panel2);
+  border:1px solid var(--line);
+  border-radius:15px;
+  overflow:hidden;
+}
+#settings .more-menu-group {border-bottom:0;}
+#settings .more-menu-group h2 {direction:rtl;text-align:left;}
+#settings .more-menu-row {direction:ltr;text-align:left;}
+#settings .more-menu-row > span:last-child {direction:rtl;text-align:left;}
+#settings .more-menu-danger .more-menu-rows {border-color:#75404b66;}
