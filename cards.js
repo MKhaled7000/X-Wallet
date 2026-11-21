@@ -1,5 +1,21 @@
 
 let walletToolbarMode = '';
+function toggleWalletToolsMenu(e){
+  if(e) e.stopPropagation();
+  document.getElementById('wtOverflowMenu')?.classList.toggle('open');
+}
+function closeWalletToolsMenu(){
+  document.getElementById('wtOverflowMenu')?.classList.remove('open');
+}
+function walletMenuAction(action){
+  closeWalletToolsMenu();
+  if(action === 'add'){ openWalletAddChoiceModal(); return; }
+  toggleWalletToolbarMode(action);
+}
+document.addEventListener('click', function(e){
+  const wrap = document.getElementById('wtOverflowWrap');
+  if(wrap && !wrap.contains(e.target)) closeWalletToolsMenu();
+});
 function toggleWalletToolbarMode(mode){
   walletToolbarMode = (walletToolbarMode === mode) ? '' : mode;
   const wEl = document.getElementById('wallet');
@@ -13,6 +29,7 @@ function toggleWalletToolbarMode(mode){
   document.getElementById('wtBtnReorder')?.classList.toggle('active', walletToolbarMode === 'reorder');
   document.getElementById('wtBtnHide')?.classList.toggle('active', walletToolbarMode === 'hide');
   document.getElementById('wtBtnDelete')?.classList.toggle('active', walletToolbarMode === 'delete');
+  document.getElementById('wtBtnOverflow')?.classList.toggle('active', !!walletToolbarMode);
   renderAccountsAndCards();
 }
 function toggleWalletSectionCollapse(cardId){

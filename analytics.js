@@ -56,13 +56,12 @@ const CHART_COLORS = ['#ff6b6b','#ff9f43','#feca57','#1dd1a1','#48dbfb','#54a0ff
 function analyticsBaseAmount(t){return typeof transactionBaseAmount==='function'?transactionBaseAmount(t):(Number(t?.amount)||0); }
 
 function switchReportTab(tab){
-  activeReportTab = (tab === 'inc' || tab === 'trn') ? tab : 'exp';
+  activeReportTab = (tab === 'inc') ? tab : 'exp';
   if(activeCatDrillState){
     closeCatDetailModal();
   }
   document.getElementById('repTabInc')?.classList.toggle('active', activeReportTab==='inc');
   document.getElementById('repTabExp')?.classList.toggle('active', activeReportTab==='exp');
-  document.getElementById('repTabTrn')?.classList.toggle('active', activeReportTab==='trn');
   document.getElementById('repStatBoxInc')?.classList.toggle('stat-selected', activeReportTab==='inc');
   document.getElementById('repStatBoxExp')?.classList.toggle('stat-selected', activeReportTab==='exp');
   if(typeof updateTopTabTitle==='function') updateTopTabTitle('analytics');
@@ -162,35 +161,12 @@ function getReportFilteredTransactions(isInc){
   };
 }
 
-function getReportFilteredTransfers(){
-  const allTrn = (state.ledger||[]).filter(l => l.type === 'transfer');
-  if(reportPeriodMode === 'monthly'){
-    const curYM = selected();
-    return { periodLabel: formatYMArabic(curYM), list: allTrn.filter(l => monthKey(l.date) === curYM) };
-  }
-  if(reportPeriodMode === 'yearly'){
-    const yStr = String(reportYear);
-    return { periodLabel: `سنة ${yStr}`, list: allTrn.filter(l => String(l.date||'').startsWith(yStr)) };
-  }
-  const dFrom = val('repCustomFrom') || '0000-01-01';
-  const dTo = val('repCustomTo') || '9999-12-31';
-  return {
-    periodLabel: reportPeriodMode === 'custom' ? `${dFrom} ← ${dTo}` : 'كل الفترات',
-    list: allTrn.filter(l => {
-      const d = String(l.date||'').slice(0,10);
-      return (!val('repCustomFrom') || d >= dFrom) && (!val('repCustomTo') || d <= dTo);
-    })
-  };
-}
-
 function renderReportsScreen(){
   const isInc = (activeReportTab === 'inc');
-  const isTrn = (activeReportTab === 'trn');
   document.getElementById('repTabInc')?.classList.toggle('active', isInc);
-  document.getElementById('repTabExp')?.classList.toggle('active', !isInc && !isTrn);
-  document.getElementById('repTabTrn')?.classList.toggle('active', isTrn);
+  document.getElementById('repTabExp')?.classList.toggle('active', !isInc);
   document.getElementById('repStatBoxInc')?.classList.toggle('stat-selected', isInc);
-  document.getElementById('repStatBoxExp')?.classList.toggle('stat-selected', !isInc && !isTrn);
+  document.getElementById('repStatBoxExp')?.classList.toggle('stat-selected', !isInc);
   document.getElementById('repCardTotalInc')?.classList.toggle('active-inc', isInc);
   document.getElementById('repCardTotalExp')?.classList.toggle('active-exp', !isInc);
 
@@ -217,33 +193,6 @@ function renderReportsScreen(){
   const { periodLabel, list } = isInc ? incData : expData;
   const repLblEl = document.getElementById('repPeriodLabel');
   if(repLblEl) repLblEl.textContent = (reportPeriodMode === 'yearly') ? String(reportYear) : formatYMArabic(selected());
-
-  if(isTrn){
-    const trnData = getReportFilteredTransfers();
-    const donutWrap = document.getElementById('repDonutWrap');
-    const chipsWrap = document.getElementById('repLegendChips');
-    const listEl = document.getElementById('repCatBreakdownList');
-    const isEn = (state.prefs?.lang === 'en');
-    const ledItems = trnData.list.map((l, idx) => {
-      const fromA = state.accounts.find(a=>a.id===l.from)?.name || (isEn?'Cash':'كاش');
-      const toA = state.accounts.find(a=>a.id===l.to)?.name || (isEn?'Cash':'كاش');
-      return {
-        id: l.id, type: 'transfer',
-        category: isEn ? 'Transfer' : 'تحويل', subCategory: '',
-        title: (l.note && l.note !== 'تحويل بين الحسابات') ? l.note : '',
-        note: l.note || '', description: l.description || '',
-        accountLabel: `${fromA} → ${toA}`,
-        accountId: l.from, toAccountId: l.to,
-        amount: Number(l.amount)||0, fee: Number(l.fee)||0,
-        date: l.date, _kind: 'ledger', _order: getItemTimestampOrder(l, idx)
-      };
-    }).sort((a,b) => String(b.date||'').localeCompare(String(a.date||'')) || (b._order||0)-(a._order||0));
-    const totTrn = round2(ledItems.reduce((s,x)=>s+(Number(x.amount)||0), 0));
-    if(donutWrap) donutWrap.innerHTML = `<div style="text-align:center;padding:10px"><small style="color:var(--muted);display:block">إجمالي التحويلات</small><b class="mint" style="font-size:1.1rem;direction:ltr">${maskable(egpSmart(totTrn))}</b></div>`;
-    if(chipsWrap) chipsWrap.innerHTML = `<span class="tag">${ledItems.length} عملية تحويل</span>`;
-    if(listEl) listEl.innerHTML = buildDailyGroupedFeedHtml(ledItems, `لا توجد تحويلات مسجلة في (${esc(trnData.periodLabel)}).`);
-    return;
-  }
 
   const byMain = {};
   let grandTotal = 0;

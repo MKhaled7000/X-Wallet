@@ -23,7 +23,7 @@ function cycleCurrentTopSubTab(){
       closeCatDetailModal();
       return;
     }
-    const order = ['exp', 'inc', 'trn'];
+    const order = ['exp', 'inc'];
     const idx = order.indexOf(activeReportTab || 'exp');
     switchReportTab(order[(idx + 1) % order.length]);
     return;
@@ -95,7 +95,6 @@ function updateTopTabTitle(pageId){
       return;
     }
     if(activeReportTab === 'inc') el.textContent = lang==='en' ? 'Income' : 'الدخل';
-    else if(activeReportTab === 'trn') el.textContent = lang==='en' ? 'Transfers' : 'التحويلات';
     else el.textContent = lang==='en' ? 'Expenses' : 'المصروفات';
     return;
   }
@@ -307,6 +306,7 @@ function closeAllOpenModalsForce(forceAll){
   });
   if(typeof activeCatDrillState !== 'undefined' && activeCatDrillState) closeCatDetailModal();
   if(typeof closeQmMonthsMenu === 'function') closeQmMonthsMenu();
+  if(typeof closeWalletToolsMenu === 'function') closeWalletToolsMenu();
 }
 function toggleAnalyticsStatTab(mode){
   const curId = document.querySelector('.screen.active')?.id;
@@ -502,7 +502,7 @@ function onPageVisibilityChanged(){
   };
   const SUB_TABS = {
     analytics: {
-      list: ['inc', 'exp', 'trn'],
+      list: ['inc', 'exp'],
       getActive: () => activeReportTab || 'exp',
       setActive: (val) => switchReportTab(val)
     },

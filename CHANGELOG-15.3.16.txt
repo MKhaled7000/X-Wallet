@@ -1,0 +1,7 @@
+X-Wallet 15.3.16
+
+- Remove the Transfers sub-tab from Analysis: the header-title cycle and swipe now switch between Expenses and Income only.
+- Keep transfer entry in quick-add, the Transfers filter in Records, account statements, fees, and all ledger data untouched.
+- Group all Wallet header tools, including add, into a single named overflow menu.
+- Add a direct Commitments shortcut beside the overflow menu; it still opens Commitments when its page is hidden from navigation.
+- Preserve wallet data, backups and cloud encryption/password behavior.

@@ -6723,6 +6723,59 @@ header.top.unified-top-bar {
 .utb-wallet-tools {
   gap: 5px !important;
 }
+.wt-overflow-wrap {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.wt-overflow-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 95;
+  background: var(--panel2);
+  border: 1px solid var(--line2);
+  border-radius: 12px;
+  min-width: 130px;
+  box-shadow: 0 8px 22px #000a;
+  display: none;
+  flex-direction: column;
+  padding: 4px;
+  gap: 2px;
+}
+.wt-overflow-menu.open {
+  display: flex;
+}
+.wt-menu-item {
+  border: 0;
+  background: transparent;
+  color: var(--text-sub);
+  font-family: inherit;
+  font-size: .78rem;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-align: right;
+  width: 100%;
+  white-space: nowrap;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.wt-menu-ico {
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.wt-menu-item.active {
+  background: #43d6b21f;
+  color: var(--mint);
+}
+.wt-menu-item.wt-menu-danger.active {
+  background: #ff72851f;
+  color: var(--red);
+}
 
 /* Detached Search & Filter Drawer (Zero Overlap!) */
 .trans-search-drawer {
@@ -8210,3 +8263,13 @@ html body :is(#trans,#analytics) .day-head {
 #settings .more-menu-stack .more-menu-group{margin:0;border:0;}
 #settings .more-menu-stack .more-menu-group+.more-menu-group{border-top:1px solid var(--line);}
 #settings .more-menu-stack .more-menu-rows{background:transparent;border:0;border-radius:0;}
+
+/* Taller Analytics summary strip: vertical breathing room for the amount rectangle */
+html body #analytics .mm-stats-card {
+  height: 60px !important;
+  min-height: 60px !important;
+  max-height: 60px !important;
+}
+html body #analytics .mm-stats-card .mm-stat-box {
+  height: 46px !important;
+}
