@@ -1,0 +1,5 @@
+/* X-Wallet 15.3.12: ordered styles, split for safe browser editing. */
+@import url("./styles-part-1.css?v=15.3.12");
+@import url("./styles-part-2.css?v=15.3.12");
+@import url("./styles-part-3.css?v=15.3.12");
+@import url("./styles-part-4.css?v=15.3.12");
