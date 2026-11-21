@@ -1,0 +1,6 @@
+X-Wallet V15.3.10 - 2026-11-21
+
+- تفعيل ربط Google Drive فعلياً: إعداد المطوّر اتجهّز بالكامل، والآن تقدر تختار حساب جوجل وتوافق وتحفظ نسختك وتسترجعها من داخل التطبيق.
+- إعداد الربط بقى جاهز مسبقاً، ومش مطلوب من المستخدم أي خطوات مطوّر.
+
+Technical: wired the Google OAuth web client ID (Google Cloud project X-Wallet, Drive API, drive.file non-sensitive scope) into google-drive.js; full version stamp pass.

@@ -4,7 +4,7 @@ const GOOGLE_DRIVE_SCOPE='https://www.googleapis.com/auth/drive.file';
    When the developer ships a client ID here, the user only picks a Google
    account and approves; the field in إعداد الربط stays as an advanced override.
    An OAuth Web Client ID is a public identifier, not a secret. */
-const XW_GOOGLE_CLIENT_ID='';
+const XW_GOOGLE_CLIENT_ID='256393782346-d176rh2tcl5r19mj5gptd27o1ecmclg1.apps.googleusercontent.com';
 function xwEffectiveGoogleClientId(){
   const custom=String(state.prefs?.driveClientId||'').trim();
   return custom||XW_GOOGLE_CLIENT_ID;
