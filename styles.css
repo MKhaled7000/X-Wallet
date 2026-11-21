@@ -7801,9 +7801,9 @@ html #quickModal #qmCatRow #qmCatSelectedText {
 }
 html #quickModal #qmRecurringBtn.active,
 html #quickModal #qmRecurringBtn[aria-pressed="true"] {
-  color: #06221e !important; background: var(--mint) !important;
-  border: 2px solid var(--mint) !important; opacity: 1 !important;
-  box-shadow: 0 0 0 3px #43d6b230, 0 0 10px #43d6b255 !important;
+  color: var(--mint) !important; background: #43d6b21e !important;
+  border: 1px solid var(--mint) !important; opacity: 1 !important;
+  box-shadow: none !important;
 }
 html #quickModal #qmRecurringBtn:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
 
@@ -7846,16 +7846,10 @@ html #wallet .mm-stats-card .mm-stat-box b {
 #analytics .mm-stats-card .mm-stat-box.clickable-stat {
   position: relative !important;
 }
-#analytics .mm-stats-card .mm-stat-box.clickable-stat.stat-selected::after {
-  content: '';
-  position: absolute;
-  bottom: 1px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 26px;
-  height: 3px;
-  border-radius: 3px;
-  background: var(--mint);
+#analytics .mm-stats-card .mm-stat-box.clickable-stat.stat-selected {
+  outline: 1.5px solid var(--mint);
+  outline-offset: -1.5px;
+  background: #43d6b214;
 }
 
 /* 3. Wallet rows: long names truncate instead of wrapping, keeping rows identical */
@@ -7883,8 +7877,8 @@ html #wallet .mm-stats-card .mm-stat-box b {
   top: 0 !important;
   z-index: 6 !important;
   background: var(--bg) !important;
-  margin: -10px -12px 8px !important;
-  padding: 10px 12px 4px !important;
+  margin: -10px 0 8px !important;
+  padding: 10px 0 4px !important;
 }
 
 /* 5. Backup biometric helper text grouped with its row */

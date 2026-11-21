@@ -472,15 +472,21 @@ function dismissUpdateModal(){
     try{ sessionStorage.setItem('xw_upd_dismissed', _latestRemoteVer); }catch(_){}
   }
 }
-function showUpdateCardModal(ver, notesText){
+function updateNotesList(notes){
+  if(Array.isArray(notes)) return notes.map(s=>String(s).trim()).filter(Boolean);
+  return String(notes||'تحسينات جديدة في التطبيق').split(/\n|\+/).map(s=>s.trim()).filter(Boolean);
+}
+function renderUpdateNotesHtml(notes){
+  return updateNotesList(notes).map(s=>`<div dir="rtl" style="margin:4px 0;unicode-bidi:isolate">• ${esc(s.replace(/^•\s*/,''))}</div>`).join('');
+}
+function showUpdateCardModal(ver, notes){
   const m = document.getElementById('updateAvailableModal');
   if(!m) return;
   _latestRemoteVer = String(ver || '');
   document.getElementById('updModalTitle').textContent = '🚀 تحديث جديد: X-Wallet V' + ver;
-  const lines = String(notesText||'تحسينات جديدة في التطبيق').split(/\n|\+/).map(s=>s.trim()).filter(Boolean);
   document.getElementById('updModalNotes').innerHTML =
-    '<div style="font-weight:400;margin-bottom:6px;color:var(--text)">ملخص التحديث:</div>' +
-    lines.map(s=>`<div style="margin:3px 0">• ${esc(s.replace(/^•\s*/,''))}</div>`).join('');
+    '<div dir="rtl" style="font-weight:400;margin-bottom:6px;color:var(--text)">ملخص التحديث:</div>' +
+    renderUpdateNotesHtml(notes);
   m.classList.add('show');
 }
 function checkForUpdate(silent){
@@ -488,8 +494,8 @@ function checkForUpdate(silent){
   if(!silent && box) box.innerHTML = '<div class="hint" style="margin:0">جاري البحث عن تحديثات…</div>';
   fetch('./version.json?t='+Date.now(),{cache:'no-store'}).then(r=>r.json()).then(v=>{
     const rem = String(v.version||v.appVersion||'').trim();
-    const notes = String(v.notes||'تحسينات عامة في الأداء والاستقرار').trim();
-    const notesHtml = notes.split(/\n|\+/).map(s=>s.trim()).filter(Boolean).map(s=>`<div style="margin:3px 0">• ${esc(s.replace(/^•\s*/,''))}</div>`).join('');
+    const notes = (v.notes === undefined || v.notes === null) ? 'تحسينات عامة في الأداء والاستقرار' : v.notes;
+    const notesHtml = renderUpdateNotesHtml(notes);
     if(!rem || rem === APP_VERSION){
       try{ sessionStorage.removeItem('xw_upd_dismissed'); }catch(_){}
       if(!silent){

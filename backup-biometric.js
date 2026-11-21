@@ -1,4 +1,4 @@
-/* X-Wallet V15.3.7: PRF-only, opt-in encrypted cloud-password vault.
+/* X-Wallet V15.3.9: PRF-only, opt-in encrypted cloud-password vault.
  * No plaintext, wrapping key or PRF result is persisted. See README security limits.
  */
 (function(){
