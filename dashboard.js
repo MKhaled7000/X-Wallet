@@ -116,9 +116,10 @@ function updateTopTabTitle(pageId){
 }
 
 let _transSearchActive = false;
+const FAB_FILTER_SVG = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>';
 const FAB_SHORTCUT_DEFS = [
   { id:'search', label:'🔍 بحث' },
-  { id:'filter', label:'▽ فلتر' },
+  { id:'filter', label:'🎛 فلتر' },
   { id:'commitments', label:'🗓 الالتزامات' },
   { id:'monthly', label:'📅 ملخص السنة' },
   { id:'yearly', label:'📊 التقرير السنوي' },
@@ -128,7 +129,14 @@ const FAB_SHORTCUT_DEFS = [
 ];
 function getFabShortcutsList(){
   const arr = state.prefs?.fabShortcuts;
-  return Array.isArray(arr) && arr.length ? arr : ['search','filter','swipe','monthly','yearly','salary','backup'];
+  if(Array.isArray(arr) && arr.length){
+    if(!state.prefs.fabCommitmentsSeeded && !arr.includes('commitments')){
+      arr.splice(2, 0, 'commitments');
+      state.prefs.fabCommitmentsSeeded = true;
+    }
+    return arr;
+  }
+  return ['search','filter','commitments','swipe','monthly','yearly','salary','backup'];
 }
 function isFabSpeedDialEnabled(){
   return state.prefs?.fabSpeedDial !== false;
@@ -186,7 +194,8 @@ function renderFabSpeedMenuItems(){
     else if(d.id === 'swipe') act = (state.prefs?.swipeMode === 'months');
     const ico = d.label.split(' ')[0]; const iconsOnly = isFabIconsOnly();
     const distIdx = list.length - idx;
-    return `<button type="button" style="--sd-idx:${distIdx}" class="fab-speed-item ${act?'active':''} ${iconsOnly?'icons-only':''}" onclick="runFabShortcut('${d.id}')" title="${d.label}">${iconsOnly ? ico : d.label}</button>`;
+    const dispHtml = (d.id === 'filter') ? (iconsOnly ? FAB_FILTER_SVG : `${FAB_FILTER_SVG} <span>فلتر</span>`) : (iconsOnly ? ico : d.label);
+    return `<button type="button" style="--sd-idx:${distIdx}" class="fab-speed-item ${act?'active':''} ${iconsOnly?'icons-only':''}" onclick="runFabShortcut('${d.id}')" title="${d.label}">${dispHtml}</button>`;
   }).join('');
 }
 function runFabShortcut(id){

@@ -7682,3 +7682,28 @@ html #statementFullModal .mm-stats-card .mm-stat-box:last-child {
   height: 4px !important;
   margin: 2px 0 !important;
 }
+
+
+/* =========================================================
+   X-WALLET V15.3.4: UNIFORM WALLET ROW HEIGHT & EDIT MODE
+   ========================================================= */
+#wallet #accountsList .listitem,
+#wallet #cardsList .listitem {
+  height: 38px !important;
+  min-height: 38px !important;
+  max-height: 38px !important;
+  padding: 0 12px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+}
+#wallet.wallet-mode-edit #accountsList .listitem,
+#wallet.wallet-mode-edit #cardsList .listitem {
+  background: rgba(67, 214, 178, 0.06) !important;
+}
+#wallet.wallet-mode-edit #accountsList .listitem .info b::after,
+#wallet.wallet-mode-edit #cardsList .listitem .info b::after {
+  content: ' ✎';
+  color: var(--mint);
+  font-size: .74rem;
+}

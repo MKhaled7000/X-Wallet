@@ -354,8 +354,9 @@ function openEditQuickTx(id){
       'حركة سداد مرتبطة بجدول',
       `لا يمكن تعديل مبلغ السداد مباشرة (${amtTxt} ${curTxt}) حتى لا يختلف عن رصيد البطاقة أو الالتزام.\n\nهل تريد إلغاء وحذف حركة السداد الآن (وسيتم إرجاع الرصيد تلقائياً)؟`,
       () => {
-        if(typeof deleteTx === 'function') deleteTx(t.id);
-      }
+        cancelAndDeleteLinkedPaymentTx(t.id);
+      },
+      true
     );
     return;
   }
@@ -980,3 +981,39 @@ function cancelQuickAccLongPress(){
 }
 
 document.addEventListener('click', e => { const rw = document.getElementById('qmRecurWrap'); if(rw && !rw.contains(e.target)) closeQmRecurMenu(); });
+
+function cancelAndDeleteLinkedPaymentTx(txId){
+  const tx = (state.transactions || []).find(x => String(x.id) === String(txId));
+  if(!tx) return;
+  const payAmt = Math.abs(Number(tx.amount) || 0);
+  // Reverse linked cardPayment record & cardOp paid amount
+  if(tx.linkedCardPaymentRecordId){
+    const cp = (state.cardPayments || []).find(p => String(p.id) === String(tx.linkedCardPaymentRecordId));
+    if(cp){
+      const op = (state.cardOps || []).find(o => String(o.id) === String(cp.opId || tx.linkedCardOpId));
+      if(op){
+        op.paid = Math.max(0, round2((Number(op.paid) || 0) - (Number(cp.amount) || payAmt)));
+        if(Array.isArray(op.schedules) && cp.month){
+          const sc = op.schedules.find(s => s.month === cp.month);
+          if(sc) sc.paid = Math.max(0, round2((Number(sc.paid) || 0) - (Number(cp.amount) || payAmt)));
+        }
+      }
+      state.cardPayments = (state.cardPayments || []).filter(p => String(p.id) !== String(cp.id));
+    }
+  } else if(tx.linkedCardOpId){
+    const op = (state.cardOps || []).find(o => String(o.id) === String(tx.linkedCardOpId));
+    if(op) op.paid = Math.max(0, round2((Number(op.paid) || 0) - payAmt));
+  }
+  // Reverse linked commitment payment
+  if(tx.linkedCommitmentPaymentId){
+    state.commitmentPayments = (state.commitmentPayments || []).filter(p => String(p.id) !== String(tx.linkedCommitmentPaymentId));
+  }
+  state.transactions = (state.transactions || []).filter(x => String(x.id) !== String(txId));
+  if(typeof syncCardInstallmentsToCommitments === 'function') syncCardInstallmentsToCommitments();
+  persist();
+  if(typeof renderActiveScreenOnly === 'function') renderActiveScreenOnly();
+  if(document.getElementById('statementFullModal')?.classList.contains('show') && typeof renderFullStatementModalContent === 'function'){
+    renderFullStatementModalContent();
+  }
+  toast('تم إلغاء وحذف حركة السداد وإرجاع الرصيد ✓');
+}

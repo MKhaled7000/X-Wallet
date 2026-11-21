@@ -4,10 +4,12 @@ function toggleWalletToolbarMode(mode){
   walletToolbarMode = (walletToolbarMode === mode) ? '' : mode;
   const wEl = document.getElementById('wallet');
   if(wEl){
+    wEl.classList.toggle('wallet-mode-edit', walletToolbarMode === 'edit');
     wEl.classList.toggle('wallet-mode-reorder', walletToolbarMode === 'reorder');
     wEl.classList.toggle('wallet-mode-hide', walletToolbarMode === 'hide');
     wEl.classList.toggle('wallet-mode-delete', walletToolbarMode === 'delete');
   }
+  document.getElementById('wtBtnEdit')?.classList.toggle('active', walletToolbarMode === 'edit');
   document.getElementById('wtBtnReorder')?.classList.toggle('active', walletToolbarMode === 'reorder');
   document.getElementById('wtBtnHide')?.classList.toggle('active', walletToolbarMode === 'hide');
   document.getElementById('wtBtnDelete')?.classList.toggle('active', walletToolbarMode === 'delete');
@@ -96,7 +98,7 @@ function renderAccountsAndCards(){
   const renderAccountRow = a => {
     const b = accountBalance(a);
     const balCls = b < 0 ? 'red' : (b > 0 ? 'blue' : '');
-    return `<div class="listitem wallet-order-row ${a.hidden?'is-hidden-item':''}" data-cat-name="${esc(a.id)}" onclick="openAccountStatement('${escJs(a.id)}')">
+    return `<div class="listitem wallet-order-row ${a.hidden?'is-hidden-item':''}" data-cat-name="${esc(a.id)}" onclick="${walletToolbarMode==='edit' ? `openEditAccountModal('${escJs(a.id)}')` : `openAccountStatement('${escJs(a.id)}')`}">
       <button type="button" class="cat-drag-handle wallet-order-handle wallet-left-drag" onclick="event.stopPropagation()" title="اسحب لإعادة الترتيب">☰</button>
       <div class="info"><b>${esc(a.name)}</b></div>
       <strong class="${balCls}">${maskable(fmtNum(b))}</strong>
@@ -117,7 +119,7 @@ function renderAccountsAndCards(){
 
   const renderCardRow = c => {
     const d = cardTotalOutstanding(c), av = cardCurrentAvailable(c);
-    return `<div class="listitem wallet-order-row wallet-card-two-col ${c.hidden?'is-hidden-item':''}" data-cat-name="${esc(c.id)}" onclick="openCardStatement('${escJs(c.id)}')">
+    return `<div class="listitem wallet-order-row wallet-card-two-col ${c.hidden?'is-hidden-item':''}" data-cat-name="${esc(c.id)}" onclick="${walletToolbarMode==='edit' ? `openEditCardModal('${escJs(c.id)}')` : `openCardStatement('${escJs(c.id)}')`}">
       <button type="button" class="cat-drag-handle wallet-order-handle wallet-left-drag" onclick="event.stopPropagation()" title="اسحب لإعادة الترتيب">☰</button>
       <div class="info"><b>${esc(c.name)}</b></div>
       <div class="wallet-card-cols" dir="ltr">
@@ -310,7 +312,32 @@ function deleteCard(cardId){
     const hasLinkedTransactions=(state.transactions||[]).some(t=>String(t.linkedCardOpId||'')!=='' && (state.cardOps||[]).some(o=>String(o.id)===String(t.linkedCardOpId)&&String(o.cardId)===String(cardId))) || (state.transactions||[]).some(t=>String(t.source||'').startsWith('card-purchase:')&&(state.cardOps||[]).some(o=>String(o.id)===String(t.source).slice('card-purchase:'.length)&&String(o.cardId)===String(cardId)));
     const hasArchivedReferences=(state.cancelledTransactions||[]).some(x=>String(x.related?.cardPurchaseOp?.cardId||x.related?.cardOp?.cardId||'')===String(cardId)) || (state.auditLog||[]).some(e=>e.action==='حذف'&&e.before&&['عملية بطاقة','سداد بطاقة'].includes(e.entity)&&String(e.before.cardId||'')===String(cardId));
     if(hasOps||hasPayments||hasLinkedTransactions||hasArchivedReferences||Math.abs(Number(card.balance)||0)>0.000001){
-      toast('لا يمكن حذف بطاقة لها عمليات أو مديونية أو سجلات سداد. عالج العمليات أولاً للحفاظ على تاريخها المالي.');
+      setTimeout(() => {
+        showAppConfirm(
+          'تأكيد الحذف النهائي للبطاقة',
+          `البطاقة «${card.name}» مرتبطة بعمليات أو سجلات سداد.\n\nهل تريد حذف البطاقة نهائياً مع جميع عملياتها وسداداتها؟`,
+          () => {
+            const opIds = new Set((state.cardOps||[]).filter(o=>String(o.cardId)===String(cardId)).map(o=>String(o.id)));
+            const payIds = new Set((state.cardPayments||[]).filter(p=>String(p.cardId)===String(cardId)).map(p=>String(p.id)));
+            const cNameLow = String(card.name||'').trim().toLowerCase();
+            state.cardOps = (state.cardOps||[]).filter(o=>String(o.cardId)!==String(cardId));
+            state.cardPayments = (state.cardPayments||[]).filter(p=>String(p.cardId)!==String(cardId));
+            state.transactions = (state.transactions||[]).filter(t=>{
+              if(t.linkedCardOpId && opIds.has(String(t.linkedCardOpId))) return false;
+              if(t.linkedCardPaymentRecordId && payIds.has(String(t.linkedCardPaymentRecordId))) return false;
+              if(t.source && String(t.source).startsWith('card-purchase:') && opIds.has(String(t.source).slice('card-purchase:'.length))) return false;
+              if(t.source === 'card-payment' && cNameLow && String(t.title||'').toLowerCase().includes(cNameLow)) return false;
+              return true;
+            });
+            state.cards = (state.cards||[]).filter(c=>String(c.id)!==String(cardId));
+            if(typeof syncCardInstallmentsToCommitments === 'function') syncCardInstallmentsToCommitments();
+            persist();
+            if(typeof renderActiveScreenOnly === 'function') renderActiveScreenOnly();
+            toast('تم حذف البطاقة وجميع عملياتها ✓');
+          },
+          true
+        );
+      }, 60);
       return;
     }
     if(typeof auditRecord==='function')auditRecord('حذف','بطاقة',card.id,card,null);
