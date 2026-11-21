@@ -229,12 +229,12 @@ function preserveDeviceSecurityAndDrivePrefs(oldPrefs, newState){
     'secPin', 'secPinHash', 'secPinSalt', 'bioEnabled', 'bioCredentialId',
     'appLockOnStart', 'bioOnPrivacy',
     'driveEmail', 'driveWebhookUrl', 'driveAccessToken', 'driveClientId', 'driveSharedSecret',
-    'ghToken', 'ghGistId', 'syncProvider',
+    'ghToken', 'ghGistId', 'syncProvider', 'driveFolderId', 'lastDriveBackupAt',
     'autoDriveFreq', 'lastDriveBackup', 'lastBackupDate'
   ];
   for(const k of localOnlyKeys) delete newState.prefs[k];
   for(const k of localOnlyKeys){
-    if(['driveEmail','driveWebhookUrl','driveAccessToken','driveSharedSecret'].includes(k))continue;
+    if(['driveEmail','driveWebhookUrl','driveAccessToken','driveSharedSecret','ghToken','ghGistId','syncProvider'].includes(k))continue;
     if(op[k] !== undefined && op[k] !== '') newState.prefs[k] = op[k];
   }
   return newState;

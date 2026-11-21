@@ -36,6 +36,11 @@ document.documentElement.classList.add('xwallet-boot-loading');
     showWalletBootBlock('تعذر إكمال ترحيل العملات بأمان. احتفظ ببيانات الموقع وراجع النسخة الاحتياطية قبل المتابعة.');
     return;
   }
+  // Retire the app's former GitHub sync credentials locally; remote backups are untouched.
+  if(state.prefs&&['ghToken','ghGistId','syncProvider'].some(key=>key in state.prefs)){
+    for(const key of ['ghToken','ghGistId','syncProvider'])delete state.prefs[key];
+    persist();
+  }
   applyPreferences();
   initSalary();
   const curYM=selected();
@@ -151,52 +156,29 @@ function suggestSmartTransferFee(){
 /* ---- Original app.js lines 4873-5081 ---- */
 /* Auto Backup Toggle */
 
-/* 14. Unified Cloud Sync Setup (GitHub Private Gist + Google Drive) with pure unreversed Arabic */
+/* Cloud settings are secondary to Save and Restore. */
 function openCloudSyncModal(){
   const p=state.prefs||{};
-  const provider=p.syncProvider||(p.ghToken?'github':'google');
   const html=`<div class="ft-form" dir="rtl">
-    <section class="ft-card"><h3>Google Drive مباشرة</h3>
-      <p class="hint">الاستخدام العادي لا يحتاج أي إعداد منك: اضغط مزامنة، اختر حساب Google، وامنح صلاحية ملفات التطبيق فقط. الجلسة مؤقتة ولا تُحفظ، وقد تحتاج تسجيل الدخول مجدداً بعد الإغلاق أو انتهائها.</p>
-      <p class="hint">${xwEffectiveGoogleClientId()?'الربط مُجهز ✓':'الربط غير مُجهز بعد. يحتاج إعداد المطوّر أدناه مرة واحدة.'}</p>
-      <button type="button" class="smallbtn" onclick="clearGoogleDriveSession();toast('تم نسيان الجلسة محلياً. اختر الحساب عند العملية التالية')">نسيان جلسة Google / تغيير الحساب</button>
-      <details class="fold" style="margin-top:10px"><summary><span class="ic-txt"><i>⚙</i><span>إعداد المطوّر (متقدم)</span></span><span class="fold-arrow">▼</span></summary>
-        <div class="fold-body">
-          <p class="hint">هذا الإعداد مسؤولية مطوّر التطبيق ويُنفَّذ مرة واحدة، وليس خطوة يومية للمستخدم: مشروع Google Cloud مع تفعيل Drive API، ثم Web OAuth Client بالأصل التالي في Authorized JavaScript origins، وفي وضع Testing يُضاف البريد إلى Test users. الخطوات في README.txt.</p>
-          <code class="ft-origin">${esc(location.origin)}</code>
-          <label class="ft-field" for="cfgDrvClientId"><span>OAuth Web Client ID (تجاوز يدوي)</span><input id="cfgDrvClientId" dir="ltr" type="text" value="${esc(p.driveClientId||'')}" placeholder="…apps.googleusercontent.com" autocomplete="off"></label>
-          <p class="hint">معرّف العميل ليس سراً. لا تدخل Client Secret.</p>
-        </div>
-      </details>
+    <section class="ft-card"><h3>Google Drive</h3>
+      <p class="hint">نسخ مشفرة داخل مجلد X-Wallet Backups. بيانات التطبيق تظل على جهازك.</p>
+      <button type="button" class="secondary" onclick="selectGoogleBackupFolder()">اختيار المجلد الموجود</button>
+      <button type="button" class="smallbtn" onclick="clearGoogleDriveSession();refreshCloudBackupUI();toast('اختر الحساب عند الحفظ أو الاسترجاع')">تغيير حساب Google</button>
     </section>
-    <section class="ft-card" dir="rtl"><h3>كلمة مرور النسخة</h3>
-      <div class="c-row"><label for="cloudBackupBioToggle">فتح بالبصمة</label><label class="xw-switch"><input id="cloudBackupBioToggle" data-backup-bio-toggle type="checkbox" role="switch" aria-describedby="cloudBackupBioStatus" onchange="backupBiometric.toggle(this)"><span class="xw-slider"></span></label></div>
-      <p class="hint backup-bio-hint" id="cloudBackupBioStatus" data-backup-bio-status>غير مفعلة. كلمة المرور هي وسيلة الاستعادة دائماً.</p>
-      <p class="hint">تحقق الجهاز قد يستخدم البصمة أو رمز قفل الشاشة. عند التعطيل تُمسح كلمة المرور المشفرة وربط البصمة من التطبيق، ولا يُحذف مفتاح المرور من مدير الجهاز تلقائياً.</p>
-    </section>
-    <section class="ft-card"><h3>GitHub Gist (اختياري)</h3>
-      <p class="hint">مفتاح بصلاحية Gists فقط. Gist غير عام ليس خاصاً بالكامل: من يملك الرابط قد يفتح الملف، لذلك الرفع مشفر دائماً. المفتاح محفوظ على الجهاز دون تشفير.</p>
-      <label class="ft-field"><span>مفتاح GitHub</span><input id="cfgGhToken" type="password" autocomplete="off" value="${esc(p.ghToken||'')}"></label>
-      <label class="ft-field"><span>رقم Gist (اتركه فارغاً للإنشاء)</span><input id="cfgGhGistId" dir="ltr" type="text" value="${esc(p.ghGistId||'')}"></label>
-    </section>
-    <label class="ft-field"><span>الخدمة المستخدمة</span><select data-no-custom="1" id="cfgSyncProvider"><option value="google" ${provider==='google'?'selected':''}>Google Drive</option><option value="github" ${provider==='github'?'selected':''}>GitHub</option></select></label>
-    <p class="hint">المزامنة هنا رفع نسخة أو استعادة المحفظة كاملة، وليست دمجاً تلقائياً بين الأجهزة. النسخ مشفرة. لا تُحفظ كلمة مرورها إلا باختيارك عبر حماية PRF على هذا المتصفح. الرفع لا يحذف نسخ Drive القديمة، وقد يستهلك مساحة.</p>
+    <details class="fold"><summary>إعداد متقدم</summary><div class="fold-body">
+      <label class="ft-field" for="cfgDrvClientId"><span>OAuth Client ID</span><input id="cfgDrvClientId" dir="ltr" value="${esc(p.driveClientId||'')}" autocomplete="off"></label>
+      <p class="hint">الربط جاهز مسبقاً. لا تغير المعرّف إلا عند استخدام مشروع Google مختلف.</p>
+    </div></details>
   </div>`;
-  showAppCustomForm('إعداد المزامنة السحابية',html,()=>{
+  showAppCustomForm('إعداد النسخ الاحتياطي السحابي',html,()=>{
     const id=(document.getElementById('cfgDrvClientId')?.value||'').trim();
-    if(id&&!/^[a-zA-Z0-9_-]+\.apps\.googleusercontent\.com$/.test(id)){toast('Client ID غير صحيح؛ لا تدخل Client Secret');return false;}
-    const selected=document.getElementById('cfgSyncProvider')?.value||'google';
-    if(selected==='google'&&!id&&!(typeof XW_GOOGLE_CLIENT_ID==='string'&&XW_GOOGLE_CLIENT_ID)){toast('الربط غير مُجهز بعد؛ يحتاج إعداد المطوّر (Client ID) أولاً');return false;}
+    if(id&&!/^[a-zA-Z0-9_-]+\.apps\.googleusercontent\.com$/.test(id)){toast('معرّف العميل غير صحيح');return false;}
     state.prefs=state.prefs||{};
-    if(state.prefs.driveClientId!==id)clearGoogleDriveSession();
+    if((state.prefs.driveClientId||'')!==id){clearGoogleDriveSession();delete state.prefs.driveFolderId;}
     state.prefs.driveClientId=id;
-    state.prefs.ghToken=(document.getElementById('cfgGhToken')?.value||'').trim();
-    state.prefs.ghGistId=(document.getElementById('cfgGhGistId')?.value||'').trim();
-    state.prefs.syncProvider=selected;
-    for(const key of ['driveWebhookUrl','driveSharedSecret','driveAccessToken','driveEmail'])delete state.prefs[key];
-    persist();toast('تم حفظ الإعدادات. اضغط مزامنة لفتح Google ✓');
+    for(const key of ['ghToken','ghGistId','syncProvider','driveWebhookUrl','driveSharedSecret','driveAccessToken','driveEmail'])delete state.prefs[key];
+    persist();refreshCloudBackupUI();toast('تم حفظ الإعدادات');
   });
-  backupBiometric.refresh();
 }
 
 /* 22. Splash Screen Fade Out */
@@ -226,6 +208,7 @@ function openSettingsSubPage(paneKey, titleTxt){
   const ttl = document.getElementById('settingsSubModalTitle');
   if(ttl) ttl.textContent = titleTxt || 'الإعدادات';
   if(paneKey === 'fab') syncFabSettingsUI();
+  if(paneKey === 'backup') refreshCloudBackupUI();
   applyPreferences();
   syncCustomSelectTriggers();
   document.getElementById('settingsSubModal')?.classList.add('show');

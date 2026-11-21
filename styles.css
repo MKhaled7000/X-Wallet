@@ -7887,3 +7887,97 @@ html #wallet .mm-stats-card .mm-stat-box b {
   font-size: .7rem !important;
   line-height: 1.8 !important;
 }
+/* V15.3.11: one shared summary layout, independent of screen-specific rules. */
+html body :is(#trans,#analytics,#wallet) .mm-stats-card {
+  box-sizing:border-box!important;
+  width:100%!important;
+  padding-inline:10px!important;
+}
+html body :is(#trans,#analytics,#wallet) .mm-stats-card .mm-stats {
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  width:100%!important;
+  gap:0!important;
+  padding:0!important;
+  margin:0!important;
+  direction:ltr!important;
+}
+html body :is(#trans,#analytics,#wallet) .mm-stats-card .mm-stat-box {
+  box-sizing:border-box!important;
+  width:100%!important;
+  min-width:0!important;
+  position:relative!important;
+  border:0!important;
+  outline:0!important;
+  border-radius:0!important;
+  overflow:visible!important;
+}
+html body :is(#trans,#analytics,#wallet) .mm-stats-card .mm-stat-box:not(:last-child)::after {
+  content:'';
+  position:absolute;
+  inset:auto 0 auto auto;
+  top:4px;
+  height:26px;
+  width:1px;
+  background:var(--line2);
+  pointer-events:none;
+}
+html body #analytics .mm-stats-card .mm-stat-box.stat-selected {
+  background:transparent!important;
+  outline:0!important;
+}
+html body #analytics .mm-stats-card .mm-stat-box.stat-selected::before {
+  content:'';
+  position:absolute;
+  inset:0 5px;
+  border:1px solid #548e80;
+  border-radius:10px;
+  background:rgba(84,142,128,.065);
+  pointer-events:none;
+}
+/* Restore the original detached tab strip and panel color. */
+html body #salaryModal .sheet.fullpage-sheet > .salary-detached-tabs {
+  position:relative!important;
+  top:auto!important;
+  flex-shrink:0!important;
+  margin:0 12px!important;
+  width:calc(100% - 24px)!important;
+  box-sizing:border-box!important;
+  padding:8px 0!important;
+  background:transparent!important;
+}
+html body #salaryModal .salary-scroll-body {
+  scrollbar-gutter:auto;
+  scrollbar-width:none;
+}
+.cloud-backup-simple {
+  margin:10px 0 6px;
+  padding:16px 12px;
+  border:1px solid var(--line2);
+  border-radius:14px;
+  background:var(--panel);
+  text-align:right;
+}
+.cloud-backup-simple h3 {margin:0 0 10px;font-size:.85rem;font-weight:700;}
+.cloud-backup-simple p {line-height:1.7;overflow-wrap:anywhere;}
+.cloud-account {font-size:.76rem;color:var(--text);margin:0 0 5px;}
+.cloud-last {font-size:.72rem;color:var(--text-sub);margin:0 0 14px;}
+.cloud-main-actions {display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.cloud-main-actions button {min-height:42px;font-size:.78rem;}
+.cloud-settings-link {display:block;background:none;border:0;color:var(--text-sub);font:inherit;font-size:.7rem;text-decoration:underline;padding:10px 0 0;cursor:pointer;}
+.cloud-restore-list {display:flex;flex-direction:column;gap:8px;max-height:55vh;overflow:auto;}
+.cloud-restore-item {display:flex;flex-direction:column;gap:6px;align-items:stretch;text-align:right;padding:12px;}
+.cloud-restore-item b {font-size:.74rem;white-space:normal;overflow-wrap:anywhere;}
+.cloud-restore-item small {font-size:.7rem;opacity:.7;}
+/* Keep existing one-line controls reachable on small phones. */
+@media (max-width:380px) {
+  html body #mainUnifiedHeader { gap:4px!important; }
+  html body #mainUnifiedHeader .utb-left { gap:4px!important; }
+  html body #mainUnifiedHeader .utb-left .logo {width:28px!important;height:28px!important;}
+  html body #mainUnifiedHeader .utb-tab-btn {width:68px!important;min-width:0!important;max-width:68px!important;padding-inline:3px!important;font-size:.68rem!important;overflow:hidden;text-overflow:ellipsis;}
+  html body #mainUnifiedHeader .utb-right {gap:3px!important;}
+  html body #mainUnifiedHeader .utb-ico-btn {width:28px!important;height:32px!important;min-width:28px!important;}
+  html body #mainUnifiedHeader .ym-stepper.utb-stepper {width:106px!important;min-width:106px!important;max-width:106px!important;}
+  html body #mainUnifiedHeader .ym-stepper.utb-stepper .step-arrow {width:18px!important;min-width:18px!important;}
+  html body #mainUnifiedHeader .ym-stepper.utb-stepper .step-label {font-size:.62rem!important;min-width:0!important;flex:1!important;}
+}

@@ -14,6 +14,8 @@ function getSanitizedStateForBackup(rawState){
     delete copy.prefs.driveSharedSecret;
     delete copy.prefs.driveAccessToken;
     delete copy.prefs.driveClientId;
+    delete copy.prefs.driveFolderId;
+    delete copy.prefs.lastDriveBackupAt;
     delete copy.prefs.ghToken;
     delete copy.prefs.ghGistId;
     delete copy.prefs.syncProvider;
