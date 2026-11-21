@@ -7610,3 +7610,75 @@ html #statementFullModal .mm-stats-card .mm-stat-box b {
   padding: 0 !important;
   margin: 0 !important;
 }
+
+
+/* =========================================================
+   X-WALLET V15.3.2: INNER FILTER ICON, LOCKED 33.33% ROW 2 GRID & COMPACT WALLET
+   ========================================================= */
+
+/* 1. Filter Icon cleanly inside the Search Box */
+.search-inner-filter-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--line2);
+  background: var(--surface2);
+  color: var(--muted);
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: 4px;
+  padding: 0;
+}
+.search-inner-filter-btn.active {
+  border-color: var(--mint);
+  color: var(--mint);
+  background: rgba(67, 214, 178, 0.14);
+}
+
+/* 2. LOCKED 3-Column Equal Grid (33.33% each) & Exact Fixed Dividers across Trans, Analytics, Wallet, Statement */
+html #trans .mm-stats-card .mm-stats,
+html #analytics .mm-stats-card .mm-stats,
+html #wallet .mm-stats-card .mm-stats,
+html #statementFullModal .mm-stats-card .mm-stats {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) !important;
+  direction: ltr !important;
+  width: 100% !important;
+  gap: 0 !important;
+}
+html #trans .mm-stats-card .mm-stat-box,
+html #analytics .mm-stats-card .mm-stat-box,
+html #wallet .mm-stats-card .mm-stat-box,
+html #statementFullModal .mm-stats-card .mm-stat-box {
+  width: 100% !important;
+  min-width: 0 !important;
+  border-left: 0 !important;
+  border-right: 1px solid var(--line2) !important;
+  text-align: center !important;
+}
+html #trans .mm-stats-card .mm-stat-box:last-child,
+html #analytics .mm-stats-card .mm-stat-box:last-child,
+html #wallet .mm-stats-card .mm-stat-box:last-child,
+html #statementFullModal .mm-stats-card .mm-stat-box:last-child {
+  border-right: 0 !important;
+}
+
+/* 4. Compact Wallet Accounts & Cards Lists */
+#wallet .wallet-table-head {
+  padding: 5px 12px !important;
+  min-height: 34px !important;
+}
+#wallet #accountsList .listitem,
+#wallet #cardsList .listitem {
+  min-height: 34px !important;
+  padding: 5px 12px !important;
+}
+#wallet .wallet-section-card {
+  margin-bottom: 6px !important;
+}
+#wallet .wallet-horiz-sep {
+  height: 4px !important;
+  margin: 2px 0 !important;
+}

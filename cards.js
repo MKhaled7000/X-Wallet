@@ -33,44 +33,10 @@ function toggleWalletItemHidden(kind, id){
 }
 
 let walletReorderMode = { account: false, card: false };
-function toggleWalletReorderMode(kind){
-  const k = kind === 'card' ? 'card' : 'account';
-  walletReorderMode[k] = !walletReorderMode[k];
-  document.getElementById(k === 'card' ? 'cardsSectionCard' : 'accountsSectionCard')?.classList.toggle('show-reorder', walletReorderMode[k]);
-  document.getElementById(k === 'card' ? 'btnReorderCards' : 'btnReorderAccounts')?.classList.toggle('active', walletReorderMode[k]);
-}
 
 /* X-Wallet V14.0 module: cards.js | Extracted from V13.40 app.js */
 
 /* ---- Original app.js lines 2983-3291 ---- */
-function toggleWalletAddForm(kind){
-  const id=kind==='card'?'addCardFold':'addAccountFold';
-  const el=document.getElementById(id);if(!el)return;
-  const opening=el.style.display==='none'||!el.open;
-  el.style.display=opening?'block':'none';
-  el.open=opening;
-  if(opening)el.scrollIntoView({behavior:'smooth',block:'nearest'});
-}
-function moveWalletItem(entityType,id,targetSection){
-  state.walletPlacement=state.walletPlacement&&typeof state.walletPlacement==='object'?state.walletPlacement:{accounts:{},cards:{}};
-  const placementKey=entityType==='account'?'accounts':'cards';
-  state.walletPlacement[placementKey]=state.walletPlacement[placementKey]||{};
-  const allowed=entityType==='account'?'cards':'accounts';
-  if(targetSection!==allowed)return false;
-  const source=entityType==='account'?state.accounts:state.cards;
-  if(!source.some(x=>String(x.id)===String(id)))return false;
-  state.walletPlacement[placementKey][String(id)]=targetSection;
-  persist();renderAccountsAndCards();
-  toast(entityType==='account'?'تم نقل الحساب إلى صفحة البطاقات مع الاحتفاظ بسجله ✓':'تم نقل البطاقة إلى صفحة الحسابات مع الاحتفاظ بسجلها ✓');
-  return true;
-}
-function moveWalletItemBack(entityType,id){
-  const placementKey=entityType==='account'?'accounts':'cards';
-  if(!state.walletPlacement?.[placementKey])return false;
-  delete state.walletPlacement[placementKey][String(id)];
-  persist();renderAccountsAndCards();
-  toast('تم نقل البند إلى قسمه الأصلي ✓');return true;
-}
 function reorderWalletItems(entityType,orderedIds){
   const key=entityType==='account'?'accounts':'cards';
   const current=Array.isArray(state[key])?state[key]:[];
@@ -174,18 +140,6 @@ function renderAccountsAndCards(){
   }
 }
 
-function cardHasCurrencyActivity(cardOrId){
-  const card=typeof cardOrId==='object'&&cardOrId?cardOrId:(state.cards||[]).find(c=>String(c.id)===String(cardOrId));
-  if(!card)return false;
-  const id=String(card.id);
-  const opIds=new Set((state.cardOps||[]).filter(o=>String(o.cardId)===id).map(o=>String(o.id)));
-  return Math.abs(Number(card.balance)||0)>0.000001
-    || (state.cardOps||[]).some(o=>String(o.cardId)===id)
-    || (state.cardPayments||[]).some(p=>String(p.cardId)===id)
-    || (state.transactions||[]).some(t=>opIds.has(String(t.linkedCardOpId||''))||(String(t.source||'').startsWith('card-purchase:')&&opIds.has(String(t.source).slice('card-purchase:'.length))))
-    || (state.cancelledTransactions||[]).some(x=>String(x.related?.cardPurchaseOp?.cardId||x.related?.cardOp?.cardId||'')===id)
-    || (state.auditLog||[]).some(e=>e.before&&['عملية بطاقة','سداد بطاقة'].includes(e.entity)&&String(e.before.cardId||'')===id);
-}
 
 function cardOperationHasPayments(op){
   if(!op)return false;
@@ -466,22 +420,6 @@ function deleteCardOp(opId){
   }, true);
 }
 
-function applyKnownBankTerms(){
-  let n = val('cardName').trim().toLowerCase();
-  if(n.includes('qnb')){ [3,6,12].forEach(m=>setv('ir'+m,2.18)); [15,18,24].forEach(m=>setv('ir'+m,1.98)); }
-}
-function addCard(){
-  let name = val('cardName').trim(); if(!name) return toast('اكتب اسم البطاقة');
-  const limit = num('cardLimit'), available = num('cardAvailable');
-  const currency='EGP';
-  if(limit<=0) return toast('أدخل الحد الائتماني');
-  if(!Number.isFinite(available)||available<0||available>limit)return toast('الرصيد المتاح يجب أن يكون بين صفر والحد الائتماني');
-  let terms={}; [3,6,9,12,15,18,24,36].forEach(n=>terms[n]={monthlyRate:round2(num('ir'+n)/100), adminRate:round2(num('fee'+n)/100)});
-  state.cards.push({id:uid('card'), name, currency, payDay:num('cardPayDay')||3, limit, balance:round2(Math.max(0,limit-available)), terms});
-  persist(); setv('cardName',''); setv('cardLimit',''); setv('cardAvailable','');
-  const addFold=document.getElementById('addCardFold');if(addFold){addFold.removeAttribute('open');if(addFold.style)addFold.style.display='none';}
-  toast('تم حفظ البطاقة ✓');
-}
 function dueDateFor(card,date){
   let d=new Date(date+'T12:00:00'), y=d.getFullYear(), m=d.getMonth()+1, day=card.payDay||3;
   let due=new Date(y,m,day);
@@ -493,12 +431,6 @@ function dueDateFor(card,date){
    #6: COMMITMENTS PAGE (الالتزامات)
    - 6.1 & 6.2 جميع المستحقات: Add Amount column (المبلغ) & change "التزامات شهرية" to "شهري"
    ========================================================= */
-function cancelAddCommitmentForm(){
-  document.getElementById('addCommitmentFold')?.removeAttribute('open');
-  setv('defTitle',''); setv('defAmount',''); setv('defNote','');
-  setv('monTitle',''); setv('monAmount',''); setv('monNote','');
-  setv('opTitle',''); setv('opAmount','');
-}
 function refreshCommitmentCurrencyPickers(){
   const preferred=String(state.prefs?.defaultCurrency||'EGP').toUpperCase();
   for(const id of ['defCurrency','monCurrency']){
@@ -509,20 +441,6 @@ function refreshCommitmentCurrencyPickers(){
   }
 }
 
-function setCommitmentAddKind(kind){
-  refreshCommitmentCurrencyPickers();
-  setv('comAddKind', kind);
-  document.getElementById('comKindTabDef')?.classList.toggle('active', kind==='deferred');
-  document.getElementById('comKindTabMon')?.classList.toggle('active', kind==='monthly');
-  document.getElementById('comKindTabCard')?.classList.toggle('active', kind==='card');
-
-  document.getElementById('comFormDeferred').style.display = kind==='deferred' ? 'flex' : 'none';
-  document.getElementById('comFormMonthly').style.display = kind==='monthly' ? 'flex' : 'none';
-  document.getElementById('comFormCard').style.display = kind==='card' ? 'flex' : 'none';
-
-  if(kind === 'monthly') recalcMonthlyCommitmentEnd();
-  if(kind === 'card') showCreditQuote();
-}
 
 function recalcMonthlyCommitmentEnd(){
   const startYM = val('comStartVal') || selected();
@@ -534,63 +452,6 @@ function recalcMonthlyCommitmentEnd(){
 
 
 /* ---- Original app.js lines 3376-3429 ---- */
-function saveNewCommitmentItem(){
-  const kind = val('comAddKind') || 'deferred';
-  const nowTs = Date.now();
-  if(kind === 'deferred'){
-    const title = val('defTitle').trim();
-    const amount = num('defAmount');
-    const dueYM = val('defDueVal') || selected();
-    const dueDate = dueYM + '-01';
-    const note = val('defNote').trim();
-    const currency='EGP';
-    if(!title || amount <= 0) return toast('أدخل اسم العملية والمبلغ');
-    state.commitments.push({
-      id: uid('com'),
-      title,
-      type: 'مستحقات مؤجلة',
-      freq: 'once',
-      amount,
-      currency,
-      start: dueDate.slice(0,7),
-      end: dueDate.slice(0,7),
-      dueDate,
-      note,
-      createdAt: nowTs
-    });
-    setv('defTitle',''); setv('defAmount',''); setv('defNote','');
-    document.getElementById('addCommitmentFold')?.removeAttribute('open');
-    persist(); toast('تم حفظ المستحق المؤجل ✓');
-    return;
-  }
-  if(kind === 'monthly'){
-    const title = val('monTitle').trim();
-    const amount = num('monAmount');
-    const dur = Math.max(1, Math.round(num('monDuration') || 12));
-    const startYM = val('comStartVal') || selected();
-    const endYM = addMonthsYM(startYM, dur - 1);
-    const note = val('monNote').trim();
-    const currency='EGP';
-    if(!title || amount <= 0) return toast('أدخل اسم الالتزام والمبلغ الشهري');
-    state.commitments.push({
-      id: uid('com'),
-      title,
-      type: 'شهري',
-      freq: 'monthly',
-      durationMonths: dur,
-      amount,
-      currency,
-      start: startYM,
-      end: endYM,
-      day: 1,
-      note,
-      createdAt: nowTs
-    });
-    setv('monTitle',''); setv('monAmount',''); setv('monNote','');
-    document.getElementById('addCommitmentFold')?.removeAttribute('open');
-    persist(); toast('تم حفظ الالتزام الشهري ✓');
-  }
-}
 
 
 /* ---- Original app.js lines 3453-3768 ---- */
@@ -793,14 +654,14 @@ function openPayDueDialog(kind, entityId, opId, month, defaultAmt, itemTitle){
     let payTitle = '';
     if(kind === 'card_swipe'){
       op.paid = round2((Number(op.paid)||0) + payAmt);
-      payTitle = `سداد بطاقة (${cName}) - ${op.title}`;
+      payTitle = cName;
     } else if(kind === 'card_fee'){
       op.feePaid = round2((Number(op.feePaid)||0) + payAmt);
       payTitle = `سداد رسوم بطاقة (${cName}) - ${op.title}`;
     } else if(kind === 'card_inst'){
       const sc = (op.schedules||[]).find(s=>s.month===m);
       if(sc) sc.paid = round2((Number(sc.paid)||0) + payAmt);
-      payTitle = `سداد قسط بطاقة (${cName}) - ${op.title}`;
+      payTitle = cName;
     }
     const cardPayRecId = uid('cp');
     state.cardPayments.push({id:cardPayRecId, cardId:op.cardId, cardOpId:op.id, paymentKind:kind, paymentMonth:m, amount:payAmt, currency:targetCurrency, accountAmount:sourceAmount, accountCurrency:sourceCurrency, date:payDate, accountId:accId});

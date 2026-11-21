@@ -51,7 +51,6 @@ function toggleUnifiedReportChart(){
     if(btn) btn.classList.toggle('active', mainRepChartOpen);
   }
 }
-function toggleMainReportChart(){ toggleUnifiedReportChart(); }
 function toggleCatDrillChart(){ toggleUnifiedReportChart(); }
 const CHART_COLORS = ['#ff6b6b','#ff9f43','#feca57','#1dd1a1','#48dbfb','#54a0ff','#5f27cd','#ff9ff3','#00d2d3','#c8d6e5','#ee5253','#10ac84'];
 function analyticsBaseAmount(t){return typeof transactionBaseAmount==='function'?transactionBaseAmount(t):(Number(t?.amount)||0); }
@@ -74,14 +73,6 @@ const REP_MODE_CYCLE = [
   { val:'all', label:'الكل' },
   { val:'custom', label:'فترة محددة' }
 ];
-function cycleReportPeriodMode(){
-  const idx = REP_MODE_CYCLE.findIndex(x => x.val === reportPeriodMode);
-  const next = REP_MODE_CYCLE[(idx + 1) % REP_MODE_CYCLE.length];
-  setv('repPeriodMode', next.val);
-  const btn = document.getElementById('repPeriodCycleBtn');
-  if(btn) btn.textContent = next.label;
-  onReportPeriodModeChange(next.val);
-}
 
 function onReportPeriodModeChange(mode){
   reportPeriodMode = mode || 'monthly';

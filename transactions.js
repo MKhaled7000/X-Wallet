@@ -122,9 +122,6 @@ function toggleSearchFilterGrid(){
   }
   updateTransFilterGridUI();
 }
-function toggleSearchBar(){
-  toggleSearchFilterGrid();
-}
 
 // 2.9 Helper: Get transactions matching current Date & Amount filters for dynamic Category/Account filtering
 function getTransactionsMatchingDateAndAmount(){
@@ -331,22 +328,6 @@ function selectTransFilterAccount(id, name){
   updateTransFilterGridUI();
   renderTransactionsScreen();
 }
-function selectTransFilterMainCat(mc){
-  transAdvFilter.mainCat = mc;
-  if(mc && transAdvFilter.subCat){
-    const allowed = [...(state.categoryTree.expense?.[mc]||[]), ...(state.categoryTree.income?.[mc]||[])];
-    if(!allowed.includes(transAdvFilter.subCat)) transAdvFilter.subCat = '';
-  }
-  closeAppDialog();
-  updateTransFilterGridUI();
-  renderTransactionsScreen();
-}
-function selectTransFilterSubCat(sc){
-  transAdvFilter.subCat = sc;
-  closeAppDialog();
-  updateTransFilterGridUI();
-  renderTransactionsScreen();
-}
 
 function onTransactionsSearchInput(){
   const inp = document.getElementById('actSearch');
@@ -436,11 +417,6 @@ function switchForecastTab(which){
   else renderForecastMonthlyView();
 }
 
-function shiftForecastMonthlyYear(delta){
-  activeYear += delta;
-  forecastYear = activeYear;
-  renderForecastMonthlyView();
-}
 
 function renderForecastMonthlyView(){
   const lang = state.prefs?.lang || 'ar';
@@ -649,7 +625,11 @@ function buildDailyGroupedFeedHtml(itemsList, emptyMsg){
           }
         }
       }
-      const cleanMemo = instBadge ? rawTitle.replace(instBadge, '').trim() : rawTitle;
+      let cleanMemo = instBadge ? rawTitle.replace(instBadge, '').trim() : rawTitle;
+      if((it.source === 'card-payment' || it.type === 'credit_payment') && cleanMemo){
+        const pm = cleanMemo.match(/سداد(?:\s+قسط)?\s+بطاقة\s*\(([^)]+)\)/);
+        if(pm && pm[1]) cleanMemo = pm[1].trim();
+      }
       const memoLine = isDupTitle ? '' : cleanMemo;
       const itemKind = it._kind || 'tx';
       const itemCurrency=String(it.currency||state.accounts.find(a=>String(a.id)===String(it.accountId))?.currency||'EGP').toUpperCase();

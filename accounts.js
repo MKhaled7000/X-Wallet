@@ -58,14 +58,6 @@ function normalizeCardStatementItem(item,card,index){
 }
 
 /* ---- Original app.js lines 2567-2982 ---- */
-function addAccount(){
-  const name=val('accName').trim(),opening=num('accOpening');
-  if(!name)return toast('اكتب اسم الحساب');
-  state.accounts.push({id:uid('acc'),name,type:val('accType'),opening,currency:'EGP'});
-  persist();setv('accName','');setv('accOpening','');
-  const fold=document.getElementById('addAccountFold');if(fold){fold.removeAttribute('open');fold.style.display='none';}
-  toast('تمت إضافة الحساب ✓');
-}
 
 function deleteAccount(id){
   const account=(state.accounts||[]).find(a=>String(a.id)===String(id));
@@ -105,16 +97,6 @@ function closeCategoriesManagerModal(){
 
 let stmtAdvFilter = { dateFrom:'', dateTo:'', amountFrom:'', amountTo:'', type:'', cat:'' };
 
-function toggleStmtFilterGrid(){
-  const box = document.getElementById('stmtFilterBox');
-  const btn = document.getElementById('btnToggleStmtFilter');
-  if(!box) return;
-  const open = box.style.display === 'none';
-  box.style.display = open ? 'block' : 'none';
-  const hasAny = !!(stmtAdvFilter.dateFrom || stmtAdvFilter.dateTo || stmtAdvFilter.amountFrom || stmtAdvFilter.amountTo || stmtAdvFilter.type || stmtAdvFilter.cat);
-  btn?.classList.toggle('active', open || hasAny);
-  updateStmtFilterUI();
-}
 
 function updateStmtFilterUI(){
   const hasD = !!(stmtAdvFilter.dateFrom || stmtAdvFilter.dateTo);
@@ -136,62 +118,6 @@ function updateStmtFilterUI(){
   if(cEl) cEl.textContent = stmtAdvFilter.cat ? `${stmtAdvFilter.cat} ✕` : '';
 }
 
-function handleStmtFilterTap(kind){
-  if(kind === 'date'){
-    if(stmtAdvFilter.dateFrom || stmtAdvFilter.dateTo){
-      stmtAdvFilter.dateFrom=''; stmtAdvFilter.dateTo='';
-      updateStmtFilterUI(); renderFullStatementModalContent(); return;
-    }
-    const defS = selected() + '-01', defE = today();
-    showAppCustomForm('فلترة بالتاريخ', `<div class="c-list">
-      <div class="c-row" onclick="openNativeInputPicker('stFDateF')"><label>من تاريخ</label><div class="picker-trigger" style="position:relative"><b id="stFDispF" dir="ltr">${formatDateDMY(defS)}</b><input id="stFDateF" type="hidden" value="${esc(defS)}" onchange="document.getElementById('stFDispF').textContent=formatDateDMY(this.value)"></div></div>
-      <div class="c-row" onclick="openNativeInputPicker('stFDateT')"><label>إلى تاريخ</label><div class="picker-trigger" style="position:relative"><b id="stFDispT" dir="ltr">${formatDateDMY(defE)}</b><input id="stFDateT" type="hidden" value="${esc(defE)}" onchange="document.getElementById('stFDispT').textContent=formatDateDMY(this.value)"></div></div>
-    </div>`, ()=>{
-      stmtAdvFilter.dateFrom = val('stFDateF')||'';
-      stmtAdvFilter.dateTo = val('stFDateT')||'';
-      updateStmtFilterUI(); renderFullStatementModalContent(); return true;
-    });
-    return;
-  }
-  if(kind === 'amount'){
-    if(stmtAdvFilter.amountFrom || stmtAdvFilter.amountTo){
-      stmtAdvFilter.amountFrom=''; stmtAdvFilter.amountTo='';
-      updateStmtFilterUI(); renderFullStatementModalContent(); return;
-    }
-    showAppCustomForm('فلترة بالمبلغ', `<div class="c-list">
-      <div class="c-row"><label>من مبلغ</label><input id="stFAmtF" type="number" step="0.01" placeholder="0"></div>
-      <div class="c-row"><label>إلى مبلغ</label><input id="stFAmtT" type="number" step="0.01" placeholder="اختياري"></div>
-    </div>`, ()=>{
-      stmtAdvFilter.amountFrom = String(val('stFAmtF')||'').trim();
-      stmtAdvFilter.amountTo = String(val('stFAmtT')||'').trim();
-      updateStmtFilterUI(); renderFullStatementModalContent(); return true;
-    });
-    return;
-  }
-  if(kind === 'type'){
-    if(stmtAdvFilter.type){
-      stmtAdvFilter.type=''; updateStmtFilterUI(); renderFullStatementModalContent(); return;
-    }
-    const html = `<div class="cs-opt-list">
-      <button type="button" class="cs-opt-btn" onclick="stmtAdvFilter.type='income';closeAppDialog();updateStmtFilterUI();renderFullStatementModalContent()"><span>دخل</span><span>○</span></button>
-      <button type="button" class="cs-opt-btn" onclick="stmtAdvFilter.type='expense';closeAppDialog();updateStmtFilterUI();renderFullStatementModalContent()"><span>مصروف</span><span>○</span></button>
-      <button type="button" class="cs-opt-btn" onclick="stmtAdvFilter.type='transfer';closeAppDialog();updateStmtFilterUI();renderFullStatementModalContent()"><span>تحويل</span><span>○</span></button>
-    </div>`;
-    showAppCustomForm('فلترة بالنوع', html, null, true);
-    return;
-  }
-  if(kind === 'cat'){
-    if(stmtAdvFilter.cat){
-      stmtAdvFilter.cat=''; updateStmtFilterUI(); renderFullStatementModalContent(); return;
-    }
-    syncCategoryTrees();
-    const allC = [...new Set([...Object.keys(state.categoryTree.expense||{}), ...Object.keys(state.categoryTree.income||{})])];
-    const html = `<div class="cs-opt-list">` + allC.map(c=>`
-      <button type="button" class="cs-opt-btn" onclick="stmtAdvFilter.cat='${escJs(c)}';closeAppDialog();updateStmtFilterUI();renderFullStatementModalContent()"><span>${esc(c)}</span><span>○</span></button>
-    `).join('') + `</div>`;
-    showAppCustomForm('فلترة بالقسم', html, null, true);
-  }
-}
 
 function openAccountStatement(id){
   const acc = (state.accounts||[]).find(a=>String(a.id)===String(id));
@@ -259,22 +185,7 @@ function openStatementPeriodModeDialog(){
   renderCompactYMPicker();
 }
 
-function setStatementYearMode(){
-  if(!activeStatementState) return;
-  activeStatementState.mode = 'yearly';
-  renderFullStatementModalContent();
-}
 
-function openStatementMonthPicker(){
-  if(!activeStatementState) return;
-  openCompactYMPicker(null, false, (chosenYM)=>{
-    const [y,m] = chosenYM.split('-').map(Number);
-    activeStatementState.year = y;
-    activeStatementState.month = m;
-    activeStatementState.mode = 'monthly';
-    renderFullStatementModalContent();
-  });
-}
 
 function renderFullStatementModalContent(){
   if(!activeStatementState) return;
@@ -441,13 +352,6 @@ function editCurrentStatementEntity(){
   const { kind, id } = activeStatementState;
   if(kind === 'card') openEditCardModal(id);
   else openEditAccountModal(id);
-}
-function deleteCurrentStatementEntity(){
-  if(!activeStatementState) return;
-  const { kind, id } = activeStatementState;
-  closeFullStatementModal();
-  if(kind === 'card') deleteCard(id);
-  else deleteAccount(id);
 }
 
 let _fpAccState = { mode:'add', entityKind:'account', id:null };

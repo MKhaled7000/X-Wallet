@@ -587,12 +587,6 @@ function restore(e){
   reader.readAsText(file);
 }
 
-function openPasteRestoreModal(){
-  showAppPrompt('استعادة نسخة احتياطية (JSON)', 'الصق محتوى ملف JSON هنا...', '', raw=>{
-    if(!raw || !raw.trim()) return;
-    restoreBackupText(raw.trim(), 'النص الملصق');
-  }, true);
-}
 
 let _latestRemoteVer = '';
 function dismissUpdateModal(){

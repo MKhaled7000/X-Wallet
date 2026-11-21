@@ -132,24 +132,6 @@ async function syncCloudNow(){
   }
 }
 
-function uploadEncryptedBackupToCloud(){
-  showAppPrompt(
-    'رفع نسخة مشفرة إلى السحابة',
-    'كلمة مرور قوية (10 أحرف على الأقل)',
-    '',
-    async pass => {
-      if(!pass) return;
-      try{
-        const encryptedDocument = await createEncryptedBackupDocument(state, pass);
-        await uploadCloudBackupContent(encryptedDocument, {encrypted:true});
-      }catch(err){
-        toast(err?.message || 'تعذر إنشاء أو رفع النسخة المشفرة');
-      }
-    },
-    false,
-    'password'
-  );
-}
 
 
 async function applyCloudBackupState(parsedDoc, source, encrypted){

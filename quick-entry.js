@@ -148,9 +148,6 @@ function onQmDescBlur(){
     }
   }, 120);
 }
-function onQmTextInputFocus(hideDock){
-  if(!hideDock) document.getElementById('quickModal')?.classList.remove('hide-bottom-dock');
-}
 
 function getActiveCatTree(){
   syncCategoryTrees();
@@ -302,16 +299,6 @@ function updateQmEditActionButtons(){
   if(btnDel) btnDel.style.display = hasEdit ? 'inline-block' : 'none';
 }
 
-function toggleQuickTransferFeeRow(){
-  const row = document.getElementById('qmFeeRow');
-  const btn = document.getElementById('qmFeeToggleBtn');
-  if(!row) return;
-  const show = row.style.display === 'none';
-  row.style.display = show ? 'flex' : 'none';
-  if(btn) btn.classList.toggle('active', show);
-  if(show){ qmState.calcExpr=''; setQmDockMode('calc','qmFee'); }
-  else setv('qmFee', '');
-}
 
 function swapQuickTransferAccounts(){
   if(!qmState.accountId && !qmState.toAccountId) return;
@@ -361,7 +348,16 @@ function openEditQuickTx(id){
   const t = state.transactions.find(x=>String(x.id)===String(id));
   if(!t) return;
   if(t.linkedCardOpId||t.linkedCommitmentPaymentId||t.linkedCardPaymentRecordId||t.source==='card-payment'||t.source==='commitment-payment'){
-    return toast('تعديل مبلغ السداد من شاشة المعاملات قد يفصل المبلغ عن جدول البطاقة أو الالتزام. ألغِ حركة السداد ثم أعد تسجيلها بالقيمة الصحيحة.');
+    const amtTxt = (typeof fmt === 'function') ? fmt(Math.abs(Number(t.amount)||0)) : String(t.amount||0);
+    const curTxt = String(t.currency || 'EGP').toUpperCase();
+    showAppConfirm(
+      'حركة سداد مرتبطة بجدول',
+      `لا يمكن تعديل مبلغ السداد مباشرة (${amtTxt} ${curTxt}) حتى لا يختلف عن رصيد البطاقة أو الالتزام.\n\nهل تريد إلغاء وحذف حركة السداد الآن (وسيتم إرجاع الرصيد تلقائياً)؟`,
+      () => {
+        if(typeof deleteTx === 'function') deleteTx(t.id);
+      }
+    );
+    return;
   }
   const isCardTx = isCardPurchaseTx(t);
   let cardId = '';
@@ -508,25 +504,9 @@ function setQuickTxType(t){
   setQmDockMode(qmState.editId ? '' : 'acc');
 }
 
-function openQmCardMonthsPicker(){
-  const cur = String(val('qmCardMonths') || '12');
-  const opts = [3, 6, 9, 12, 15, 18, 24];
-  const html = `<div class="cs-opt-list">` + opts.map(m => `
-    <button type="button" class="cs-opt-btn ${String(m)===cur?'selected':''}" onclick="syncQmCardMonthsPills(${m});closeAppDialog()">
-      <span>${m} شهر</span><span>${String(m)===cur?'●':'○'}</span>
-    </button>
-  `).join('') + `</div>`;
-  showAppCustomForm('عدد شهور التقسيط', html, null, true);
-}
 function closeQmMonthsMenu(){
   const menu = document.getElementById('qmCardMonthsMenu');
   if(menu) menu.classList.remove('open');
-}
-function toggleQmMonthsMenu(ev){
-  if(ev) ev.stopPropagation();
-  if(!qmState.isCard || qmState.type !== 'expense') return;
-  const menu = document.getElementById('qmCardMonthsMenu');
-  if(menu) menu.classList.toggle('open');
 }
 function selectQmCardMonth(mVal){
   syncQmCardMonthsPills(mVal);
@@ -757,72 +737,7 @@ function selectQuickSubCat(sc){
   renderQuickPickers();
   setQmDockMode('calc','qmAmount');
 }
-function openEditQuickCatPrompt(isSub){
-  const isInc = qmState.type === 'income';
-  const tree = isInc ? state.categoryTree.income : state.categoryTree.expense;
-  if(isSub){
-    const oldSub = qmState.subCategory;
-    const parent = qmState.category;
-    if(!oldSub || !parent) return toast('اختر قسماً فرعياً أولاً لتعديله');
-    showAppPrompt(`تعديل القسم الفرعي «${oldSub}»`, 'الاسم الجديد...', oldSub, (n)=>{
-      const clean = String(n||'').trim();
-      if(!clean || clean === oldSub) return;
-      tree[parent] = (tree[parent]||[]).map(s => s === oldSub ? clean : s);
-      state.transactions.forEach(t=>{ if(t.category===parent && t.subCategory===oldSub) t.subCategory=clean; });
-      qmState.subCategory = clean;
-      persist();
-      renderQuickPickers();
-      toast('تم تعديل القسم الفرعي ✓');
-    });
-  } else {
-    const oldMain = qmState.category;
-    if(!oldMain) return toast('اختر قسماً رئيسياً أولاً لتعديله');
-    showAppPrompt(`تعديل القسم الرئيسي «${oldMain}»`, 'الاسم الجديد...', oldMain, (n)=>{
-      const clean = String(n||'').trim();
-      if(!clean || clean === oldMain) return;
-      const subs = tree[oldMain] || [];
-      const keys = Object.keys(tree);
-      const rebuilt = {};
-      keys.forEach(k => { rebuilt[k === oldMain ? clean : k] = (k === oldMain ? subs : tree[k]); });
-      if(isInc){
-        state.categoryTree.income = rebuilt;
-        state.incomeCategories = Object.keys(rebuilt);
-      } else {
-        state.categoryTree.expense = rebuilt;
-        state.categories = Object.keys(rebuilt);
-      }
-      state.transactions.forEach(t=>{ if(t.category===oldMain) t.category=clean; });
-      qmState.category = clean;
-      persist();
-      renderQuickPickers();
-      toast('تم تعديل القسم الرئيسي ✓');
-    });
-  }
-}
 
-function openAddQuickCatPrompt(isSub){
-  const label = isSub ? `إضافة قسم فرعي داخل «${qmState.category}»` : 'إضافة قسم رئيسي جديد';
-  showAppPrompt(label, 'اكتب الاسم هنا...', '', (name)=>{
-    if(!name || !name.trim()) return;
-    const clean = name.trim();
-    const isInc = qmState.type === 'income';
-    const tree = isInc ? state.categoryTree.income : state.categoryTree.expense;
-    if(isSub){
-      const parent = qmState.category || Object.keys(tree)[0] || 'أخرى';
-      tree[parent] = [...new Set([...(tree[parent]||[]), clean])];
-      qmState.subCategory = clean;
-    } else {
-      if(!tree[clean]) tree[clean] = [];
-      if(isInc) state.incomeCategories = [...new Set([...(state.incomeCategories||[]), clean])];
-      else state.categories = [...new Set([...(state.categories||[]), clean])];
-      qmState.category = clean;
-      qmState.subCategory = '';
-    }
-    persist();
-    renderQuickPickers();
-    toast('تمت الإضافة ✓');
-  });
-}
 
 function saveQuickModal(){
   if(qmState.dock === 'calc' && qmState.calcExpr && /[+\-×÷]/.test(String(qmState.calcExpr).slice(1))){ return toast('اضغط = لحساب الناتج وإدراجه في المبلغ أولاً'); }

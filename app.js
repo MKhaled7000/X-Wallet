@@ -139,12 +139,6 @@ function suggestSmartTransferFee(){
 
 /* ---- Original app.js lines 4873-5081 ---- */
 /* Auto Backup Toggle */
-function onAutoBackupToggleChanged(){
-  const on = !!document.getElementById('prefAutoBackupToggle')?.checked;
-  const sel = document.getElementById('prefAutoDriveFreq');
-  if(sel) sel.disabled = !on;
-  saveAutoDriveBackupFreq(on ? (sel?.value || 'daily') : 'off');
-}
 
 /* 14. Unified Cloud Sync Setup (GitHub Private Gist + Google Drive) with pure unreversed Arabic */
 function openCloudSyncModal(){

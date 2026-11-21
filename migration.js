@@ -62,24 +62,6 @@ function resolveMmbakTransactionCurrency(rawTransactionCurrency, currencyMap, as
 }
 
 
-function applyMmbakOpeningOffsets(existingAccounts,newAccounts,mapping,transactions){
-  const netByAcc={};
-  for(const t of (transactions||[])){
-    const n=Number(t.amount)||0;
-    if(t.type==='transfer'){
-      netByAcc[t.accountId]=(netByAcc[t.accountId]||0)-n;
-      netByAcc[t.toAccountId]=(netByAcc[t.toAccountId]||0)+n;
-    }else if(t.type==='income')netByAcc[t.accountId]=(netByAcc[t.accountId]||0)+n;
-    else if(t.type==='expense')netByAcc[t.accountId]=(netByAcc[t.accountId]||0)-n;
-  }
-  const accounts=[...(existingAccounts||[]),...(newAccounts||[])];
-  const ids=new Set(mapping instanceof Map?mapping.values():Object.values(mapping||{}));
-  for(const id of ids){
-    const account=accounts.find(a=>String(a.id)===String(id));
-    if(account&&Object.prototype.hasOwnProperty.call(netByAcc,id))account.opening=round2((Number(account.opening)||0)-(netByAcc[id]||0));
-  }
-  return netByAcc;
-}
 
 function resolveMmbakAccount(asset, name, type, openingEgp, existingAccounts, newAccounts, sourceFingerprint=''){
   const sourceId = String(asset && asset[0] != null ? asset[0] : '').trim();

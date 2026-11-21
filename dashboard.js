@@ -30,11 +30,6 @@ function cycleCurrentTopSubTab(){
   }
 }
 
-function shiftHeaderTransOrCom(delta){
-  const curId = document.querySelector('.screen.active')?.id || 'trans';
-  if(curId === 'commitments') shiftActiveMonth(delta);
-  else shiftTransPeriod(delta);
-}
 
 function toggleTransSearchBarOnly(){
   const row = document.getElementById('transSearchRow');
@@ -55,9 +50,6 @@ function toggleTransSearchBarOnly(){
   updateFabVisibility();
 }
 
-function toggleTransSearchDrawer(){
-  toggleTransSearchBarOnly();
-}
 
 function toggleComSearchBar(){
   const wrap = document.getElementById('comSearchBarWrap');
@@ -76,18 +68,6 @@ function toggleComSearchBar(){
   }
 }
 
-function onUnifiedSearchInput(){
-  const v = document.getElementById('actSearch')?.value || '';
-  const comInp = document.getElementById('comSearch');
-  if(comInp) comInp.value = v;
-  if(activeTransSubTab === 'commitments'){
-    const clr = document.getElementById('btnClearSearch');
-    if(clr) clr.style.display = v.trim() ? 'block' : 'none';
-    renderPlanScreen();
-  } else {
-    onTransactionsSearchInput();
-  }
-}
 
 /* X-Wallet V14.0 module: dashboard.js | Extracted from V13.40 app.js */
 
@@ -139,6 +119,7 @@ let _transSearchActive = false;
 const FAB_SHORTCUT_DEFS = [
   { id:'search', label:'🔍 بحث' },
   { id:'filter', label:'▽ فلتر' },
+  { id:'commitments', label:'🗓 الالتزامات' },
   { id:'monthly', label:'📅 ملخص السنة' },
   { id:'yearly', label:'📊 التقرير السنوي' },
   { id:'salary', label:'💵 حاسبة الراتب' },
@@ -212,6 +193,7 @@ function runFabShortcut(id){
   document.getElementById('fabSpeedWrap')?.classList.remove('open');
   if(id === 'search') toggleSearchFromFab();
   else if(id === 'filter') toggleFilterFromFab();
+  else if(id === 'commitments'){ go('commitments', document.querySelector('.nav[data-page="commitments"]')); }
   else if(id === 'monthly') toggleMonthlySummaryView();
   else if(id === 'yearly'){ openAnnualReportModal(); }
   else if(id === 'salary'){ openSalaryModal(); }
@@ -406,10 +388,6 @@ function switchWalletTab(which){
   if(cardView) cardView.style.display = 'block';
   updateTopTabTitle('wallet');
   renderAccountsAndCards();
-}
-function switchPlanTab(which){
-  updateTopTabTitle('plan');
-  renderYearlyExcelReport();
 }
 function switchSalarySubView(which){
   document.getElementById('salSubViewMonth').style.display = which==='month' ? 'block' : 'none';
@@ -606,3 +584,12 @@ function onPageVisibilityChanged(){
   }, {passive: true});
 })();
 
+
+function onMainLogoTap(){
+  const curId = document.querySelector('.screen.active')?.id || 'trans';
+  if(curId === 'trans'){
+    go('commitments', document.querySelector('.nav[data-page="commitments"]'));
+  } else if(curId === 'commitments'){
+    go('trans', document.querySelector('.nav[data-page="trans"]'));
+  }
+}

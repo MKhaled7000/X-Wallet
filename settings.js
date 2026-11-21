@@ -477,23 +477,6 @@ function togglePrivacyMode(){
 let settingsCatMode = 'income';
 let expandedSettingsMainCats = {};
 
-function onSettingsCatsFoldToggle(det){
-  const ic = document.getElementById('settingsCatsFoldIcon');
-  if(!ic) return;
-  if(det.open){
-    ic.textContent = '＋';
-    ic.title = 'إضافة قسم رئيسي جديد';
-    ic.onclick = function(ev){
-      ev.preventDefault();
-      ev.stopPropagation();
-      addMainCategoryInSettings();
-    };
-  } else {
-    ic.textContent = '▼';
-    ic.title = '';
-    ic.onclick = null;
-  }
-}
 
 function setSettingsCatTab(mode){
   settingsCatMode = mode;
@@ -589,44 +572,7 @@ function toggleSettingsMainCatExpand(mainName){
   renderSettingsCategories();
 }
 
-function moveMainCategoryOrder(mainName, dir){
-  syncCategoryTrees();
-  const isInc = (settingsCatMode === 'income');
-  const tree = isInc ? state.categoryTree.income : state.categoryTree.expense;
-  const keys = Object.keys(tree || {});
-  const idx = keys.indexOf(mainName);
-  const newIdx = idx + dir;
-  if(idx === -1 || newIdx < 0 || newIdx >= keys.length) return;
-  const swapped = [...keys];
-  const tmp = swapped[idx];
-  swapped[idx] = swapped[newIdx];
-  swapped[newIdx] = tmp;
-  const rebuilt = {};
-  swapped.forEach(k => { rebuilt[k] = tree[k]; });
-  if(isInc){
-    state.categoryTree.income = rebuilt;
-    state.incomeCategories = swapped;
-  } else {
-    state.categoryTree.expense = rebuilt;
-    state.categories = swapped;
-  }
-  persist();
-}
 
-function moveSubCategoryOrder(mainName, subName, dir){
-  syncCategoryTrees();
-  const isInc = (settingsCatMode === 'income');
-  const tree = isInc ? state.categoryTree.income : state.categoryTree.expense;
-  const subs = [...(tree[mainName] || [])];
-  const idx = subs.indexOf(subName);
-  const newIdx = idx + dir;
-  if(idx === -1 || newIdx < 0 || newIdx >= subs.length) return;
-  const tmp = subs[idx];
-  subs[idx] = subs[newIdx];
-  subs[newIdx] = tmp;
-  tree[mainName] = subs;
-  persist();
-}
 
 function renderSettingsCategories(){
   const container = document.getElementById('settingsCatsTreeContainer');
