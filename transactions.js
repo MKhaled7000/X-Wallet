@@ -853,6 +853,7 @@ function renderTransactionsScreen(){
 
   const emptyMsg = isEn ? 'No transactions in this period.<br>Tap <b>＋</b> to add one.' : `لا توجد معاملات مطابقة في ${formatYMArabic(m)}.`;
   feed.innerHTML = buildDailyGroupedFeedHtml(combined, emptyMsg);
+  alignTransactionAmountColumns(feed);
 }
 
 /* 2.2 Copy & Delete Actions Directly Inside Quick Edit Modal */
@@ -1135,3 +1136,22 @@ function refreshSecondaryFeeds(){
 }
 
 
+
+
+// Share one measured amount column across visible daily rows, including explicit separators.
+function alignTransactionAmountColumns(feed){
+  if(!feed)return;
+  const amounts=[...feed.querySelectorAll('.tx-amt-col')];
+  if(!amounts.length||!feed.getBoundingClientRect().width)return;
+  let width=98;
+  for(const el of amounts){
+    const range=document.createRange();range.selectNodeContents(el);
+    const cs=getComputedStyle(el);
+    width=Math.max(width,Math.ceil(range.getBoundingClientRect().width)+Math.max(8,parseFloat(cs.paddingLeft)||0)+Math.max(1,parseFloat(cs.borderLeftWidth)||0));
+  }
+  const value=width+'px';if(feed.style.getPropertyValue('--tx-amount-width')!==value)feed.style.setProperty('--tx-amount-width',value);
+  if(!feed._amountColumnObserver&&typeof ResizeObserver!=='undefined'){
+    feed._amountColumnObserver=new ResizeObserver(()=>alignTransactionAmountColumns(feed));
+    feed._amountColumnObserver.observe(feed);
+  }
+}

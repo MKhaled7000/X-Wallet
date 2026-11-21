@@ -137,6 +137,8 @@ function selectTempTheme(thName){
   document.documentElement.style.setProperty('--hero1', th.h1);
   document.documentElement.style.setProperty('--hero2', th.h2);
   document.documentElement.style.setProperty('--hero3', th.h3);
+  const control=document.querySelector('#setPane_appearance .theme-open-btn');
+  if(control&&document.getElementById('setPane_appearance')?.style.display!=='none')scheduleAppearancePreview(control);
 }
 function applyPreferences(){
   const p = state.prefs || {};
@@ -285,6 +287,7 @@ function saveGeneralSettings(){
   applyPreferences();
   syncCustomSelectTriggers();
   persist();
+  document.getElementById('appearanceVisualPreview')?.setAttribute('hidden','');
   toast('تم حفظ الإعدادات ✓');
 }
 function toggleDecimalsMode(){
@@ -822,3 +825,53 @@ function applyFullAppLanguage(lang){
     _xwI18nObserver.observe(document.body, { childList: true, subtree: true });
   }
 }
+
+/* Isolated, synthetic appearance samples. No wallet data or app scripts enter the frame. */
+let appearancePreviewControl = null;
+let appearancePreviewTimer = null;
+function scheduleAppearancePreview(control){
+  clearTimeout(appearancePreviewTimer);
+  appearancePreviewTimer=setTimeout(()=>showAppearancePreview(control),35);
+}
+function showAppearancePreview(control){
+  if(!control)return;
+  appearancePreviewControl=control;
+  let panel=document.getElementById('appearanceVisualPreview');
+  if(!panel){
+    panel=document.createElement('section');panel.id='appearanceVisualPreview';
+    panel.setAttribute('aria-label','معاينة المظهر');
+    panel.innerHTML='<div class="appearance-preview-caption"><b id="appearancePreviewTitle"></b><button type="button" aria-label="إغلاق المعاينة" onclick="this.closest(\'section\').hidden=true">×</button></div><p>مثال توضيحي ببيانات تجريبية، وليس صورة من بياناتك.</p><iframe title="معاينة الجزء المتأثر" sandbox="allow-same-origin" tabindex="0"></iframe>';
+  }
+  panel.hidden=false;
+  const immediate=['prefBgGradient','prefBgPattern','prefGroupFrames','prefPrivacySwitch','prefDecimalsSwitch'].includes(control.id);
+  panel.querySelector('p').textContent='بيانات تجريبية. '+(immediate?'هذا الاختيار يُحفظ فورًا.':'اضغط حفظ المظهر لتثبيت الاختيار.');
+  syncCustomSelectTriggers();
+  control.closest('.c-row').after(panel);
+  const label=control.closest('.c-row').querySelector('label')?.textContent||'المظهر';
+  const value=control.tagName==='SELECT'?control.selectedOptions[0]?.textContent:(control.type==='checkbox'?(control.checked?'مفعّل':'غير مفعّل'):'');
+  panel.querySelector('b').textContent=label+(value?' · '+value:'');
+  const id=control.id;
+  const kind=id==='prefHeaderStyle'?'header':id==='prefItemStyle'?'items':id==='prefFieldStyle'?'fields':(/^pref(Bg|Font)/.test(id)||control.classList.contains('theme-open-btn'))?'overall':'ledger';
+  const rows=[['مواصلات','تنقلات','35.00'],['مشتريات','بند تجريبي','5.00']].map(([cat,sub,amount])=>'<div class="tx-wrap"><div class="tx-row"><div class="tx-cat-col"><b>'+cat+'</b><small>'+sub+'</small></div><div class="tx-acc-col"><small>حساب تجريبي</small></div><div class="tx-amt-col red">−'+amount+' EGP</div></div></div>').join('');
+  const ledger='<section id="trans" class="page active"><div class="day-group"><div class="day-head">يوم تجريبي · السجل</div>'+rows+'</div></section>';
+  const header='<section id="trans" class="page active"><div class="sub-tabs"><button class="sub-tab-btn active">السجل</button><button class="sub-tab-btn">الملخص</button></div></section>';
+  const items='<section id="wallet" class="page active"><div class="wallet-section-card"><div class="fold-header">الحسابات</div><div id="accountsList"><div class="listitem"><b>حساب تجريبي</b><span>1,250.00 EGP</span></div><div class="listitem"><b>نقدية</b><span>300.00 EGP</span></div></div></div></section>';
+  const fields='<div id="appearanceSampleModal" class="modal show"><div class="sheet"><div class="c-list"><div class="c-row"><label>المبلغ</label><input value="125.00" readonly></div><div class="c-row"><label>ملاحظة</label><input value="مثال تجريبي" readonly></div></div></div></div>';
+  let content=kind==='header'?header:kind==='items'?items:kind==='fields'?fields:kind==='overall'?header+ledger:ledger;
+  if(state.prefs?.privacy)content=content.replace(/(?:−)?[0-9][0-9,.]*\sEGP/g,'•••• EGP');
+  else if(state.prefs?.homeDecimals===false)content=content.replace(/(\d)\.00/g,'$1');
+  const frame=panel.querySelector('iframe');
+  frame.style.height=(kind==='header'?110:kind==='fields'?180:kind==='overall'?270:230)+'px';
+  frame.onload=()=>{
+    const doc=frame.contentDocument;if(!doc)return;
+    for(const attr of document.documentElement.attributes){if(attr.name.startsWith('data-'))doc.documentElement.setAttribute(attr.name,attr.value);}
+    doc.documentElement.style.cssText=document.documentElement.style.cssText;
+    const font=document.getElementById('prefFontSize');if(font)doc.documentElement.style.setProperty('--scale',font.value);
+    if(typeof alignTransactionAmountColumns==='function')alignTransactionAmountColumns(doc.getElementById('trans'));
+  };
+  frame.srcdoc='<!doctype html><html lang="ar" dir="rtl"><head><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="'+new URL('styles.css',location.href).href+'"><style>html,body{margin:0;min-height:100%;}body{padding:12px!important;}body::before{position:absolute!important}body>*{position:relative;z-index:1}.page{display:block!important;padding:0!important;margin:0!important}.sub-tabs{margin:0 0 12px!important}#appearanceSampleModal{position:relative!important;inset:auto!important;display:block!important;background:none!important;padding:0!important}#appearanceSampleModal>.sheet{width:100%!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}.tx-cat-col{width:82px;min-width:70px}.tx-amt-col{width:100px;min-width:100px}.listitem{display:flex;justify-content:space-between;gap:8px;padding:14px 10px}.fold-header{padding:10px}.c-row input{max-width:55%}.tx-acc-col{min-width:0}*{pointer-events:none!important}</style></head><body>'+content+'</body></html>';
+  panel.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+document.getElementById('setPane_appearance')?.addEventListener('change',e=>{
+  if(e.target.matches('select,input[type="checkbox"]'))scheduleAppearancePreview(e.target);
+});

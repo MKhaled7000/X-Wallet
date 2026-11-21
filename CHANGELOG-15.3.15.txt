@@ -1,0 +1,9 @@
+X-Wallet 15.3.15
+
+- Simplify More into one continuous list with General first, short labels, no tools subtitle or App information entry.
+- Left-align Financial tools and match naturally scrolling destination headers.
+- Correct routine startup recovery notice while retaining genuine recovery warnings.
+- Align transaction amount columns across digit lengths and record designs.
+- Keep ledger surface shade consistent across designs.
+- Add isolated synthetic visual examples for Appearance options.
+- Preserve wallet data, backups and cloud encryption/password behavior.

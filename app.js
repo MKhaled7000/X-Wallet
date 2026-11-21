@@ -202,6 +202,7 @@ function openImportChoiceModal(){
 
 
 function openSettingsSubPage(paneKey, titleTxt){
+  document.getElementById('appearanceVisualPreview')?.setAttribute('hidden','');
   document.querySelectorAll('#settingsSubModal .set-sub-pane').forEach(p=>p.style.display='none');
   const pane = document.getElementById('setPane_' + paneKey);
   if(pane) pane.style.display = 'block';

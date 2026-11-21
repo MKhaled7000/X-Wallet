@@ -8137,3 +8137,76 @@ html body #wallet .wallet-table-head {background:transparent!important;}
 #settings .more-menu-row {direction:ltr;text-align:left;}
 #settings .more-menu-row > span:last-child {direction:rtl;text-align:left;}
 #settings .more-menu-danger .more-menu-rows {border-color:#75404b66;}
+
+/* Financial tools follows the approved left-aligned More navigation. */
+.ft-home-list .more-menu-row {direction:ltr;text-align:left;}
+.ft-home-list .more-menu-row > span:last-child {direction:rtl;text-align:left;}
+
+/* More destinations share both header rows and a single natural page scroll. */
+html body .more-subpage > .sheet.fullpage-sheet {
+  display:block!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+}
+html body .more-subpage > .sheet > header.top {
+  position:static!important;
+  top:auto!important;
+}
+html body .more-subpage > .sheet > :is(.set-sub-scroll,.salary-scroll-body,#financialToolsBody,#settingsCatsTreeContainer),
+html body .more-subpage > .sheet > div[style*="overflow-y:auto"] {
+  overflow:visible!important;
+  flex:none!important;
+  height:auto!important;
+  max-height:none!important;
+}
+html body :is(#settingsSubModal,#financialToolsModal,#salaryModal,#annualReportModal,#catsManagerModal,#aboutAppModal).more-subpage .dev-profile-card.more-page-identity {
+  margin:0 0 14px!important;
+  padding:8px 11px!important;
+  border:1px solid var(--line)!important;
+  border-radius:14px!important;
+  background:var(--panel2)!important;
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+  position:static!important;
+}
+html body :is(#settingsSubModal,#financialToolsModal,#salaryModal,#annualReportModal,#catsManagerModal,#aboutAppModal).more-subpage .dev-profile-card.more-page-identity .dev-card-logo {
+  width:38px!important;height:38px!important;border-radius:12px!important;
+}
+html body :is(#settingsSubModal,#financialToolsModal,#salaryModal,#annualReportModal,#catsManagerModal,#aboutAppModal).more-subpage .dev-profile-card.more-page-identity .dev-card-info b {font-size:.84rem!important;}
+html body :is(#settingsSubModal,#financialToolsModal,#salaryModal,#annualReportModal,#catsManagerModal,#aboutAppModal).more-subpage .dev-profile-card.more-page-identity .dev-card-info span {font-size:.7rem!important;}
+html body :is(#settingsSubModal,#financialToolsModal,#salaryModal,#annualReportModal,#catsManagerModal,#aboutAppModal).more-subpage .dev-profile-card.more-page-identity .tag {font-size:.74rem!important;}
+html body :is(#settingsSubModal,#financialToolsModal,#salaryModal,#annualReportModal,#catsManagerModal,#aboutAppModal).more-subpage .dev-profile-card.more-page-identity {
+  height:56px!important;min-height:56px!important;max-height:none!important;
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+}
+
+/* Amount dividers stay in one column regardless of the number of digits. */
+html body #trans .tx-amt-col {
+  width:var(--tx-amount-width,98px)!important;
+  min-width:var(--tx-amount-width,98px)!important;
+  max-width:var(--tx-amount-width,98px)!important;
+  flex:0 0 var(--tx-amount-width,98px)!important;
+  box-sizing:border-box!important;
+}
+html[data-separators-vertical="hide"] body #trans .tx-amt-col {border-left:0!important;}
+html[data-separators-vertical="show"] body #trans .tx-acc-col {border-right:0!important;}
+html[data-separators-vertical="show"] body #trans .tx-amt-col {border-left:1px solid var(--line2)!important;padding-left:8px!important;}
+
+/* Record design controls borders and spacing, not the ledger surface shade. */
+html body :is(#trans,#analytics) .day-group,
+html body :is(#trans,#analytics) .day-head {
+  background:var(--panel2)!important;
+}
+#appearanceVisualPreview {margin:4px 0 14px;padding:10px;background:var(--surface);border:1px solid var(--mint);border-radius:14px;overflow:hidden;direction:rtl;}
+#appearanceVisualPreview[hidden]{display:none!important;}
+.appearance-preview-caption{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.78rem;}
+.appearance-preview-caption button{width:28px;height:28px;padding:0;border-radius:50%;font-size:1.1rem;}
+#appearanceVisualPreview p{font-size:.68rem;color:var(--muted);margin:3px 0 9px;}
+#appearanceVisualPreview iframe{display:block;width:100%;height:240px;background:var(--bg);border:1px solid var(--line);border-radius:10px;}
+
+/* More is one continuous list, without gaps between its logical groups. */
+#settings .more-menu-stack{margin-top:14px;background:var(--panel2);border:1px solid var(--line);border-radius:15px;overflow:hidden;}
+#settings .more-menu-stack .more-menu-group{margin:0;border:0;}
+#settings .more-menu-stack .more-menu-group+.more-menu-group{border-top:1px solid var(--line);}
+#settings .more-menu-stack .more-menu-rows{background:transparent;border:0;border-radius:0;}

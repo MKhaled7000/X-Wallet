@@ -5,7 +5,7 @@
 <title>X-Wallet</title>
 <link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;600;700&family=Almarai:wght@400;700&family=Amiri:wght@400;700&family=Cairo:wght@400;700&family=Changa:wght@400;600;700&family=El+Messiri:wght@400;600;700&family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=Inter:wght@400;600;700&family=Mada:wght@400;600;700&family=Noto+Sans+Arabic:wght@400;600;700&family=Poppins:wght@400;600;700&family=Readex+Pro:wght@400;600;700&family=Roboto:wght@400;500;700&family=Rubik:wght@400;600;700&family=Tajawal:wght@400;700&family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=15.3.14">
+<link rel="stylesheet" href="styles.css?v=15.3.15">
 </head>
 <body>
 <div id="globalUpdateBar" class="global-update-bar">
@@ -324,10 +324,10 @@
         <span>مديرك المالي الذكي</span>
       </div>
     </div>
-    <span class="tag" id="devCardVerBadge" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V15.3.14</span>
+    <span class="tag" id="devCardVerBadge" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V15.3.15</span>
   </div>
 
-<section class="more-menu-group" aria-label="أدوات وتقارير"><h2>أدوات وتقارير</h2><div class="more-menu-rows"><button type="button" class="more-menu-row" onclick="openFinancialTools()"><span class="more-menu-icon" aria-hidden="true">🎯</span><span><span class="more-menu-name">أدوات مالية</span><small>الأهداف، الميزانيات، القواعد، حاسبة المرتب والتقرير السنوي</small></span></button></div></section><section class="more-menu-group" aria-label="تخصيص التطبيق"><h2>تخصيص التطبيق</h2><div class="more-menu-rows"><button type="button" class="more-menu-row" onclick="openSettingsSubPage('appearance', 'المظهر وتنسيق الجداول')"><span class="more-menu-icon" aria-hidden="true">🎨</span><span><span class="more-menu-name">المظهر وتنسيق الجداول</span></span></button><button type="button" class="more-menu-row" onclick="openCategoriesManagerModal()"><span class="more-menu-icon" aria-hidden="true">🏷</span><span><span class="more-menu-name">الأقسام والفئات</span></span></button><button type="button" class="more-menu-row" onclick="openSettingsSubPage('fab', 'الاختصارات السريعة')"><span class="more-menu-icon" aria-hidden="true">⚡</span><span><span class="more-menu-name">الاختصارات السريعة</span></span></button><button type="button" class="more-menu-row" onclick="openSettingsSubPage('general', 'إعدادات عامة')"><span class="more-menu-icon" aria-hidden="true">⚙</span><span><span class="more-menu-name">إعدادات عامة</span></span></button></div></section><section class="more-menu-group" aria-label="البيانات والحماية"><h2>البيانات والحماية</h2><div class="more-menu-rows"><button type="button" class="more-menu-row" onclick="openSettingsSubPage('backup', 'النسخ الاحتياطي والاستعادة')"><span class="more-menu-icon" aria-hidden="true">💾</span><span><span class="more-menu-name">النسخ الاحتياطي والاستعادة</span></span></button><button type="button" class="more-menu-row" onclick="openSettingsSubPage('security', 'الخصوصية والأمان')"><span class="more-menu-icon" aria-hidden="true">🔒</span><span><span class="more-menu-name">الخصوصية والأمان</span></span></button></div></section><section class="more-menu-group" aria-label="عن التطبيق"><h2>عن التطبيق</h2><div class="more-menu-rows"><button type="button" class="more-menu-row" onclick="openSettingsSubPage('updates', 'التحديثات')"><span class="more-menu-icon" aria-hidden="true">⟳</span><span><span class="more-menu-name">التحديثات</span></span></button><button type="button" class="more-menu-row" onclick="openAboutAppModal()"><span class="more-menu-icon" aria-hidden="true">ⓘ</span><span><span class="more-menu-name">معلومات التطبيق</span></span></button></div></section><section class="more-menu-group more-menu-danger" aria-label="إجراء حساس"><h2>إجراء حساس</h2><div class="more-menu-rows"><button type="button" class="more-menu-row" onclick="openSettingsSubPage('wipe', 'مسح البيانات')"><span class="more-menu-icon" aria-hidden="true">⚠</span><span><span class="more-menu-name">مسح البيانات</span></span></button></div></section>
+<div class="more-menu-stack"><section class="more-menu-group" aria-label="أدوات وتقارير"><div class="more-menu-rows"><button type="button" class="more-menu-row" onclick="openSettingsSubPage('general', 'إعدادات عامة')"><span class="more-menu-icon" aria-hidden="true">⚙</span><span><span class="more-menu-name">إعدادات عامة</span></span></button><button type="button" class="more-menu-row" onclick="openFinancialTools()"><span class="more-menu-icon" aria-hidden="true">🎯</span><span><span class="more-menu-name">أدوات مالية</span></span></button></div></section><section class="more-menu-group" aria-label="تخصيص التطبيق"><div class="more-menu-rows"><button type="button" class="more-menu-row" onclick="openSettingsSubPage('appearance', 'المظهر')"><span class="more-menu-icon" aria-hidden="true">🎨</span><span><span class="more-menu-name">المظهر</span></span></button><button type="button" class="more-menu-row" onclick="openCategoriesManagerModal()"><span class="more-menu-icon" aria-hidden="true">🏷</span><span><span class="more-menu-name">الأقسام</span></span></button><button type="button" class="more-menu-row" onclick="openSettingsSubPage('fab', 'الاختصارات')"><span class="more-menu-icon" aria-hidden="true">⚡</span><span><span class="more-menu-name">الاختصارات</span></span></button></div></section><section class="more-menu-group" aria-label="البيانات والحماية"><div class="more-menu-rows"><button type="button" class="more-menu-row" onclick="openSettingsSubPage('backup', 'النسخ الاحتياطي')"><span class="more-menu-icon" aria-hidden="true">💾</span><span><span class="more-menu-name">النسخ الاحتياطي</span></span></button><button type="button" class="more-menu-row" onclick="openSettingsSubPage('security', 'الخصوصية والأمان')"><span class="more-menu-icon" aria-hidden="true">🔒</span><span><span class="more-menu-name">الخصوصية والأمان</span></span></button></div></section><section class="more-menu-group" aria-label="عن التطبيق"><div class="more-menu-rows"><button type="button" class="more-menu-row" onclick="openSettingsSubPage('updates', 'التحديثات')"><span class="more-menu-icon" aria-hidden="true">⟳</span><span><span class="more-menu-name">التحديثات</span></span></button></div></section><section class="more-menu-group more-menu-danger" aria-label="إجراء حساس"><div class="more-menu-rows"><button type="button" class="more-menu-row" onclick="openSettingsSubPage('wipe', 'مسح البيانات')"><span class="more-menu-icon" aria-hidden="true">⚠</span><span><span class="more-menu-name">مسح البيانات</span></span></button></div></section></div>
 </section>
 
 </div>
@@ -641,7 +641,7 @@
 <!-- =========================================================
      #5.2 شاشة تخصيص الأقسام الكبيرة بنفس الهيدر والشريط السفلي
      ========================================================= -->
-<div class="modal fullpage-modal with-bottom-nav" id="catsManagerModal" onclick="if(event.target===this)closeCategoriesManagerModal()">
+<div class="modal more-subpage fullpage-modal with-bottom-nav" id="catsManagerModal" onclick="if(event.target===this)closeCategoriesManagerModal()">
   <div class="sheet fullpage-sheet" style="overflow-y:auto;padding-bottom:84px!important">
     <header class="top unified-top-bar" style="flex-shrink:0">
       <div class="utb-left">
@@ -652,6 +652,7 @@
         <button type="button" class="utb-ico-btn" onclick="closeCategoriesManagerModal()" title="رجوع">←</button>
       </div>
     </header>
+<div class="dev-profile-card compact-dev-card more-page-identity" onclick="openAboutAppModal()" style="cursor:pointer"><div class="dev-card-left"><div class="dev-card-logo"><img src="icon-192.png" alt="X-Wallet"></div><div class="dev-card-info"><b>X-Wallet</b><span>مديرك المالي الذكي</span></div></div><span class="tag" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V15.3.15</span></div>
 
     <div class="sub-tabs" style="grid-template-columns:1fr 1fr;flex-shrink:0">
       <button type="button" class="sub-tab-btn active" id="setCatTabInc" onclick="setSettingsCatTab('income')">الدخل</button>
@@ -680,7 +681,7 @@
 </div>
 
 <!-- Independent Full-Page Settings Sub-Pages Modal -->
-<div class="modal fullpage-modal" id="settingsSubModal" onclick="if(event.target===this)closeSettingsSubPage()">
+<div class="modal more-subpage fullpage-modal" id="settingsSubModal" onclick="if(event.target===this)closeSettingsSubPage()">
   <div class="sheet fullpage-sheet">
     <header class="top unified-top-bar" style="flex-shrink:0">
       <div class="utb-left">
@@ -691,7 +692,7 @@
         <button type="button" class="utb-ico-btn" onclick="closeSettingsSubPage()" title="رجوع">←</button>
       </div>
     </header>
-    <div class="dev-profile-card compact-dev-card pinned-sub-dev-card" onclick="openAboutAppModal()" style="cursor:pointer;flex-shrink:0">
+    <div class="dev-profile-card compact-dev-card pinned-sub-dev-card more-page-identity" onclick="openAboutAppModal()" style="cursor:pointer;flex-shrink:0">
       <div class="dev-card-left">
         <div class="dev-card-logo"><img src="icon-192.png" alt="X-Wallet"></div>
         <div class="dev-card-info">
@@ -699,7 +700,7 @@
           <span>مديرك المالي الذكي</span>
         </div>
       </div>
-      <span class="tag" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V15.3.14</span>
+      <span class="tag" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V15.3.15</span>
     </div>
     <div class="set-sub-scroll">
       <div class="set-sub-pane" id="setPane_general" style="display:none"><div class="c-list aligned-settings-list">
@@ -932,7 +933,7 @@
       <div class="set-sub-pane" id="setPane_updates" style="display:none"><div class="c-list aligned-settings-list">
         <div class="c-row">
           <span class="c-lbl">الإصدار الحالي</span>
-          <span class="upd-equal-box" id="appVersionTag">V15.3.14</span>
+          <span class="upd-equal-box" id="appVersionTag">V15.3.15</span>
         </div>
         <div class="c-row">
           <span class="c-lbl">فحص التحديثات</span>
@@ -951,16 +952,8 @@
 </div>
 
 <!-- 2.4 About App Modal -->
-<div class="modal center-modal" id="aboutAppModal" onclick="if(event.target===this)this.classList.remove('show')">
-  <div class="sheet" style="max-width:360px;text-align:center">
-    <h3 style="justify-content:space-between;margin-bottom:10px">
-      <span>حول التطبيق</span>
-      <span style="cursor:pointer;color:var(--muted)" onclick="document.getElementById('aboutAppModal').classList.remove('show')">✕</span>
-    </h3>
-    <img src="icon-192.png" alt="X-Wallet" style="width:68px;height:68px;border-radius:18px;margin:0 auto 8px">
-    <b style="font-size:1.1rem;color:var(--text);display:block">X-Wallet</b>
-    <span style="font-size:.78rem;color:var(--mint);display:block;margin-bottom:8px">مديرك المالي الذكي — الإصدار V15.3.14</span>
-    <div style="background:var(--surface);border:1px solid var(--line2);border-radius:12px;padding:10px;font-size:.74rem;line-height:1.7;color:var(--text-sub);text-align:right">
+<div class="modal fullpage-modal more-subpage" id="aboutAppModal" onclick="if(event.target===this)this.classList.remove('show')">
+  <div class="sheet fullpage-sheet"><header class="top unified-top-bar"><div class="utb-left"><div class="logo"><img src="icon-192.png" alt="X-Wallet"></div><button type="button" class="utb-tab-btn" onclick="document.getElementById('aboutAppModal').classList.remove('show')">معلومات التطبيق</button></div><div class="utb-right"><button type="button" class="utb-ico-btn" title="رجوع" onclick="document.getElementById('aboutAppModal').classList.remove('show')">←</button></div></header><div class="dev-profile-card compact-dev-card more-page-identity"  style="cursor:pointer"><div class="dev-card-left"><div class="dev-card-logo"><img src="icon-192.png" alt="X-Wallet"></div><div class="dev-card-info"><b>X-Wallet</b><span>مديرك المالي الذكي</span></div></div><span class="tag" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V15.3.15</span></div><div style="background:var(--surface);border:1px solid var(--line2);border-radius:12px;padding:10px;font-size:.74rem;line-height:1.7;color:var(--text-sub);text-align:right">
       <div>• التخزين: محلي على جهازك مع قفل التطبيق برمز PIN أو البصمة</div>
       <div>• المزامنة: دعم النسخ الاحتياطي المحلي والسحابي (جيت هاب وجوجل درايف)</div>
       <div>• يعمل بدون إنترنت بالكامل كتطبيق ويب متكامل</div>
@@ -972,7 +965,7 @@
 </div>
 
 <!-- Full-Page Salary Calculator Modal (Reversed Tabs: مدخلات الشهر | إعدادات مرتب السنة) -->
-<div class="modal fullpage-modal" id="salaryModal" onclick="if(event.target===this)closeSalaryModal()">
+<div class="modal more-subpage fullpage-modal" id="salaryModal" onclick="if(event.target===this)closeSalaryModal()">
   <div class="sheet fullpage-sheet">
     <header class="top unified-top-bar" style="flex-shrink:0">
       <div class="utb-left">
@@ -983,6 +976,7 @@
         <button type="button" class="utb-ico-btn" onclick="closeSalaryModal()" title="رجوع">←</button>
       </div>
     </header>
+<div class="dev-profile-card compact-dev-card more-page-identity" onclick="openAboutAppModal()" style="cursor:pointer"><div class="dev-card-left"><div class="dev-card-logo"><img src="icon-192.png" alt="X-Wallet"></div><div class="dev-card-info"><b>X-Wallet</b><span>مديرك المالي الذكي</span></div></div><span class="tag" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V15.3.15</span></div>
     <div class="sub-tabs salary-detached-tabs" style="flex-shrink:0">
       <button type="button" class="sub-tab-btn active" id="salSubTabMonth" onclick="switchSalarySubView('month')">مدخلات الشهر</button>
       <button type="button" class="sub-tab-btn" id="salSubTabYear" onclick="switchSalarySubView('year')">إعدادات مرتب السنة</button>
@@ -1031,7 +1025,7 @@
 </div>
 
 <!-- Full-Page Annual Report Modal -->
-<div class="modal fullpage-modal" id="annualReportModal" onclick="if(event.target===this)closeAnnualReportModal()">
+<div class="modal more-subpage fullpage-modal" id="annualReportModal" onclick="if(event.target===this)closeAnnualReportModal()">
   <div class="sheet fullpage-sheet">
     <header class="top unified-top-bar" style="flex-shrink:0">
       <div class="utb-left">
@@ -1042,6 +1036,7 @@
         <button type="button" class="utb-ico-btn" onclick="closeAnnualReportModal()" title="رجوع">←</button>
       </div>
     </header>
+<div class="dev-profile-card compact-dev-card more-page-identity" onclick="openAboutAppModal()" style="cursor:pointer"><div class="dev-card-left"><div class="dev-card-logo"><img src="icon-192.png" alt="X-Wallet"></div><div class="dev-card-info"><b>X-Wallet</b><span>مديرك المالي الذكي</span></div></div><span class="tag" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V15.3.15</span></div>
     <div style="flex:1;overflow-y:auto;padding:10px 12px 24px">
       <div id="planViewYr">
         <details class="fold" id="addManualAnnualFold">
@@ -1212,7 +1207,7 @@
 <div class="toast" id="toast"></div>
 
 <!-- SQL.js is required by migration.js to read Money Manager .mmbak SQLite backups. -->
-<div class="modal fullpage-modal" id="financialToolsModal" role="dialog" aria-modal="true" aria-labelledby="financialToolsTitle" onclick="if(event.target===this)closeFinancialTools()">
+<div class="modal more-subpage fullpage-modal" id="financialToolsModal" role="dialog" aria-modal="true" aria-labelledby="financialToolsTitle" onclick="if(event.target===this)closeFinancialTools()">
   <div class="sheet fullpage-sheet" dir="rtl">
     <header class="top unified-top-bar" style="flex-shrink:0">
       <div class="utb-left">
@@ -1223,6 +1218,7 @@
         <button type="button" class="utb-ico-btn" onclick="backFinancialTools()" title="رجوع">←</button>
       </div>
     </header>
+<div class="dev-profile-card compact-dev-card more-page-identity" onclick="openAboutAppModal()" style="cursor:pointer"><div class="dev-card-left"><div class="dev-card-logo"><img src="icon-192.png" alt="X-Wallet"></div><div class="dev-card-info"><b>X-Wallet</b><span>مديرك المالي الذكي</span></div></div><span class="tag" style="border-color:var(--mint);color:var(--mint);padding:4px 10px;font-size:.74rem">V15.3.15</span></div>
     <div class="ft-tabs" role="tablist" aria-label="أدوات مالية">
       <button type="button" role="tab" data-ft-tab="goals" onclick="openFinancialTools('goals')">الأهداف</button>
       <button type="button" role="tab" data-ft-tab="budgets" onclick="openFinancialTools('budgets')">الميزانيات</button>
@@ -1233,30 +1229,30 @@
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
 <script async defer src="https://accounts.google.com/gsi/client"></script>
-<script src="core.js?v=15.3.14"></script>
-<script src="security.js?v=15.3.14"></script>
-<script src="storage.js?v=15.3.14"></script>
-<script src="backup.js?v=15.3.14"></script>
-<script src="financial-engine.js?v=15.3.14"></script>
-<script src="components.js?v=15.3.14"></script>
-<script src="settings.js?v=15.3.14"></script>
-<script src="dashboard.js?v=15.3.14"></script>
-<script src="transactions.js?v=15.3.14"></script>
-<script src="migration.js?v=15.3.14"></script>
-<script src="accounts.js?v=15.3.14"></script>
-<script src="installments.js?v=15.3.14"></script>
-<script src="cards.js?v=15.3.14"></script>
-<script src="reports.js?v=15.3.14"></script>
-<script src="payroll.js?v=15.3.14"></script>
-<script src="analytics.js?v=15.3.14"></script>
-<script src="quick-entry.js?v=15.3.14"></script>
-<script src="sync.js?v=15.3.14"></script>
-<script src="management.js?v=15.3.14"></script>
-<script src="cloud-backup.js?v=15.3.14"></script>
+<script src="core.js?v=15.3.15"></script>
+<script src="security.js?v=15.3.15"></script>
+<script src="storage.js?v=15.3.15"></script>
+<script src="backup.js?v=15.3.15"></script>
+<script src="financial-engine.js?v=15.3.15"></script>
+<script src="components.js?v=15.3.15"></script>
+<script src="settings.js?v=15.3.15"></script>
+<script src="dashboard.js?v=15.3.15"></script>
+<script src="transactions.js?v=15.3.15"></script>
+<script src="migration.js?v=15.3.15"></script>
+<script src="accounts.js?v=15.3.15"></script>
+<script src="installments.js?v=15.3.15"></script>
+<script src="cards.js?v=15.3.15"></script>
+<script src="reports.js?v=15.3.15"></script>
+<script src="payroll.js?v=15.3.15"></script>
+<script src="analytics.js?v=15.3.15"></script>
+<script src="quick-entry.js?v=15.3.15"></script>
+<script src="sync.js?v=15.3.15"></script>
+<script src="management.js?v=15.3.15"></script>
+<script src="cloud-backup.js?v=15.3.15"></script>
 <script async defer src="https://apis.google.com/js/api.js"></script>
-<script src="google-drive.js?v=15.3.14"></script>
-<script src="financial-tools.js?v=15.3.14"></script>
-<script src="single-currency.js?v=15.3.14"></script>
-<script src="app.js?v=15.3.14"></script>
+<script src="google-drive.js?v=15.3.15"></script>
+<script src="financial-tools.js?v=15.3.15"></script>
+<script src="single-currency.js?v=15.3.15"></script>
+<script src="app.js?v=15.3.15"></script>
 </body>
 </html>

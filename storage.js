@@ -305,7 +305,8 @@ async function recoverFromIndexedDBIfNeeded(){
   let stored=await readIDBValue(WALLET_STORE,KEY);
   let recovered=false;
   if(stored&&await readIDBValue(WALLET_STORE,'primary_verified')){
-    state=normalizePersistedState(cleanWalletCopy(stored));recovered=true;
+    // Reading the verified primary database is ordinary startup, not recovery.
+    state=normalizePersistedState(cleanWalletCopy(stored));
     const snaps=await readIDBValue(WALLET_STORE,SNAP_KEY);if(Array.isArray(snaps))_autoSnapshotsMemory=snaps;
   }else{
     const localOriginal=parseStoredValue(_initialLocalStateRaw);
